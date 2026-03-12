@@ -1,0 +1,77 @@
+import type { ModDependency } from "@shared/types/mod";
+import {
+  DEPENDENCY_BADGE_CLASS,
+  DEPENDENCY_KIND_LABELS,
+  describeDependency,
+} from "../utils";
+
+interface DependencyListProps {
+  title: string;
+  description?: string;
+  emptyLabel: string;
+  items: ModDependency[];
+}
+
+export function DependencyList({
+  title,
+  description,
+  emptyLabel,
+  items,
+}: DependencyListProps) {
+  return (
+    <section className="space-y-3 rounded-2xl bg-base-200 p-4">
+      <div className="space-y-1">
+        <div className="flex items-center justify-between gap-3">
+          <h4 className="text-sm font-bold uppercase tracking-wide text-base-content/75">
+            {title}
+          </h4>
+          <span className="badge badge-outline">{items.length}</span>
+        </div>
+        {description ? (
+          <p className="text-sm text-base-content/60">{description}</p>
+        ) : null}
+      </div>
+
+      {items.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-base-content/15 px-3 py-4 text-sm text-base-content/55">
+          {emptyLabel}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {items.map((dependency) => (
+            <div
+              key={`${dependency.kind}-${dependency.raw}`}
+              className="rounded-xl bg-base-100 px-3 py-3"
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-semibold">
+                  {describeDependency(dependency)}
+                </span>
+                <span
+                  className={`badge badge-soft ${DEPENDENCY_BADGE_CLASS[dependency.kind]}`}
+                >
+                  {DEPENDENCY_KIND_LABELS[dependency.kind]}
+                </span>
+                {dependency.downloadable ? (
+                  <span className="badge badge-success badge-outline">
+                    Downloadable
+                  </span>
+                ) : (
+                  <span className="badge badge-warning badge-outline">
+                    Not auto-downloaded
+                  </span>
+                )}
+              </div>
+
+              {dependency.reasonSkipped ? (
+                <p className="mt-2 text-sm text-base-content/60">
+                  {dependency.reasonSkipped}
+                </p>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
