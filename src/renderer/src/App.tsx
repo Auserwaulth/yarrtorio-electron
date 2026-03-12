@@ -176,9 +176,6 @@ export function App() {
               if (!store.appMeta?.logPath) return;
               void window.electronApi.external.openPath(store.appMeta.logPath);
             }}
-            onSnackbarPositionChange={() => {
-              pushToast("success", "Snackbar position updated.");
-            }}
           />
         )}
       </BentoShell>

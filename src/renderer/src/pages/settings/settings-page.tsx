@@ -11,7 +11,6 @@ interface SettingsPageProps {
   onPickFolder(): void;
   onPickModListFile(): void;
   onOpenLogFolder(): void;
-  onSnackbarPositionChange(): void;
 }
 
 const checkboxList = [
@@ -39,7 +38,6 @@ export function SettingsPage({
   onPickFolder,
   onPickModListFile,
   onOpenLogFolder,
-  onSnackbarPositionChange,
   appMeta,
 }: SettingsPageProps) {
   return (
