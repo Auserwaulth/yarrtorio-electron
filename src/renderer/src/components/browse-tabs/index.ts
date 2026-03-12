@@ -1,1 +1,1 @@
-export * from './browse-tabs'
+export * from "./browse-tabs";

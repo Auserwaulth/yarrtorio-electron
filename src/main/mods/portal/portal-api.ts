@@ -48,7 +48,9 @@ export async function fetchPortalExtras(
   } catch (error) {
     clearTimeout(timeout);
     if (error instanceof Error && error.name === "AbortError") {
-      throw new Error("Factorio Mod Portal request timed out. Please try again.");
+      throw new Error(
+        "Factorio Mod Portal request timed out. Please try again.",
+      );
     }
     throw new Error("Factorio Mod Portal could not be reached.");
   }
@@ -56,7 +58,9 @@ export async function fetchPortalExtras(
   clearTimeout(timeout);
 
   if (!response.ok) {
-    throw new Error(`Factorio Mod Portal request failed with ${response.status}.`);
+    throw new Error(
+      `Factorio Mod Portal request failed with ${response.status}.`,
+    );
   }
 
   const html = await response.text();

@@ -5,11 +5,7 @@ import { DependenciesTab } from "./tabs/dependencies-tab";
 import { OverviewTab } from "./tabs/overview-tab";
 import { ReleasesTab } from "./tabs/releases-tab";
 import type { ModalTab, ModDetailsModalProps } from "./types";
-import {
-  TAB_LABELS,
-  getInstallableDependencies,
-  getPortalUrl,
-} from "./utils";
+import { TAB_LABELS, getInstallableDependencies, getPortalUrl } from "./utils";
 
 import { DownloadWarning } from "./components/download-warning";
 
@@ -114,7 +110,7 @@ export function ModDetailsModal({
     <dialog className="modal modal-open px-3 py-6 sm:px-6 sm:py-10">
       <div className="modal-box max-h-[92vh] max-w-5xl overflow-x-hidden p-0">
         {activeImage ? (
-          <figure className="max-h-100 overflow-hidden bg-base-200">
+          <figure className="bg-base-200 max-h-100 overflow-hidden">
             <img
               src={activeImage}
               alt={mod.title}
@@ -126,8 +122,8 @@ export function ModDetailsModal({
         <div className="space-y-6 px-6 py-7 sm:px-8 sm:py-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0 space-y-1.5">
-              <h3 className="text-2xl font-black leading-tight">{mod.title}</h3>
-              <p className="text-sm text-base-content/70">
+              <h3 className="text-2xl leading-tight font-black">{mod.title}</h3>
+              <p className="text-base-content/70 text-sm">
                 {mod.name} · by {mod.owner}
               </p>
             </div>
@@ -224,9 +220,9 @@ export function ModDetailsModal({
           ) : null}
 
           {galleryImages.length > 1 ? (
-            <div className="space-y-3 rounded-2xl bg-base-200 p-4">
+            <div className="bg-base-200 space-y-3 rounded-2xl p-4">
               <div className="flex items-center justify-end gap-3">
-                <p className="text-xs text-base-content/60">
+                <p className="text-base-content/60 text-xs">
                   {activeImageIndex + 1} / {galleryImages.length}
                 </p>
               </div>

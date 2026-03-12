@@ -60,7 +60,7 @@ export function ReleaseCard({
             </span>
           </div>
 
-          <p className="break-all text-sm text-base-content/60">
+          <p className="text-base-content/60 text-sm break-all">
             {release.fileName}
           </p>
         </div>

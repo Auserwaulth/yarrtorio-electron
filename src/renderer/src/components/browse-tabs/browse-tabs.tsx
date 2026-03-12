@@ -15,7 +15,7 @@ const labels: Record<ModPortalTab, string> = {
 
 export function BrowseTabs({ value, onChange }: BrowseTabsProps) {
   return (
-    <div className="tabs tabs-box flex-wrap gap-2 bg-base-200/70 p-2">
+    <div className="tabs tabs-box bg-base-200/70 flex-wrap gap-2 p-2">
       {modPortalTabs.map((tab) => (
         <button
           key={tab}

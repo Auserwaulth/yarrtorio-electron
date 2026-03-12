@@ -40,19 +40,19 @@ export function DashboardPage({
     <div className="grid gap-4 xl:grid-cols-3">
       <BentoTile title="Library overview" className="xl:col-span-3">
         <div className="grid gap-3 md:grid-cols-2">
-          <div className="rounded-2xl bg-base-200 p-4">
-            <p className="text-sm text-base-content/60">Installed archives</p>
+          <div className="bg-base-200 rounded-2xl p-4">
+            <p className="text-base-content/60 text-sm">Installed archives</p>
             <p className="mt-1 text-3xl font-black">{installed.length}</p>
           </div>
-          <div className="rounded-2xl bg-base-200 p-4">
-            <p className="text-sm text-base-content/60">In progress now</p>
+          <div className="bg-base-200 rounded-2xl p-4">
+            <p className="text-base-content/60 text-sm">In progress now</p>
             <p className="mt-1 text-3xl font-black">{activeDownloads.length}</p>
           </div>
         </div>
       </BentoTile>
 
       <BentoTile title="Quick actions" className="xl:col-span-1">
-        <div className="grid gap-3 ">
+        <div className="grid gap-3">
           <button className="btn btn-primary" onClick={onOpenBrowse}>
             Browse mods
           </button>

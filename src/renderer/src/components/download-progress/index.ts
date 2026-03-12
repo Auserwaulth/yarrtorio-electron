@@ -1,1 +1,1 @@
-export * from "./download-progress"
+export * from "./download-progress";

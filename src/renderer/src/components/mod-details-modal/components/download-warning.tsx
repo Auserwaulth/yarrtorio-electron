@@ -1,5 +1,9 @@
 import { ModReleaseSummary } from "@shared/types/mod";
-import { getInstallableDependencies, getSkippedDependencies, describeDependency } from "../utils";
+import {
+  getInstallableDependencies,
+  getSkippedDependencies,
+  describeDependency,
+} from "../utils";
 
 export function DownloadWarning({
   pendingDownload,
@@ -16,9 +20,9 @@ export function DownloadWarning({
   const skippedDependencies = getSkippedDependencies(pendingDownload);
 
   return (
-    <div className="rounded-2xl border border-warning/30 bg-warning/10 p-4 text-sm">
+    <div className="border-warning/30 bg-warning/10 rounded-2xl border p-4 text-sm">
       <div className="space-y-2">
-        <h4 className="font-bold text-warning-content">
+        <h4 className="text-warning-content font-bold">
           {pendingDownload.version} has required dependencies
         </h4>
         <p className="text-base-content/80">

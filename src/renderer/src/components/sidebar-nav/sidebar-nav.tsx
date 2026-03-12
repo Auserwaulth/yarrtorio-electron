@@ -10,17 +10,17 @@ const items = [
 
 export function SidebarNav({ active, onSelect }: SidebarNavProps) {
   return (
-    <div className="space-y-4 h-full">
-      <div className="card sticky top-4 z-20 space-y-4 bg-base-100 shadow-xl">
-        <div className="card-body ">
+    <div className="h-full space-y-4">
+      <div className="card bg-base-100 sticky top-4 z-20 space-y-4 shadow-xl">
+        <div className="card-body">
           <div className="flex flex-col gap-2">
-            <div className="text-xs uppercase tracking-[0.3em] text-base-content/60">
+            <div className="text-base-content/60 text-xs tracking-[0.3em] uppercase">
               <p>Factorio Mod</p>
               <p>Downloader</p>
             </div>
             <h1 className="text-3xl font-black">{APP_NAME}</h1>
           </div>
-          <ul className="menu gap-2 rounded-box bg-base-200 p-2 w-full">
+          <ul className="menu rounded-box bg-base-200 w-full gap-2 p-2">
             {items.map(([key, label]) => (
               <li key={key}>
                 <button
@@ -39,9 +39,9 @@ export function SidebarNav({ active, onSelect }: SidebarNavProps) {
         </div>
       </div>
 
-      <div className="card border border-dashed bg-base-100 shadow-xl">
-        <div className="card-body gap-3 text-xs text-base-content/70">
-          <h2 className="text-lg font-bold text-base-content">
+      <div className="card bg-base-100 border border-dashed shadow-xl">
+        <div className="card-body text-base-content/70 gap-3 text-xs">
+          <h2 className="text-base-content text-lg font-bold">
             How to use Yarrtorio
           </h2>
           <p>

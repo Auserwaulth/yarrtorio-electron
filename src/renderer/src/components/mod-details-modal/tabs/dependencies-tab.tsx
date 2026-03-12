@@ -22,13 +22,13 @@ export function DependenciesTab({ release, onDownload }: DependenciesTabProps) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl bg-base-200 p-4">
+      <div className="bg-base-200 rounded-2xl p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h4 className="text-lg font-bold">
               Dependencies for {release?.version ?? "No release"}
             </h4>
-            <p className="text-sm text-base-content/60">
+            <p className="text-base-content/60 text-sm">
               Required dependencies can be auto-downloaded. Built-in or official
               content is listed but skipped.
             </p>

@@ -21,13 +21,12 @@ body {
 .app-shell-bg {
   position: relative;
   isolation: isolate;
-  background:
-    linear-gradient(
-      to bottom right,
-      oklch(var(--p) / 0.10),
-      oklch(var(--b2)),
-      oklch(var(--s) / 0.10)
-    );
+  background: linear-gradient(
+    to bottom right,
+    oklch(var(--p) / 0.1),
+    oklch(var(--b2)),
+    oklch(var(--s) / 0.1)
+  );
 }
 
 .app-shell-bg::before {
@@ -50,4 +49,3 @@ body {
   position: relative;
   z-index: 1;
 }
-

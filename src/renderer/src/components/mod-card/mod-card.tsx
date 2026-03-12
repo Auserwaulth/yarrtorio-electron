@@ -8,9 +8,9 @@ export function ModCard({ mod, onOpen, onDownload }: ModCardProps) {
   const releaseVersion = mod.latestRelease?.version;
 
   return (
-    <article className="card overflow-hidden border border-base-300 bg-base-100 shadow-lg">
+    <article className="card border-base-300 bg-base-100 overflow-hidden border shadow-lg">
       {showImage && (
-        <figure className="h-44 bg-base-200">
+        <figure className="bg-base-200 h-44">
           <img
             src={mod.thumbnail}
             alt={mod.title}
@@ -25,7 +25,7 @@ export function ModCard({ mod, onOpen, onDownload }: ModCardProps) {
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <h3 className="truncate text-lg font-bold">{mod.title}</h3>
-            <p className="truncate text-sm text-base-content/70">{mod.name}</p>
+            <p className="text-base-content/70 truncate text-sm">{mod.name}</p>
           </div>
           <div className="badge badge-outline shrink-0">
             {mod.category ?? "mod"}
@@ -47,12 +47,12 @@ export function ModCard({ mod, onOpen, onDownload }: ModCardProps) {
           )}
         </div>
 
-        <p className="line-clamp-3 text-sm text-base-content/75">
+        <p className="text-base-content/75 line-clamp-3 text-sm">
           {mod.summary || "No summary available."}
         </p>
 
         <hr />
-        <div className="flex flex-wrap gap-2 text-xs text-base-content/60">
+        <div className="text-base-content/60 flex flex-wrap gap-2 text-xs">
           <span>By {mod.owner}</span>
           <span>·</span>
           <span>{formatDownloads(mod.downloadsCount)} downloads</span>

@@ -78,7 +78,7 @@ function CollapsibleFilterSection<T extends string>({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="rounded-2xl border border-base-300 bg-base-200/60">
+    <div className="border-base-300 bg-base-200/60 rounded-2xl border">
       <div className="flex items-start justify-between gap-3 p-4 pb-3">
         <button
           type="button"
@@ -89,7 +89,7 @@ function CollapsibleFilterSection<T extends string>({
           <Chevron open={open} />
           <div className="min-w-0">
             <p className="font-semibold">{title}</p>
-            <p className="text-xs text-base-content/60">{subtitle}</p>
+            <p className="text-base-content/60 text-xs">{subtitle}</p>
           </div>
         </button>
 
@@ -172,7 +172,7 @@ export function ModFilters(props: ModFiltersProps) {
             </select>
           </fieldset>
 
-          <div className="space-y-3 rounded-2xl border border-base-300 bg-base-200/60 p-4">
+          <div className="border-base-300 bg-base-200/60 space-y-3 rounded-2xl border p-4">
             <label className="label cursor-pointer justify-start gap-3">
               <input
                 type="checkbox"

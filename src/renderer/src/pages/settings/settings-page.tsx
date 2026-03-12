@@ -41,8 +41,8 @@ export function SettingsPage({
   appMeta,
 }: SettingsPageProps) {
   return (
-    <div className="grid gap-3 grid-cols-1 xl:grid-cols-4">
-      <div className="grid xl:col-span-2 gap-2">
+    <div className="grid grid-cols-1 gap-3 xl:grid-cols-4">
+      <div className="grid gap-2 xl:col-span-2">
         <BentoTile title="Paths">
           <div className="grid gap-2">
             <div>
@@ -50,7 +50,7 @@ export function SettingsPage({
                 <legend className="fieldset-legend">Mod Folder</legend>
                 <div className="join w-full">
                   <input
-                    className="input input-bordered join-item w-full min-w-0 blur-sm hover:blur-none transition-all"
+                    className="input input-bordered join-item w-full min-w-0 blur-sm transition-all hover:blur-none"
                     value={settings.modsFolder}
                     readOnly
                     placeholder="Mod Folder"
@@ -67,7 +67,7 @@ export function SettingsPage({
                 <legend className="fieldset-legend">Mod-list.json path</legend>
                 <div className="join w-full">
                   <input
-                    className="input input-bordered join-item w-full min-w-0 blur-sm hover:blur-none transition-all"
+                    className="input input-bordered join-item w-full min-w-0 blur-sm transition-all hover:blur-none"
                     value={settings.modListPath}
                     readOnly
                     placeholder="mod-list.json path (optional)"
@@ -79,7 +79,7 @@ export function SettingsPage({
               </fieldset>
             </div>
 
-            <div className="rounded-xl border border-base-300 bg-base-200/70 p-4 text-sm text-base-content/70">
+            <div className="border-base-300 bg-base-200/70 text-base-content/70 rounded-xl border p-4 text-sm">
               Leave the mod-list.json path empty to use the default location in
               the Factorio user data folder.
             </div>
@@ -130,13 +130,13 @@ export function SettingsPage({
               />
             </div>
 
-            <div className="flex justify-between px-2.5 mt-2 text-xs">
+            <div className="mt-2 flex justify-between px-2.5 text-xs">
               {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
                 <span
                   key={num}
                   className={
                     num === settings.concurrency
-                      ? "font-semibold text-base-content"
+                      ? "text-base-content font-semibold"
                       : ""
                   }
                 >
@@ -145,7 +145,7 @@ export function SettingsPage({
               ))}
             </div>
           </fieldset>
-          <div className="rounded-xl border border-base-300 bg-base-200/70 p-4 text-sm text-base-content/70 w-full">
+          <div className="border-base-300 bg-base-200/70 text-base-content/70 w-full rounded-xl border p-4 text-sm">
             Adjust how many mods to download simultaneously. Higher concurrency
             can speed up the process, but may cause more strain on your system
             and increase the chance of download failures. Start lower if you
@@ -156,7 +156,7 @@ export function SettingsPage({
             {checkboxList.map((item) => (
               <label
                 key={item.key}
-                className="label cursor-pointer justify-start gap-3 rounded-xl border border-base-300 bg-base-200/70 px-4 py-4"
+                className="label border-base-300 bg-base-200/70 cursor-pointer justify-start gap-3 rounded-xl border px-4 py-4"
               >
                 <input
                   type="checkbox"
@@ -171,8 +171,8 @@ export function SettingsPage({
                 />
 
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium flex flex-wrap">{item.title}</p>
-                  <p className="text-xs text-base-content/60">
+                  <p className="flex flex-wrap font-medium">{item.title}</p>
+                  <p className="text-base-content/60 text-xs">
                     {item.description}
                   </p>
                 </div>
@@ -184,11 +184,11 @@ export function SettingsPage({
 
       <BentoTile
         title="Theme"
-        className="xl:col-span-4 overflow-x-auto max-h-[60vh] overflow-y-auto"
+        className="max-h-[60vh] overflow-x-auto overflow-y-auto xl:col-span-4"
       >
         <div className="space-y-4">
           <select
-            className="select select-bordered w-full md:max-w-xs hidden"
+            className="select select-bordered hidden w-full md:max-w-xs"
             value={settings.theme}
             onChange={(event) =>
               onChange({
@@ -211,7 +211,7 @@ export function SettingsPage({
               onClick={() => onChange({ ...settings, theme: "system" })}
             >
               <p className="font-semibold capitalize">System</p>
-              <p className="mt-1 text-xs text-base-content/60">
+              <p className="text-base-content/60 mt-1 text-xs">
                 Follow your device preference.
               </p>
             </button>
@@ -223,20 +223,20 @@ export function SettingsPage({
               >
                 <div className="mb-3 flex gap-2">
                   <span
-                    className="h-3 w-3 rounded-full bg-primary"
+                    className="bg-primary h-3 w-3 rounded-full"
                     data-theme={theme}
                   />
                   <span
-                    className="h-3 w-3 rounded-full bg-secondary"
+                    className="bg-secondary h-3 w-3 rounded-full"
                     data-theme={theme}
                   />
                   <span
-                    className="h-3 w-3 rounded-full bg-accent"
+                    className="bg-accent h-3 w-3 rounded-full"
                     data-theme={theme}
                   />
                 </div>
                 <p className="font-semibold capitalize">{theme}</p>
-                <p className="mt-1 text-xs text-base-content/60">
+                <p className="text-base-content/60 mt-1 text-xs">
                   Preview-ready built-in theme.
                 </p>
               </button>
@@ -248,7 +248,7 @@ export function SettingsPage({
       <BentoTile title="Logs & bug reports" className="xl:col-span-4">
         <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
           <div>
-            <p className="text-sm text-base-content/70">
+            <p className="text-base-content/70 text-sm">
               Attach this log file when reporting bugs.
             </p>
             <input
@@ -265,7 +265,7 @@ export function SettingsPage({
         </div>
       </BentoTile>
 
-      <div className="xl:col-span-4 flex justify-end">
+      <div className="flex justify-end xl:col-span-4">
         <button
           className="btn btn-primary"
           disabled={saving}

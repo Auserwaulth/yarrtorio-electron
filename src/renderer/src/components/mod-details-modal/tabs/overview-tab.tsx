@@ -12,16 +12,16 @@ export function OverviewTab({
   return (
     <div className="space-y-4">
       {summary ? (
-        <div className="rounded-2xl bg-base-200 p-4">
-          <p className="text-sm leading-relaxed text-base-content/80">
+        <div className="bg-base-200 rounded-2xl p-4">
+          <p className="text-base-content/80 text-sm leading-relaxed">
             {summary}
           </p>
         </div>
       ) : null}
 
-      <div className="rounded-2xl bg-base-200 p-5">
+      <div className="bg-base-200 rounded-2xl p-5">
         <div
-          className={`prose prose-sm max-w-none text-base-content ${
+          className={`prose prose-sm text-base-content max-w-none ${
             descExpanded ? "" : "max-h-72 overflow-hidden"
           }`}
         >
@@ -34,7 +34,7 @@ export function OverviewTab({
                 return (
                   <button
                     type="button"
-                    className="cursor-pointer text-primary underline"
+                    className="text-primary cursor-pointer underline"
                     onClick={() => {
                       if (url) {
                         void onOpenExternal(url);

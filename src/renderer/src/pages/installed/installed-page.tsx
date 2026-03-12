@@ -64,7 +64,7 @@ export function InstalledPage({
             />
           </label>
 
-          <p className="text-sm text-base-content/70">
+          <p className="text-base-content/70 text-sm">
             Showing {filteredItems.length} of {items.length} installed mod
             {items.length === 1 ? "" : "s"}
           </p>
@@ -87,9 +87,9 @@ export function InstalledPage({
         </div>
       </div>
 
-      <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
+      <div className="max-h-[60vh] overflow-x-auto overflow-y-auto">
         <table className="table">
-          <thead className="sticky top-0 z-10 bg-base-100">
+          <thead className="bg-base-100 sticky top-0 z-10">
             <tr>
               <th>Name</th>
               <th>Version</th>
@@ -141,13 +141,13 @@ export function InstalledPage({
 
       <div>
         {items.length === 0 && (
-          <div className="rounded-xl border border-dashed bg-base-200 p-8 text-sm text-center">
+          <div className="bg-base-200 rounded-xl border border-dashed p-8 text-center text-sm">
             <p>No ZIP mods found in the configured mods folder.</p>
           </div>
         )}
 
         {items.length > 0 && filteredItems.length === 0 && (
-          <div className="mt-4 rounded-xl border border-dashed bg-base-200 p-8 text-sm text-center">
+          <div className="bg-base-200 mt-4 rounded-xl border border-dashed p-8 text-center text-sm">
             <p>No installed mods matched your filter.</p>
           </div>
         )}

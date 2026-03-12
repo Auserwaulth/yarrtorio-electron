@@ -8,31 +8,30 @@ Yarrtorio is a desktop app for browsing Factorio mods, viewing release details, 
 
 The app uses Electron for the desktop shell, a React renderer for the UI, and a preload bridge plus IPC handlers to keep the renderer isolated from Node.js and file-system access.
 
-
 ## Features
 
-* Browse Factorio mods with search, tabs, category filters, tag filters, version filters, and pagination
-* View full mod details, releases, dependencies, images, source/homepage/license links, and descriptions
-* Queue downloads for a selected version, with optional dependency downloads
-* Track download state for queued, running, completed, failed, and cancelled downloads
-* Read installed mods from a local Factorio mods folder
-* Delete installed archives, queue updates, and toggle enabled state through `mod-list.json`
-* Sync local downloads from `mod-list.json`
-* Save local app settings such as mod folder, custom `mod-list.json` path, download concurrency, notification preference, and theme
-* Cache mod browse datasets and mod details to reduce repeated portal/API calls
-* Show desktop notifications when downloads complete or fail
-* Package for Windows as both NSIS installer and portable build
+- Browse Factorio mods with search, tabs, category filters, tag filters, version filters, and pagination
+- View full mod details, releases, dependencies, images, source/homepage/license links, and descriptions
+- Queue downloads for a selected version, with optional dependency downloads
+- Track download state for queued, running, completed, failed, and cancelled downloads
+- Read installed mods from a local Factorio mods folder
+- Delete installed archives, queue updates, and toggle enabled state through `mod-list.json`
+- Sync local downloads from `mod-list.json`
+- Save local app settings such as mod folder, custom `mod-list.json` path, download concurrency, notification preference, and theme
+- Cache mod browse datasets and mod details to reduce repeated portal/API calls
+- Show desktop notifications when downloads complete or fail
+- Package for Windows as both NSIS installer and portable build
 
 ## Tech Stack
 
-* Electron
-* electron-vite
-* React 19
-* TypeScript
-* Tailwind CSS 4
-* daisyUI 5
-* Zod
-* electron-builder
+- Electron
+- electron-vite
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- daisyUI 5
+- Zod
+- electron-builder
 
 ## How it works
 
@@ -44,21 +43,21 @@ The renderer hosts the dashboard, browse, installed, and settings pages. It keep
 
 The preload layer exposes a typed `window.electronApi` surface for:
 
-* app metadata
-* mod browsing and management
-* download queue operations
-* settings read/write and file pickers
-* opening external URLs
+- app metadata
+- mod browsing and management
+- download queue operations
+- settings read/write and file pickers
+- opening external URLs
 
 ### Main process
 
 The main process registers IPC handlers for:
 
-* `mods:\*`
-* `downloads:\*`
-* `settings:\*`
-* `app:\*`
-* `external:\*`
+- `mods:\*`
+- `downloads:\*`
+- `settings:\*`
+- `app:\*`
+- `external:\*`
 
 It also owns filesystem access, notification dispatch, queue execution, mod-list mutation, and all requests to the Factorio mod portal/API.
 
@@ -94,11 +93,11 @@ src/
 
 ## Requirements
 
-* Node.js 20+ recommended
-* npm
-* Windows is the primary packaging target in the current config
-* A valid Factorio mods folder for installed-mod management
-* Network access to the Factorio Mod Portal/API for browse/details/download planning
+- Node.js 20+ recommended
+- npm
+- Windows is the primary packaging target in the current config
+- A valid Factorio mods folder for installed-mod management
+- Network access to the Factorio Mod Portal/API for browse/details/download planning
 
 ## Getting Started
 
@@ -118,14 +117,14 @@ npm run dev
 
 Open **Settings** and set:
 
-* **Mod Folder**: your local Factorio `mods` directory
-* **mod-list.json path**: optional; leave empty to use `<modsFolder>/mod-list.json`
+- **Mod Folder**: your local Factorio `mods` directory
+- **mod-list.json path**: optional; leave empty to use `<modsFolder>/mod-list.json`
 
 ### 4\. Browse or sync mods
 
-* Use **Browse** to search and inspect mods
-* Use **Sync from mod-list** to queue mods from your Factorio mod list
-* Use **Installed** to update, delete, or toggle installed mods
+- Use **Browse** to search and inspect mods
+- Use **Sync from mod-list** to queue mods from your Factorio mod list
+- Use **Installed** to update, delete, or toggle installed mods
 
 ## Available Scripts
 
@@ -141,13 +140,13 @@ npm run dist       # build Windows NSIS + portable packages
 
 The app persists settings in Electron's `userData` directory. Current settings in source include:
 
-* `modsFolder`
-* `modListPath`
-* `concurrency`
-* `ignoreDisabledMods`
-* `includeDisabledModsByDefault`
-* `desktopNotifications`
-* `theme`
+- `modsFolder`
+- `modListPath`
+- `concurrency`
+- `ignoreDisabledMods`
+- `includeDisabledModsByDefault`
+- `desktopNotifications`
+- `theme`
 
 ## Download Behavior
 
@@ -157,18 +156,18 @@ Downloads are queued in the main process. The queue concurrency is configurable 
 
 Yarrtorio consumes the Factorio Mod Portal/API for:
 
-* browse datasets
-* mod details
-* release information
-* dependency parsing inputs
-* portal extras such as images, homepage/source/license links
+- browse datasets
+- mod details
+- release information
+- dependency parsing inputs
+- portal extras such as images, homepage/source/license links
 
 ## Packaging
 
 The project is configured to produce Windows builds via `electron-builder`:
 
-* NSIS installer
-* Portable executable
+- NSIS installer
+- Portable executable
 
 Icons live under `resources/icons`.
 
@@ -197,12 +196,12 @@ Typical flow:
 
 ## Current Gaps / Nice Next Steps
 
-* better error reporting and structured logging (mayhaps)
-* richer loading states and skeleton UI
-* stronger end-to-end type-safe settings evolution/migrations (maybe)
-* tests for reducers, mappers, and settings/mod parser flows
-* Linux/macOS packaging if needed
-* README badges, screenshots, and contribution guide (idk)
+- better error reporting and structured logging (mayhaps)
+- richer loading states and skeleton UI
+- stronger end-to-end type-safe settings evolution/migrations (maybe)
+- tests for reducers, mappers, and settings/mod parser flows
+- Linux/macOS packaging if needed
+- README badges, screenshots, and contribution guide (idk)
 
 ## Credits
 

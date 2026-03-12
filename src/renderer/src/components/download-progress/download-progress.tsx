@@ -7,7 +7,7 @@ function formatStatus(state: string): string {
 export function DownloadProgress({ items }: DownloadProgressProps) {
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-base-300 p-6 text-sm text-base-content/60">
+      <div className="border-base-300 text-base-content/60 rounded-2xl border border-dashed p-6 text-sm">
         No downloads yet.
       </div>
     );
@@ -33,11 +33,11 @@ export function DownloadProgress({ items }: DownloadProgressProps) {
               `${item.transferredBytes}/${item.totalBytes || 0} bytes`);
 
         return (
-          <div key={item.key} className="rounded-2xl bg-base-200 p-4">
+          <div key={item.key} className="bg-base-200 rounded-2xl p-4">
             <div className="mb-2 flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="truncate font-semibold">{item.modName}</p>
-                <p className="truncate text-xs text-base-content/60">
+                <p className="text-base-content/60 truncate text-xs">
                   Version {item.version}
                 </p>
               </div>
@@ -50,7 +50,7 @@ export function DownloadProgress({ items }: DownloadProgressProps) {
               value={progressValue}
               max={100}
             />
-            <div className="mt-2 flex justify-between gap-3 text-xs text-base-content/60">
+            <div className="text-base-content/60 mt-2 flex justify-between gap-3 text-xs">
               <span>{progressValue}%</span>
               <span className="truncate text-right">{progressLabel}</span>
             </div>

@@ -33,8 +33,8 @@ const paginationComponent = (
   busy: boolean,
   onApply: (page: number) => void,
 ) => (
-  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-2 pl-4">
-    <p className="text-sm text-base-content/70">
+  <div className="border-base-300 bg-base-100 flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-2 pl-4">
+    <p className="text-base-content/70 text-sm">
       Page {pagination.page} of {pagination.pageCount} · {pagination.count}{" "}
       result
       {pagination.count === 1 ? "" : "s"}
@@ -105,7 +105,7 @@ export function BrowsePage(props: BrowsePageProps) {
       </div>
 
       {props.mods.length === 0 && (
-        <div className="rounded-xl border border-dashed bg-base-200 p-6 text-center">
+        <div className="bg-base-200 rounded-xl border border-dashed p-6 text-center">
           <p>No mods matched the current filters.</p>
         </div>
       )}

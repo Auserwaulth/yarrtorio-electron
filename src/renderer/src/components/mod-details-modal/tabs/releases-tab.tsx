@@ -12,11 +12,11 @@ export function ReleasesTab({
 }: ReleasesTabProps) {
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl bg-base-200 p-4">
+      <div className="bg-base-200 rounded-2xl p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h4 className="text-lg font-bold">Releases</h4>
-            <p className="text-sm text-base-content/60">
+            <p className="text-base-content/60 text-sm">
               Pick a release to inspect its dependencies or download it
               directly.
             </p>
@@ -48,7 +48,7 @@ export function ReleasesTab({
             />
           ))
         ) : (
-          <div className="rounded-2xl border border-dashed border-base-content/15 px-4 py-8 text-center text-sm text-base-content/55">
+          <div className="border-base-content/15 text-base-content/55 rounded-2xl border border-dashed px-4 py-8 text-center text-sm">
             No releases available.
           </div>
         )}

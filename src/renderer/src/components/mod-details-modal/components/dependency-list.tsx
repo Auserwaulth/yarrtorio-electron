@@ -19,21 +19,21 @@ export function DependencyList({
   items,
 }: DependencyListProps) {
   return (
-    <section className="space-y-3 rounded-2xl bg-base-200 p-4">
+    <section className="bg-base-200 space-y-3 rounded-2xl p-4">
       <div className="space-y-1">
         <div className="flex items-center justify-between gap-3">
-          <h4 className="text-sm font-bold uppercase tracking-wide text-base-content/75">
+          <h4 className="text-base-content/75 text-sm font-bold tracking-wide uppercase">
             {title}
           </h4>
           <span className="badge badge-outline">{items.length}</span>
         </div>
         {description ? (
-          <p className="text-sm text-base-content/60">{description}</p>
+          <p className="text-base-content/60 text-sm">{description}</p>
         ) : null}
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-base-content/15 px-3 py-4 text-sm text-base-content/55">
+        <div className="border-base-content/15 text-base-content/55 rounded-xl border border-dashed px-3 py-4 text-sm">
           {emptyLabel}
         </div>
       ) : (
@@ -41,7 +41,7 @@ export function DependencyList({
           {items.map((dependency) => (
             <div
               key={`${dependency.kind}-${dependency.raw}`}
-              className="rounded-xl bg-base-100 px-3 py-3"
+              className="bg-base-100 rounded-xl px-3 py-3"
             >
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-semibold">
@@ -64,7 +64,7 @@ export function DependencyList({
               </div>
 
               {dependency.reasonSkipped ? (
-                <p className="mt-2 text-sm text-base-content/60">
+                <p className="text-base-content/60 mt-2 text-sm">
                   {dependency.reasonSkipped}
                 </p>
               ) : null}
