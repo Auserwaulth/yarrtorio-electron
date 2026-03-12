@@ -14,7 +14,7 @@ function normalizeErrorMessage(error: unknown): string {
     return error.message;
   }
 
-  return "Unexpected app error. Please include your Yarrtorio log file in the bug report.";
+  return `Unexpected app error. Please include your log file in the bug report.`;
 }
 
 function safeHandle<T>(

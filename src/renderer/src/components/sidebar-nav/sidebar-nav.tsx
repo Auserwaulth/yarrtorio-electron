@@ -42,7 +42,7 @@ export function SidebarNav({ active, onSelect }: SidebarNavProps) {
       <div className="card bg-base-100 border border-dashed shadow-xl">
         <div className="card-body text-base-content/70 gap-3 text-xs">
           <h2 className="text-base-content text-lg font-bold">
-            How to use Yarrtorio
+            How to use {APP_NAME}
           </h2>
           <p>
             1. Pick your Factorio mods folder and confirm the mod-list path in

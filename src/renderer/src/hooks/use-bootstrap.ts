@@ -1,4 +1,6 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { APP_NAME } from "@shared/constants";
+
 import type { AppStore } from "../store/app-store";
 import { applyTheme } from "../utils/theme";
 import { MAX_DOWNLOAD_HISTORY } from "@shared/constants";
@@ -32,7 +34,7 @@ interface BootstrapTask {
 const initialState: BootstrapState = {
   loading: true,
   progress: 0,
-  stage: "Starting Yarrtorio…",
+  stage: `Starting ${APP_NAME}`,
   error: null,
 };
 
@@ -189,7 +191,9 @@ export function useBootstrap(setStore: Dispatch<SetStateAction<AppStore>>) {
     })()
       .catch((error: unknown) => {
         const message =
-          error instanceof Error ? error.message : "Failed to start Yarrtorio.";
+          error instanceof Error
+            ? error.message
+            : `Failed to start ${APP_NAME}`;
 
         targetProgress = 100;
         setState({

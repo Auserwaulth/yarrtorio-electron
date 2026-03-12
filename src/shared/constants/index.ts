@@ -1,4 +1,5 @@
 export const APP_NAME = "Yarrtorio";
+export const APP_USER_MODEL_ID = "com.yarrtorio.app ";
 export const FACTORIO_API_BASE = "https://mods.factorio.com/api";
 export const DEFAULT_SKIP_MODS = [
   "base",
