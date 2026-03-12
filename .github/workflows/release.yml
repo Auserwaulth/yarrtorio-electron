@@ -1,0 +1,151 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Version to release, for example 2026.3.12 or 1.0.0'
+        required: true
+        type: string
+      release_notes:
+        description: 'Optional release notes. Leave blank to auto-generate notes.'
+        required: false
+        type: string
+      prerelease:
+        description: 'Mark this release as a prerelease'
+        required: false
+        default: false
+        type: boolean
+      draft:
+        description: 'Create this release as a draft'
+        required: false
+        default: false
+        type: boolean
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set release variables for manual run
+        if: github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        run: |
+          $version = '${{ inputs.release_version }}'.Trim()
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            throw 'release_version is required.'
+          }
+
+          $tag = "v$version"
+          "RELEASE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "RELEASE_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Set release variables for tag push
+        if: github.event_name == 'push'
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'
+          if (-not $tag.StartsWith('v')) {
+            throw "Expected tag starting with v, got: $tag"
+          }
+
+          $version = $tag.Substring(1)
+          "RELEASE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "RELEASE_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Sync package.json version to release version
+        shell: pwsh
+        run: |
+          node -e "const fs=require('node:fs'); const pkg=JSON.parse(fs.readFileSync('package.json','utf8')); pkg.version=process.env.RELEASE_VERSION; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)+'\n');"
+          Get-Content package.json
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build app
+        run: npx electron-vite build
+
+      - name: Package app
+        run: npx electron-builder --win portable nsis --x64 --publish never
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: yarrtorio-release-${{ env.RELEASE_TAG }}
+          path: |
+            dist/*.exe
+            dist/*.blockmap
+            dist/latest*.yml
+          if-no-files-found: warn
+
+      - name: Create or update GitHub release
+        shell: pwsh
+        run: |
+          $tag = $env:RELEASE_TAG
+          $title = "Yarrtorio $($env:RELEASE_VERSION)"
+          $notes = "${{ inputs.release_notes }}"
+
+          $releaseExists = $true
+          gh release view $tag | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            $releaseExists = $false
+          }
+
+          if ($releaseExists) {
+            gh release edit $tag --title $title $(if ('${{ inputs.prerelease }}' -eq 'true') { '--prerelease' }) $(if ('${{ inputs.draft }}' -eq 'true') { '--draft' })
+          }
+          else {
+            if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+              if ([string]::IsNullOrWhiteSpace($notes)) {
+                gh release create $tag --title $title --target '${{ github.sha }}' --generate-notes $(if ('${{ inputs.prerelease }}' -eq 'true') { '--prerelease' }) $(if ('${{ inputs.draft }}' -eq 'true') { '--draft' })
+              }
+              else {
+                $tmp = New-TemporaryFile
+                Set-Content -Path $tmp -Value $notes
+                gh release create $tag --title $title --target '${{ github.sha }}' --notes-file $tmp $(if ('${{ inputs.prerelease }}' -eq 'true') { '--prerelease' }) $(if ('${{ inputs.draft }}' -eq 'true') { '--draft' })
+              }
+            }
+            else {
+              gh release create $tag --title $title --verify-tag --generate-notes
+            }
+          }
+
+      - name: Upload assets to GitHub release
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path dist -File | Where-Object {
+            $_.Extension -in '.exe', '.blockmap', '.yml'
+          } | Select-Object -ExpandProperty FullName
+
+          if (-not $files) {
+            throw 'No release files were found in dist.'
+          }
+
+          gh release upload $env:RELEASE_TAG $files --clobber
