@@ -19,8 +19,10 @@ function normalizeErrorMessage(error: unknown): string {
 
 function safeHandle<T>(
   scope: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handler: (...args: any[]) => Promise<OperationResult<T>> | OperationResult<T>,
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return async (...args: any[]): Promise<OperationResult<T>> => {
     try {
       return await handler(...args);

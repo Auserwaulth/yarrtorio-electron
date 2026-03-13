@@ -1,5 +1,3 @@
-import { fetchModFull, fetchPortalExtras } from "./portal-api";
-
 export interface ApiRelease {
   download_url: string;
   file_name: string;

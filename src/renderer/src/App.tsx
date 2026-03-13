@@ -71,6 +71,7 @@ export function App() {
   useEffect(() => {
     if (page !== "browse") return;
     void modsActions.browse(browse.filters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   if (loading) {

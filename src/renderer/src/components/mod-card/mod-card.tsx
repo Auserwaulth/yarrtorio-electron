@@ -2,7 +2,7 @@ import { useState } from "react";
 import { formatDownloads } from "./mod-card.utils";
 import type { ModCardProps } from "./mod-card.types";
 
-export function ModCard({ mod, onOpen, onDownload }: ModCardProps) {
+export function ModCard({ mod, onOpen }: ModCardProps) {
   const [imageFailed, setImageFailed] = useState(false);
   const showImage = Boolean(mod.thumbnail) && !imageFailed;
   const releaseVersion = mod.latestRelease?.version;

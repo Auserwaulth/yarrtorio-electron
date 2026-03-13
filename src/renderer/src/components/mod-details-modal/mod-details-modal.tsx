@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { ModReleaseSummary } from "@shared/types/mod";
 import { InfoLink } from "./components/info-link";
+import { GalleryImages } from "./components/gallery-Images";
 import { DependenciesTab } from "./tabs/dependencies-tab";
 import { OverviewTab } from "./tabs/overview-tab";
 import { ReleasesTab } from "./tabs/releases-tab";
@@ -220,34 +221,12 @@ export function ModDetailsModal({
           ) : null}
 
           {galleryImages.length > 1 ? (
-            <div className="bg-base-200 space-y-3 rounded-2xl p-4">
-              <div className="flex items-center justify-end gap-3">
-                <p className="text-base-content/60 text-xs">
-                  {activeImageIndex + 1} / {galleryImages.length}
-                </p>
-              </div>
-
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {galleryImages.map((image, index) => (
-                  <button
-                    key={`${image}-${index}`}
-                    className={`shrink-0 overflow-hidden rounded-xl border-2 ${
-                      index === activeImageIndex
-                        ? "border-primary"
-                        : "border-transparent"
-                    }`}
-                    type="button"
-                    onClick={() => setActiveImageIndex(index)}
-                  >
-                    <img
-                      src={image}
-                      alt={`${mod.title} screenshot ${index + 1}`}
-                      className="h-20 w-32 object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
+            <GalleryImages
+              activeImageIndex={activeImageIndex}
+              setActiveImageIndex={setActiveImageIndex}
+              galleryImages={galleryImages}
+              modTitle={mod.title}
+            />
           ) : null}
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
