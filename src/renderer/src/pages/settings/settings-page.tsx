@@ -31,6 +31,8 @@ const checkboxList = [
   },
 ] as const;
 
+const colors = ["primary", "secondary", "accent", "accent-content"];
+
 export function SettingsPage({
   settings,
   saving,
@@ -182,11 +184,8 @@ export function SettingsPage({
         </div>
       </BentoTile>
 
-      <BentoTile
-        title="Theme"
-        className="max-h-[60vh] overflow-x-auto overflow-y-auto xl:col-span-4"
-      >
-        <div className="space-y-4">
+      <BentoTile title="Theme" className="xl:col-span-4">
+        <div className="max-h-[60vh] space-y-4 overflow-x-auto overflow-y-auto">
           <select
             className="select select-bordered hidden w-full md:max-w-xs"
             value={settings.theme}
@@ -222,18 +221,15 @@ export function SettingsPage({
                 onClick={() => onChange({ ...settings, theme })}
               >
                 <div className="mb-3 flex gap-2">
-                  <span
-                    className="bg-primary h-3 w-3 rounded-full"
-                    data-theme={theme}
-                  />
-                  <span
-                    className="bg-secondary h-3 w-3 rounded-full"
-                    data-theme={theme}
-                  />
-                  <span
-                    className="bg-accent h-3 w-3 rounded-full"
-                    data-theme={theme}
-                  />
+                  {colors.map((color) => (
+                    <span
+                      key={color}
+                      className={["bg-" + color, "h-3 w-3 rounded-full"].join(
+                        " ",
+                      )}
+                      data-theme={theme}
+                    />
+                  ))}
                 </div>
                 <p className="font-semibold capitalize">{theme}</p>
                 <p className="text-base-content/60 mt-1 text-xs">
