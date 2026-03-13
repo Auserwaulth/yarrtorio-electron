@@ -206,7 +206,7 @@ export function ModFilters(props: ModFiltersProps) {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
+      {/* <div className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-1">
         <CollapsibleFilterSection<ModCategory>
           title="Categories"
           subtitle="Match any selected category."
@@ -217,7 +217,6 @@ export function ModFilters(props: ModFiltersProps) {
           onToggleValue={props.onToggleCategory}
           defaultOpen={false}
         />
-
         <CollapsibleFilterSection<ModTag>
           title="Tags"
           subtitle="Match any selected tag."
@@ -226,6 +225,18 @@ export function ModFilters(props: ModFiltersProps) {
           values={modTags}
           selectedValues={filters.tags}
           onToggleValue={props.onToggleTag}
+          defaultOpen={false}
+        />
+      </div> */}
+      <div className="grid items-start gap-4 xl:grid-cols-1">
+        <CollapsibleFilterSection<ModCategory>
+          title="Categories"
+          subtitle="Match any selected category."
+          includeChecked={filters.includeCategories}
+          onIncludeChange={props.onIncludeCategoriesChange}
+          values={modCategories}
+          selectedValues={filters.categories}
+          onToggleValue={props.onToggleCategory}
           defaultOpen={false}
         />
       </div>
