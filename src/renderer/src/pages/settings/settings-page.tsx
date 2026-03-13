@@ -31,7 +31,7 @@ const checkboxList = [
   },
 ] as const;
 
-const colors = ["primary", "secondary", "accent", "accent-content"];
+const colors = ["bg-primary", "bg-secondary", "bg-accent", "bg-accent-content"];
 
 export function SettingsPage({
   settings,
@@ -224,9 +224,7 @@ export function SettingsPage({
                   {colors.map((color) => (
                     <span
                       key={color}
-                      className={["bg-" + color, "h-3 w-3 rounded-full"].join(
-                        " ",
-                      )}
+                      className={[color, "h-3 w-3 rounded-full"].join(" ")}
                       data-theme={theme}
                     />
                   ))}

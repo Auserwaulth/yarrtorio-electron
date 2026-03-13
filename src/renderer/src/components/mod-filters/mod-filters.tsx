@@ -2,9 +2,9 @@ import { useState } from "react";
 import {
   factorioVersions,
   modCategories,
-  modTags,
+  // modTags,
   type ModCategory,
-  type ModTag,
+  // type ModTag,
 } from "@shared/types/mod";
 import type { ModFiltersProps } from "./mod-filters.types";
 
