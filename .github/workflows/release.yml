@@ -33,7 +33,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-release:
+  build-and-release-windows:
     runs-on: windows-latest
 
     env:
@@ -92,15 +92,84 @@ jobs:
       - name: Build app
         run: npx electron-vite build
 
-      - name: Package app
+      - name: Package app (Windows)
         run: npx electron-builder --win portable nsis --x64 --publish never
 
-      - name: Upload workflow artifacts
+      - name: Upload workflow artifacts (Windows)
         uses: actions/upload-artifact@v6
         with:
-          name: yarrtorio-release-${{ env.RELEASE_TAG }}
+          name: yarrtorio-release-windows-${{ env.RELEASE_TAG }}
           path: |
             dist/*.exe
+            dist/*.blockmap
+            dist/latest*.yml
+          if-no-files-found: warn
+
+  build-and-release-linux:
+    runs-on: ubuntu-latest
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set release variables for manual run
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          VERSION='${{ inputs.release_version }}'
+          if [ -z "$VERSION" ]; then
+            echo "release_version is required."
+            exit 1
+          fi
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "RELEASE_TAG=v$VERSION" >> $GITHUB_ENV
+
+      - name: Set release variables for tag push
+        if: github.event_name == 'push'
+        run: |
+          TAG='${{ github.ref_name }}'
+          if [[ ! "$TAG" =~ ^v ]]; then
+            echo "Expected tag starting with v, got: $TAG"
+            exit 1
+          fi
+          VERSION="${TAG:1}"
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Sync package.json version to release version
+        run: |
+          node -e "const fs=require('node:fs'); const pkg=JSON.parse(fs.readFileSync('package.json','utf8')); pkg.version=process.env.RELEASE_VERSION; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)+'\n');"
+          cat package.json
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build app
+        run: npx electron-vite build
+
+      - name: Package app (Linux)
+        run: npx electron-builder --linux AppImage deb --x64 --publish never
+
+      - name: Upload workflow artifacts (Linux)
+        uses: actions/upload-artifact@v6
+        with:
+          name: yarrtorio-release-linux-${{ env.RELEASE_TAG }}
+          path: |
+            dist/*.AppImage
+            dist/*.deb
             dist/*.blockmap
             dist/latest*.yml
           if-no-files-found: warn
@@ -137,7 +206,7 @@ jobs:
             }
           }
 
-      - name: Upload assets to GitHub release
+      - name: Upload assets to GitHub release (Windows)
         shell: pwsh
         run: |
           $files = Get-ChildItem -Path dist -File | Where-Object {
@@ -149,3 +218,15 @@ jobs:
           }
 
           gh release upload $env:RELEASE_TAG $files --clobber
+
+      - name: Upload assets to GitHub release (Linux)
+        run: |
+          shopt -s nullglob
+          files=(dist/*.AppImage dist/*.deb dist/*.blockmap dist/latest*.yml)
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No release files were found in dist."
+            exit 1
+          fi
+
+          gh release upload $env.RELEASE_TAG "${files[@]}" --clobber

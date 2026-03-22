@@ -1,6 +1,29 @@
+<div align="center">
+
+[![Electron](https://img.shields.io/badge/Electron-40.8.0-47848F?logo=electron&logoColor=white)](https://www.electronjs.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4-06B6D4?logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![daisyUI](https://img.shields.io/badge/daisyUI-5-13C6D3?logo=daisyui)](https://daisyui.com)
+[![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
+
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/Version-2026.3.22-4B5563?logo=npm)](https://www.npmjs.com)
+[![Build](https://github.com/Auserwaulth/yarrtorio-electron/actions/workflows/ci.yml/badge.svg)](https://github.com/Auserwaulth/yarrtorio-electron/actions)
+
+[![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![Platform](<https://img.shields.io/badge/Platform-Windows%20(x64)-0078D4?logo=windows>)](https://www.microsoft.com/windows) [![Platform](<https://img.shields.io/badge/Platform-Linux%20(x64%2Farm64)-FCC624?logo=linux&logoColor=black>)](https://linux.org)
+
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=Auserwaulth.yarrtorio-electron)
+![Stars](https://img.shields.io/github/stars/Auserwaulth/yarrtorio-electron)
+![Forks](https://img.shields.io/github/forks/Auserwaulth/yarrtorio-electron)
+![Issues](https://img.shields.io/github/issues/Auserwaulth/yarrtorio-electron)
+
 # Yarrtorio
 
 Desktop Factorio mod downloader and manager built with Electron, Vite, React, TypeScript, Tailwind CSS, and daisyUI.
+
+</div>
 
 ## Quick Navigation
 
@@ -17,8 +40,7 @@ Desktop Factorio mod downloader and manager built with Electron, Vite, React, Ty
 - [Download Behavior](#download-behavior)
 - [Data Sources](#data-sources)
 - [Packaging](#packaging)
-- [Notes for Contributors](#notes-for-contributors)
-- [Current Gaps / Nice Next Steps](#current-gaps--nice-next-steps)
+- [Contributing](https://github.com/Auserwaulth/yarrtorio-electron/blob/main/CONTRIBUTING.md)
 - [Credits](#credits)
 
 ## Overview
@@ -114,7 +136,7 @@ src/
 
 - Node.js 20+ recommended
 - npm
-- Windows is the primary packaging target in the current config
+- Windows and Linux (AppImage, deb) are supported packaging targets
 - A valid Factorio mods folder for installed-mod management
 - Network access to the Factorio Mod Portal/API for browse/details/download planning
 
@@ -148,11 +170,13 @@ Open **Settings** and set:
 ## Available Scripts
 
 ```bash
-npm run dev        # start Electron + Vite dev mode
-npm run build      # build main, preload, and renderer output
-npm run preview    # preview the built app with electron-vite
-npm run typecheck  # TypeScript check without emitting files
-npm run dist       # build Windows NSIS + portable packages
+npm run dev           # start Electron + Vite dev mode
+npm run build         # build main, preload, and renderer output
+npm run preview       # preview the built app with electron-vite
+npm run typecheck     # TypeScript check without emitting files
+npm run dist          # build Windows NSIS + portable packages
+npm run dist:linux    # build Linux AppImage + deb packages (x64)
+pm run dist:linux:arm64 # build Linux AppImage + deb packages (arm64)
 ```
 
 ## Building
@@ -173,8 +197,12 @@ This will:
 
 After building, the distributable files will be in the `release` folder:
 
-- `Yarrtorio-Setup-<version>-x64.exe` - NSIS installer
-- `Yarrtorio-Portable-<version>-x64.exe` - Portable executable
+- `Yarrtorio-Setup-<version>-x64.exe` - NSIS installer (Windows)
+- `Yarrtorio-Portable-<version>-x64.exe` - Portable executable (Windows)
+- `Yarrtorio-<version>-x64.AppImage` - AppImage (Linux x64)
+- `Yarrtorio-<version>-arm64.AppImage` - AppImage (Linux arm64)
+- `Yarrtorio_<version>_amd64.deb` - Debian package (Linux x64)
+- `Yarrtorio_<version>_arm64.deb` - Debian package (Linux arm64)
 
 You can also run `npm run build` alone if you just want the compiled output without packaging. The built files will be in the `out` folder.
 
@@ -206,44 +234,23 @@ Yarrtorio consumes the Factorio Mod Portal/API for:
 
 ## Packaging
 
-The project is configured to produce Windows builds via `electron-builder`:
+The project is configured to produce builds for Windows and Linux via `electron-builder`:
+
+### Windows
 
 - NSIS installer
 - Portable executable
 
-Icons live under `resources/icons`.
+### Linux
 
-## Notes for Contributors
+- AppImage (x64 and arm64)
+- Debian packages (.deb) (x64 and arm64)
 
-### Add a new setting
+Icons live under `resources/icons`. The PNG icon is used for Linux builds.
 
-Typical flow:
+## Contributing
 
-1. Add the field to `AppSettings`
-2. Add validation/defaults in `settingsSchema`
-3. Add default persistence in `settings-service`
-4. Surface it in the renderer settings fallback/state
-5. Add UI in `SettingsPage`
-6. Actually consume the setting where behavior changes
-
-### Add a new IPC action
-
-Typical flow:
-
-1. Add the channel to `src/shared/contracts/ipc-contracts.ts`
-2. Expose it through preload
-3. Implement the main-process handler
-4. Register it in `register-ipc.ts`
-5. Call it from renderer actions/hooks
-
-## Current Gaps / Nice Next Steps
-
-- ~~better error reporting and structured logging (mayhaps)~~
-- ~~richer loading states and skeleton UI~~
-- ~~stronger end-to-end type-safe settings evolution/migrations (maybe)~~
-- tests for reducers, mappers, and settings/mod parser flows
-- Linux/macOS packaging if needed
-- README badges, screenshots, and contribution guide (idk)
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, coding standards, and how to add new features.
 
 ## Credits
 
