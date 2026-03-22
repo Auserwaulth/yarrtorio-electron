@@ -7,6 +7,11 @@ import {
 } from "@shared/constants";
 import { settingsSchema } from "@shared/validation/schemas";
 import type { AppSettings } from "@shared/types/mod";
+import {
+  CURRENT_SETTINGS_VERSION,
+  getMigrationVersion,
+  migrateSettings,
+} from "./settings-migrations";
 
 export interface SettingsService {
   getSettings(): Promise<AppSettings>;
@@ -14,6 +19,7 @@ export interface SettingsService {
 }
 
 const defaults: AppSettings = {
+  version: CURRENT_SETTINGS_VERSION,
   modsFolder: "",
   modListPath: "",
   snackbarPosition: "bottom-right",
@@ -30,14 +36,36 @@ export function createSettingsService(): SettingsService {
   async function getSettings(): Promise<AppSettings> {
     try {
       const raw = await readFile(filePath, "utf8");
-      return settingsSchema.parse(JSON.parse(raw));
+      const parsed = settingsSchema.parse(JSON.parse(raw));
+
+      // Apply migrations if needed
+      const savedVersion = getMigrationVersion(parsed);
+      if (savedVersion < CURRENT_SETTINGS_VERSION) {
+        const migrated = migrateSettings(parsed, savedVersion);
+        // Validate migrated settings against schema
+        const validated = settingsSchema.parse(migrated);
+        // Save migrated settings
+        try {
+          await mkdir(dirname(filePath), { recursive: true });
+          await writeFile(filePath, JSON.stringify(validated, null, 2), "utf8");
+        } catch (writeErr) {
+          // Log error but return migrated settings in memory
+          console.error("Failed to save migrated settings:", writeErr);
+        }
+        return validated;
+      }
+
+      return parsed;
     } catch {
       return defaults;
     }
   }
 
   async function saveSettings(input: AppSettings): Promise<AppSettings> {
-    const parsed = settingsSchema.parse(input);
+    const parsed = settingsSchema.parse({
+      ...input,
+      version: CURRENT_SETTINGS_VERSION,
+    });
     await mkdir(dirname(filePath), { recursive: true });
     await writeFile(filePath, JSON.stringify(parsed, null, 2), "utf8");
     return parsed;

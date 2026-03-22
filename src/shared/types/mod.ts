@@ -7,6 +7,7 @@ export type DownloadState =
   | "cancelled";
 
 export interface AppSettings {
+  version: number;
   modsFolder: string;
   modListPath: string;
   snackbarPosition: "top-left" | "top-right" | "bottom-left" | "bottom-right";
@@ -26,7 +27,7 @@ export interface ModLibraryState {
 export interface ModListEntry {
   name: string;
   enabled: boolean;
-  version?: string;
+  version?: string | undefined;
 }
 
 export interface InstalledMod {

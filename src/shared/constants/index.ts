@@ -10,3 +10,4 @@ export const DEFAULT_SKIP_MODS = [
 export const DEFAULT_DOWNLOAD_CONCURRENCY = 3;
 export const SETTINGS_FILE_NAME = "settings.json";
 export const MAX_DOWNLOAD_HISTORY = 500;
+export const CURRENT_SETTINGS_VERSION = 1;

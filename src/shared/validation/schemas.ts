@@ -8,6 +8,7 @@ import {
 } from "@shared/types/mod";
 
 export const settingsSchema = z.object({
+  version: z.number().default(1),
   modsFolder: z.string().default(""),
   modListPath: z.string().default(""),
   snackbarPosition: z
