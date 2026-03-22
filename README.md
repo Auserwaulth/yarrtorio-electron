@@ -238,7 +238,7 @@ Typical flow:
 
 ## Current Gaps / Nice Next Steps
 
-- better error reporting and structured logging (mayhaps)
+- ~~better error reporting and structured logging (mayhaps)~~
 - ~~richer loading states and skeleton UI~~
 - stronger end-to-end type-safe settings evolution/migrations (maybe)
 - tests for reducers, mappers, and settings/mod parser flows

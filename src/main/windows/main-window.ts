@@ -1,5 +1,6 @@
 import { BrowserWindow, app, shell } from "electron";
 import { join } from "node:path";
+import { logInfo } from "../logging/logger";
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -66,6 +67,9 @@ export function createMainWindow(): BrowserWindow {
   } else {
     void mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
   }
+
+  // Log window creation (fire and forget)
+  logInfo("window", "Main window created", { width: 1400, height: 900 });
 
   return mainWindow;
 }

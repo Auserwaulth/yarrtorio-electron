@@ -10,6 +10,7 @@ import type {
   DownloadRequest,
 } from "@shared/types/mod";
 import type { SettingsService } from "../../services/settings-service";
+import { logInfo, logError } from "../../logging/logger";
 
 export function createDownloadsHandler(settingsService: SettingsService) {
   const queue = new DownloadQueue();
@@ -33,6 +34,20 @@ export function createDownloadsHandler(settingsService: SettingsService) {
 
     if (!["completed", "failed"].includes(progress.state)) {
       return;
+    }
+
+    // Log download completion/failure
+    if (progress.state === "completed") {
+      await logInfo("downloads", "Download completed", {
+        modName: progress.modName,
+        version: progress.version,
+      });
+    } else {
+      await logError("downloads", "Download failed", {
+        modName: progress.modName,
+        version: progress.version,
+        error: progress.message,
+      });
     }
 
     const settings = await settingsService.getSettings();
@@ -79,6 +94,12 @@ export function createDownloadsHandler(settingsService: SettingsService) {
         return { ok: false, error: "Nothing was queued for download." };
       }
 
+      await logInfo("downloads", "Enqueued downloads", {
+        count: queued.length,
+        modName: parsed.data.modName,
+        version: parsed.data.version,
+      });
+
       return { ok: true, data: root.key };
     },
     retry: async (
@@ -104,6 +125,12 @@ export function createDownloadsHandler(settingsService: SettingsService) {
       if (!root) {
         return { ok: false, error: "Nothing was queued for download." };
       }
+
+      await logInfo("downloads", "Retrying downloads", {
+        count: queued.length,
+        modName: download.modName,
+        version: download.version,
+      });
 
       return { ok: true, data: root.key };
     },
