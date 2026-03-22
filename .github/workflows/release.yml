@@ -175,6 +175,11 @@ jobs:
       GH_TOKEN: ${{ github.token }}
 
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
       - name: Download Windows artifacts
         uses: actions/download-artifact@v6
         with:
