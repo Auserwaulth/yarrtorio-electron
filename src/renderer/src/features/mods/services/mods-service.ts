@@ -1,4 +1,8 @@
-import type { BrowseFilters, DownloadRequest } from "@shared/types/mod";
+import type {
+  BrowseFilters,
+  DownloadRequest,
+  DownloadProgress,
+} from "@shared/types/mod";
 
 export const modsService = {
   browse: (filters: BrowseFilters) => window.electronApi.mods.browse(filters),
@@ -14,4 +18,6 @@ export const modsService = {
     window.electronApi.mods.setEnabled({ modName, enabled }),
   enqueueDownload: (request: DownloadRequest) =>
     window.electronApi.downloads.enqueue(request),
+  retryDownload: (download: DownloadProgress) =>
+    window.electronApi.downloads.retry(download),
 };

@@ -80,6 +80,10 @@ export function registerIpc(settingsService: SettingsService): void {
     ipcChannels.downloads.list,
     safeHandle("downloads:list", downloadsHandler.list),
   );
+  ipcMain.handle(
+    ipcChannels.downloads.retry,
+    safeHandle("downloads:retry", downloadsHandler.retry),
+  );
 
   ipcMain.handle(
     ipcChannels.settings.get,

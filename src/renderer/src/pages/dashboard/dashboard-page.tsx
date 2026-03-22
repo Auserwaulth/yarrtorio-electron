@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AppMeta } from "@shared/types/app-meta";
 import { BentoTile } from "../../components/bento-tile";
 import { DownloadProgress } from "../../components/download-progress";
@@ -13,6 +14,8 @@ interface DashboardPageProps {
   onOpenBrowse(): void;
   openInstalled(): void;
   onSyncFromModList(): void;
+  onRetryDownload?: (download: DownloadItem) => void;
+  onRetryAllFailed?: (downloads: DownloadItem[]) => void;
   appMeta?: AppMeta | null;
 }
 
@@ -22,19 +25,44 @@ export function DashboardPage({
   onOpenBrowse,
   openInstalled,
   onSyncFromModList,
+  onRetryDownload,
+  onRetryAllFailed,
   appMeta,
 }: DashboardPageProps) {
+  const [activeTab, setActiveTab] = useState<"recent" | "failed">("recent");
+
   const activeDownloads = downloads.filter(
     (item) => item.state === "queued" || item.state === "running",
   );
 
   const recentDownloads = [...downloads]
     .sort((a, b) => {
+      const statePriority = {
+        running: 5,
+        queued: 4,
+        completed: 3,
+        failed: 2,
+        cancelled: 1,
+      };
+
+      const aPriority = statePriority[a.state];
+      const bPriority = statePriority[b.state];
+
+      if (aPriority !== bPriority) {
+        return bPriority - aPriority;
+      }
+
+      if (a.state === "running" || a.state === "queued") {
+        return a.createdAt - b.createdAt;
+      }
+
       const aTime = a.completedAt ?? a.updatedAt;
       const bTime = b.completedAt ?? b.updatedAt;
       return bTime - aTime;
     })
     .slice(0, 6);
+
+  const failedDownloads = downloads.filter((item) => item.state === "failed");
 
   return (
     <div className="grid gap-4 xl:grid-cols-3">
@@ -65,8 +93,48 @@ export function DashboardPage({
         </div>
       </BentoTile>
 
-      <BentoTile title="Recent downloads" className="xl:col-span-2">
-        <DownloadProgress items={recentDownloads} />
+      <BentoTile
+        title={activeTab === "recent" ? "Recent downloads" : "Failed downloads"}
+        className="xl:col-span-2"
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <div className="tabs tabs-boxed">
+            <button
+              className={`tab ${activeTab === "recent" ? "tab-active" : ""}`}
+              onClick={() => setActiveTab("recent")}
+            >
+              Recent
+            </button>
+            <button
+              className={`tab ${activeTab === "failed" ? "tab-active" : ""}`}
+              onClick={() => setActiveTab("failed")}
+            >
+              Failed
+              {failedDownloads.length > 0 && (
+                <span className="badge badge-error ml-2">
+                  {failedDownloads.length}
+                </span>
+              )}
+            </button>
+          </div>
+          {activeTab === "failed" && failedDownloads.length > 0 && (
+            <button
+              className="btn btn-error btn-sm"
+              onClick={() => onRetryAllFailed?.(failedDownloads)}
+            >
+              Retry All ({failedDownloads.length})
+            </button>
+          )}
+        </div>
+
+        {activeTab === "recent" ? (
+          <DownloadProgress items={recentDownloads} />
+        ) : (
+          <DownloadProgress
+            items={failedDownloads}
+            onRetry={onRetryDownload || (() => {})}
+          />
+        )}
       </BentoTile>
 
       <Credits appMeta={appMeta} />

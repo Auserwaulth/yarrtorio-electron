@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { modsService } from "../services/mods-service";
-import type { BrowseFilters } from "@shared/types/mod";
+import type { BrowseFilters, DownloadProgress } from "@shared/types/mod";
 import type { AppStore } from "../../../store/app-store";
 
 interface ModsActionOptions {
@@ -40,12 +40,29 @@ export function useModsActions(
   }
 
   async function selectMod(modName: string): Promise<void> {
+    // Immediately open modal with loading state
+    setStore((current) => ({
+      ...current,
+      selectedModPendingName: modName,
+      selectedModLoading: true,
+    }));
+
     const result = await modsService.details(modName);
     if (result.ok) {
-      setStore((current) => ({ ...current, selectedMod: result.data }));
+      setStore((current) => ({
+        ...current,
+        selectedMod: result.data,
+        selectedModLoading: false,
+      }));
       return;
     }
 
+    // On error, close the modal and report error
+    setStore((current) => ({
+      ...current,
+      selectedModPendingName: null,
+      selectedModLoading: false,
+    }));
     reportError(result.error);
   }
 
@@ -188,6 +205,20 @@ export function useModsActions(
     setBusy(false);
   }
 
+  async function retryDownload(download: DownloadProgress): Promise<void> {
+    const result = await modsService.retryDownload(download);
+    if (!result.ok) {
+      reportError(result.error);
+    }
+  }
+
+  async function retryAllFailed(downloads: DownloadProgress[]): Promise<void> {
+    const failedDownloads = downloads.filter((d) => d.state === "failed");
+    for (const download of failedDownloads) {
+      await retryDownload(download);
+    }
+  }
+
   return {
     browse,
     selectMod,
@@ -197,6 +228,8 @@ export function useModsActions(
     deleteInstalled,
     queueUpdateInstalled,
     setEnabled,
+    retryDownload,
+    retryAllFailed,
     busy,
   };
 }

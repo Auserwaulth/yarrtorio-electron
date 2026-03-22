@@ -10,8 +10,58 @@ import { TAB_LABELS, getInstallableDependencies, getPortalUrl } from "./utils";
 
 import { DownloadWarning } from "./components/download-warning";
 
+function SkeletonContent() {
+  return (
+    <div className="space-y-6 px-6 py-7 sm:px-8 sm:py-8">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0 space-y-1.5">
+          <div className="skeleton h-8 w-48"></div>
+          <div className="skeleton h-4 w-32"></div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <div className="skeleton btn btn-outline btn-sm w-28"></div>
+          <div className="skeleton btn btn-primary btn-sm w-32"></div>
+          <div className="skeleton btn btn-outline btn-sm btn-error w-20"></div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 text-sm">
+        <div className="skeleton badge badge-outline h-6 w-16"></div>
+        <div className="skeleton badge badge-outline h-6 w-24"></div>
+        <div className="skeleton badge badge-outline h-6 w-20"></div>
+      </div>
+
+      <div className="skeleton h-4 w-full"></div>
+      <div className="skeleton h-4 w-3/4"></div>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="skeleton h-12 w-full"></div>
+        <div className="skeleton h-12 w-full"></div>
+        <div className="skeleton h-12 w-full"></div>
+        <div className="skeleton h-12 w-full"></div>
+      </div>
+
+      <div className="tabs tabs-boxed skeleton p-1">
+        <div className="skeleton tab h-10 flex-1"></div>
+        <div className="skeleton tab h-10 flex-1"></div>
+        <div className="skeleton tab h-10 flex-1"></div>
+      </div>
+
+      <div className="space-y-3">
+        <div className="skeleton h-6 w-24"></div>
+        <div className="skeleton h-4 w-full"></div>
+        <div className="skeleton h-4 w-full"></div>
+        <div className="skeleton h-4 w-2/3"></div>
+      </div>
+    </div>
+  );
+}
+
 export function ModDetailsModal({
   mod,
+  loading = false,
+  pendingName,
   onClose,
   onDownload,
 }: ModDetailsModalProps) {
@@ -73,11 +123,11 @@ export function ModDetailsModal({
     return latestRelease ?? mod.releases[0] ?? null;
   }, [latestRelease, mod, selectedReleaseVersion]);
 
-  if (!mod) return null;
+  if (!mod && !pendingName) return null;
 
-  const activeImage = galleryImages[activeImageIndex] ?? mod.thumbnail;
+  const activeImage = galleryImages[activeImageIndex] ?? mod?.thumbnail;
   const isLatestDownloaded =
-    Boolean(mod.libraryState?.isInstalled) && latestVersion !== null;
+    Boolean(mod?.libraryState?.isInstalled) && latestVersion !== null;
 
   async function handleOpenExternal(url: string) {
     try {
@@ -110,197 +160,213 @@ export function ModDetailsModal({
   return (
     <dialog className="modal modal-open px-3 py-6 sm:px-6 sm:py-10">
       <div className="modal-box max-h-[92vh] max-w-5xl overflow-x-hidden p-0">
-        {activeImage ? (
+        {loading ? (
+          <div className="skeleton h-64 w-full"></div>
+        ) : activeImage ? (
           <figure className="bg-base-200 max-h-100 overflow-hidden">
             <img
               src={activeImage}
-              alt={mod.title}
+              alt={mod?.title}
               className="h-full w-full object-cover"
             />
           </figure>
         ) : null}
 
-        <div className="space-y-6 px-6 py-7 sm:px-8 sm:py-8">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0 space-y-1.5">
-              <h3 className="text-2xl leading-tight font-black">{mod.title}</h3>
-              <p className="text-base-content/70 text-sm">
-                {mod.name} · by {mod.owner}
-              </p>
+        {loading ? (
+          <SkeletonContent />
+        ) : (
+          <div className="space-y-6 px-6 py-7 sm:px-8 sm:py-8">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="min-w-0 space-y-1.5">
+                <h3 className="text-2xl leading-tight font-black">
+                  {mod?.title}
+                </h3>
+                <p className="text-base-content/70 text-sm">
+                  {mod?.name} · by {mod?.owner}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  className="btn btn-outline btn-sm"
+                  type="button"
+                  onClick={() => void handleOpenExternal(portalUrl)}
+                >
+                  View on Portal
+                </button>
+
+                {latestRelease ? (
+                  <button
+                    className="btn btn-primary btn-sm"
+                    type="button"
+                    disabled={isLatestDownloaded}
+                    onClick={() => requestDownload(latestRelease)}
+                  >
+                    {isLatestDownloaded
+                      ? "Downloaded latest"
+                      : "Download latest"}
+                  </button>
+                ) : null}
+
+                <button
+                  className="btn btn-outline btn-sm btn-error"
+                  type="button"
+                  onClick={handleClose}
+                >
+                  Close
+                </button>
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <button
-                className="btn btn-outline btn-sm"
-                type="button"
-                onClick={() => void handleOpenExternal(portalUrl)}
-              >
-                View on Portal
-              </button>
+            <div className="flex flex-wrap gap-2 text-sm">
+              <span className="badge badge-outline">
+                {mod?.category ?? "mod"}
+              </span>
 
-              {latestRelease ? (
-                <button
-                  className="btn btn-primary btn-sm"
-                  type="button"
-                  disabled={isLatestDownloaded}
-                  onClick={() => requestDownload(latestRelease)}
-                >
-                  {isLatestDownloaded ? "Downloaded latest" : "Download latest"}
-                </button>
+              {mod?.downloadsCount !== undefined ? (
+                <span className="badge badge-outline">
+                  {mod.downloadsCount.toLocaleString()} downloads
+                </span>
               ) : null}
 
-              <button
-                className="btn btn-outline btn-sm btn-error"
-                type="button"
-                onClick={handleClose}
-              >
-                Close
-              </button>
-            </div>
-          </div>
+              {latestVersion ? (
+                <span className="badge badge-primary badge-outline">
+                  Latest {latestVersion}
+                </span>
+              ) : null}
 
-          <div className="flex flex-wrap gap-2 text-sm">
-            <span className="badge badge-outline">{mod.category ?? "mod"}</span>
+              {mod?.libraryState?.isInstalled ? (
+                <span className="badge badge-success badge-soft">
+                  Downloaded
+                </span>
+              ) : null}
 
-            {mod.downloadsCount !== undefined ? (
-              <span className="badge badge-outline">
-                {mod.downloadsCount.toLocaleString()} downloads
-              </span>
-            ) : null}
-
-            {latestVersion ? (
-              <span className="badge badge-primary badge-outline">
-                Latest {latestVersion}
-              </span>
-            ) : null}
-
-            {mod.libraryState?.isInstalled ? (
-              <span className="badge badge-success badge-soft">Downloaded</span>
-            ) : null}
-
-            {mod.libraryState?.isInModList ? (
-              <span
-                className={`badge ${
-                  mod.libraryState.isEnabledInModList
-                    ? "badge-primary badge-soft"
-                    : "badge-warning badge-soft"
-                }`}
-              >
-                {mod.libraryState.isEnabledInModList
-                  ? "In mod-list"
-                  : "In mod-list (disabled)"}
-              </span>
-            ) : null}
-
-            {mod.tags.map((tag) => (
-              <span key={tag} className="badge badge-outline">
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {pendingDownload ? (
-            <DownloadWarning
-              pendingDownload={pendingDownload}
-              onConfirm={() => {
-                onDownload({
-                  version: pendingDownload.version,
-                  includeDependencies: true,
-                });
-                setPendingDownload(null);
-              }}
-              onSkipDependencies={() => {
-                onDownload({
-                  version: pendingDownload.version,
-                  includeDependencies: false,
-                });
-                setPendingDownload(null);
-              }}
-              onCancel={() => setPendingDownload(null)}
-            />
-          ) : null}
-
-          {galleryImages.length > 1 ? (
-            <GalleryImages
-              activeImageIndex={activeImageIndex}
-              setActiveImageIndex={setActiveImageIndex}
-              galleryImages={galleryImages}
-              modTitle={mod.title}
-            />
-          ) : null}
-
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <InfoLink
-              label="Source"
-              onOpen={handleOpenExternal}
-              url={mod.sourceUrl}
-            />
-            <InfoLink
-              label="Homepage"
-              onOpen={handleOpenExternal}
-              url={mod.homepageUrl}
-            />
-            <InfoLink
-              label="License"
-              onOpen={handleOpenExternal}
-              url={mod.licenseUrl}
-              value={mod.licenseName}
-            />
-            <InfoLink
-              label="Selected release"
-              onOpen={handleOpenExternal}
-              value={selectedRelease?.version ?? latestVersion ?? "No release"}
-            />
-          </div>
-
-          <div className="tabs tabs-box bg-base-200 p-1">
-            {(Object.entries(TAB_LABELS) as Array<[ModalTab, string]>).map(
-              ([tab, label]) => (
-                <button
-                  key={tab}
-                  type="button"
-                  role="tab"
-                  className={`tab flex-1 ${activeTab === tab ? "tab-active" : ""}`}
-                  onClick={() => setActiveTab(tab)}
+              {mod?.libraryState?.isInModList ? (
+                <span
+                  className={`badge ${
+                    mod.libraryState.isEnabledInModList
+                      ? "badge-primary badge-soft"
+                      : "badge-warning badge-soft"
+                  }`}
                 >
-                  {label}
-                </button>
-              ),
-            )}
+                  {mod.libraryState.isEnabledInModList
+                    ? "In mod-list"
+                    : "In mod-list (disabled)"}
+                </span>
+              ) : null}
+
+              {mod?.tags.map((tag) => (
+                <span key={tag} className="badge badge-outline">
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {pendingDownload ? (
+              <DownloadWarning
+                pendingDownload={pendingDownload}
+                onConfirm={() => {
+                  onDownload({
+                    version: pendingDownload.version,
+                    includeDependencies: true,
+                  });
+                  setPendingDownload(null);
+                }}
+                onSkipDependencies={() => {
+                  onDownload({
+                    version: pendingDownload.version,
+                    includeDependencies: false,
+                  });
+                  setPendingDownload(null);
+                }}
+                onCancel={() => setPendingDownload(null)}
+              />
+            ) : null}
+
+            {galleryImages.length > 1 ? (
+              <GalleryImages
+                activeImageIndex={activeImageIndex}
+                setActiveImageIndex={setActiveImageIndex}
+                galleryImages={galleryImages}
+                modTitle={mod?.title ?? ""}
+              />
+            ) : null}
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <InfoLink
+                label="Source"
+                onOpen={handleOpenExternal}
+                url={mod?.sourceUrl}
+              />
+              <InfoLink
+                label="Homepage"
+                onOpen={handleOpenExternal}
+                url={mod?.homepageUrl}
+              />
+              <InfoLink
+                label="License"
+                onOpen={handleOpenExternal}
+                url={mod?.licenseUrl}
+                value={mod?.licenseName}
+              />
+              <InfoLink
+                label="Selected release"
+                onOpen={handleOpenExternal}
+                value={
+                  selectedRelease?.version ?? latestVersion ?? "No release"
+                }
+              />
+            </div>
+
+            <div className="tabs tabs-box bg-base-200 p-1">
+              {(Object.entries(TAB_LABELS) as Array<[ModalTab, string]>).map(
+                ([tab, label]) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    role="tab"
+                    className={`tab flex-1 ${activeTab === tab ? "tab-active" : ""}`}
+                    onClick={() => setActiveTab(tab)}
+                  >
+                    {label}
+                  </button>
+                ),
+              )}
+            </div>
+
+            {activeTab === "overview" && mod ? (
+              <OverviewTab
+                summary={mod.summary}
+                description={mod.description}
+                descExpanded={descExpanded}
+                onOpenExternal={handleOpenExternal}
+                onToggleExpanded={() => setDescExpanded((current) => !current)}
+              />
+            ) : null}
+
+            {activeTab === "dependencies" ? (
+              <DependenciesTab
+                release={selectedRelease}
+                onDownload={requestDownload}
+              />
+            ) : null}
+
+            {activeTab === "releases" && mod ? (
+              <ReleasesTab
+                releases={mod.releases}
+                latestRelease={latestRelease}
+                latestVersion={latestVersion}
+                isLatestDownloaded={isLatestDownloaded}
+                selectedReleaseVersion={selectedRelease?.version ?? null}
+                onDownload={requestDownload}
+                onSelectRelease={(releaseVersion) => {
+                  setSelectedReleaseVersion(releaseVersion);
+                  setActiveTab("dependencies");
+                }}
+              />
+            ) : null}
           </div>
-
-          {activeTab === "overview" ? (
-            <OverviewTab
-              summary={mod.summary}
-              description={mod.description}
-              descExpanded={descExpanded}
-              onOpenExternal={handleOpenExternal}
-              onToggleExpanded={() => setDescExpanded((current) => !current)}
-            />
-          ) : null}
-
-          {activeTab === "dependencies" ? (
-            <DependenciesTab
-              release={selectedRelease}
-              onDownload={requestDownload}
-            />
-          ) : null}
-
-          {activeTab === "releases" ? (
-            <ReleasesTab
-              releases={mod.releases}
-              latestRelease={latestRelease}
-              latestVersion={latestVersion}
-              isLatestDownloaded={isLatestDownloaded}
-              selectedReleaseVersion={selectedRelease?.version ?? null}
-              onDownload={requestDownload}
-              onSelectRelease={(releaseVersion) => {
-                setSelectedReleaseVersion(releaseVersion);
-                setActiveTab("dependencies");
-              }}
-            />
-          ) : null}
-        </div>
+        )}
       </div>
 
       <form method="dialog" className="modal-backdrop">

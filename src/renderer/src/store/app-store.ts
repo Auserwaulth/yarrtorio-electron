@@ -17,6 +17,8 @@ export interface AppStore {
   mods: ModSummary[];
   modsPagination: BrowsePagination | null;
   selectedMod: ModDetails | null;
+  selectedModLoading: boolean;
+  selectedModPendingName: string | null;
   installed: InstalledMod[];
   downloads: DownloadProgress[];
 }
@@ -27,6 +29,8 @@ const initialStore: AppStore = {
   mods: [],
   modsPagination: null,
   selectedMod: null,
+  selectedModLoading: false,
+  selectedModPendingName: null,
   installed: [],
   downloads: [],
 };
@@ -35,6 +39,28 @@ function upsertRecentDownload(
   downloads: DownloadProgress[],
   progress: DownloadProgress,
 ): DownloadProgress[] {
+  // When a new download starts (queued/running), remove any failed entries for the same mod
+  if (progress.state === "queued" || progress.state === "running") {
+    const filtered = downloads.filter(
+      (item) =>
+        !(
+          item.modName === progress.modName &&
+          item.version === progress.version &&
+          item.state === "failed"
+        ),
+    );
+    // Also remove the existing entry if it has the same key
+    const existingIndex = filtered.findIndex(
+      (item) => item.key === progress.key,
+    );
+    if (existingIndex === -1) {
+      return [progress, ...filtered].slice(0, MAX_DOWNLOAD_HISTORY);
+    }
+    const next = [...filtered];
+    next[existingIndex] = progress;
+    return next;
+  }
+
   const existingIndex = downloads.findIndex(
     (item) => item.key === progress.key,
   );
@@ -46,9 +72,7 @@ function upsertRecentDownload(
   const next = [...downloads];
   next[existingIndex] = progress;
 
-  return next
-    .sort((a, b) => b.updatedAt - a.updatedAt)
-    .slice(0, MAX_DOWNLOAD_HISTORY);
+  return next;
 }
 
 export function useAppStore() {

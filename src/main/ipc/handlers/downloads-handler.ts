@@ -4,7 +4,11 @@ import { ipcChannels } from "@shared/contracts/ipc-contracts";
 import { downloadRequestSchema } from "@shared/validation/schemas";
 import { DownloadQueue } from "../../downloads/download-queue";
 import { resolveDownloadPlan } from "../../mods/mod-download-plan";
-import type { OperationResult } from "@shared/types/mod";
+import type {
+  OperationResult,
+  DownloadProgress,
+  DownloadRequest,
+} from "@shared/types/mod";
 import type { SettingsService } from "../../services/settings-service";
 
 export function createDownloadsHandler(settingsService: SettingsService) {
@@ -69,6 +73,32 @@ export function createDownloadsHandler(settingsService: SettingsService) {
       });
 
       const queued = plan.map((request) => queue.enqueue(request));
+      const root = queued.at(-1) ?? queued[0];
+
+      if (!root) {
+        return { ok: false, error: "Nothing was queued for download." };
+      }
+
+      return { ok: true, data: root.key };
+    },
+    retry: async (
+      _event: IpcMainInvokeEvent,
+      download: DownloadProgress,
+    ): Promise<OperationResult<string>> => {
+      const settings = await settingsService.getSettings();
+      queue.setConcurrency(settings.concurrency);
+      const request: DownloadRequest = {
+        modName: download.modName,
+        version: download.version,
+        targetFolder: settings.modsFolder,
+        replaceExisting: true,
+      };
+      const plan = await resolveDownloadPlan({
+        ...request,
+        includeDependencies: false,
+      });
+
+      const queued = plan.map((req) => queue.enqueue(req));
       const root = queued.at(-1) ?? queued[0];
 
       if (!root) {

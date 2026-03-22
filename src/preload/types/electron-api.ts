@@ -36,6 +36,7 @@ export interface ElectronApi {
   downloads: {
     enqueue(request: DownloadRequest): Promise<OperationResult<string>>;
     list(): Promise<OperationResult<DownloadProgress[]>>;
+    retry(download: DownloadProgress): Promise<OperationResult<string>>;
     onProgress(listener: (progress: DownloadProgress) => void): () => void;
   };
   settings: {

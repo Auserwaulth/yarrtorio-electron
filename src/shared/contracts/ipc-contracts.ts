@@ -11,6 +11,7 @@ export const ipcChannels = {
   downloads: {
     enqueue: "downloads:enqueue",
     list: "downloads:list",
+    retry: "downloads:retry",
     subscribe: "downloads:progress",
     unsubscribe: "downloads:unsubscribe",
   },

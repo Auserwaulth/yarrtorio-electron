@@ -1,5 +1,5 @@
 import { BentoTile } from "../../components/bento-tile";
-import { ModCard } from "../../components/mod-card";
+import { ModCard, ModCardSkeleton } from "../../components/mod-card";
 import { ModFilters } from "../../components/mod-filters";
 import { BrowseTabs } from "../../components/browse-tabs";
 import type {
@@ -94,17 +94,21 @@ export function BrowsePage(props: BrowsePageProps) {
         paginationComponent(props.pagination, props.busy, props.onApply)}
 
       <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
-        {props.mods.map((mod) => (
-          <ModCard
-            key={mod.name}
-            mod={mod}
-            onOpen={props.onOpen}
-            onDownload={props.onDownload}
-          />
-        ))}
+        {props.busy
+          ? Array.from({ length: 12 }).map((_, i) => (
+              <ModCardSkeleton key={i} />
+            ))
+          : props.mods.map((mod) => (
+              <ModCard
+                key={mod.name}
+                mod={mod}
+                onOpen={props.onOpen}
+                onDownload={props.onDownload}
+              />
+            ))}
       </div>
 
-      {props.mods.length === 0 && (
+      {!props.busy && props.mods.length === 0 && (
         <div className="bg-base-200 rounded-xl border border-dashed p-6 text-center">
           <p>No mods matched the current filters.</p>
         </div>

@@ -6,6 +6,8 @@ export const downloadsApi: ElectronApi["downloads"] = {
   enqueue: (request) =>
     ipcRenderer.invoke(ipcChannels.downloads.enqueue, request),
   list: () => ipcRenderer.invoke(ipcChannels.downloads.list),
+  retry: (download) =>
+    ipcRenderer.invoke(ipcChannels.downloads.retry, download),
   onProgress: (listener) => {
     const wrapped = (
       _event: unknown,

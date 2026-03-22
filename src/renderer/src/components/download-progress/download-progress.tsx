@@ -4,7 +4,7 @@ function formatStatus(state: string): string {
   return state.charAt(0).toUpperCase() + state.slice(1);
 }
 
-export function DownloadProgress({ items }: DownloadProgressProps) {
+export function DownloadProgress({ items, onRetry }: DownloadProgressProps) {
   if (items.length === 0) {
     return (
       <div className="border-base-300 text-base-content/60 rounded-2xl border border-dashed p-6 text-sm">
@@ -14,7 +14,7 @@ export function DownloadProgress({ items }: DownloadProgressProps) {
   }
 
   return (
-    <div className="grid gap-3 md:grid-cols-2">
+    <div className="grid max-h-96 gap-3 overflow-y-auto md:grid-cols-2">
       {items.map((item) => {
         const statusClass =
           item.state === "failed"
@@ -54,6 +54,16 @@ export function DownloadProgress({ items }: DownloadProgressProps) {
               <span>{progressValue}%</span>
               <span className="truncate text-right">{progressLabel}</span>
             </div>
+            {item.state === "failed" && onRetry && (
+              <div className="mt-3">
+                <button
+                  className="btn btn-sm btn-outline btn-error"
+                  onClick={() => onRetry(item)}
+                >
+                  Retry Download
+                </button>
+              </div>
+            )}
           </div>
         );
       })}

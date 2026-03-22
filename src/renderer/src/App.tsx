@@ -104,6 +104,12 @@ export function App() {
             onSyncFromModList={() =>
               void modsActions.syncFromModList(includeDisabled)
             }
+            onRetryDownload={(download) =>
+              void modsActions.retryDownload(download)
+            }
+            onRetryAllFailed={(downloads) =>
+              void modsActions.retryAllFailed(downloads)
+            }
             appMeta={store.appMeta}
           />
         )}
@@ -185,8 +191,15 @@ export function App() {
 
       <ModDetailsModal
         mod={store.selectedMod}
+        loading={store.selectedModLoading}
+        pendingName={store.selectedModPendingName}
         onClose={() =>
-          setStore((current) => ({ ...current, selectedMod: null }))
+          setStore((current) => ({
+            ...current,
+            selectedMod: null,
+            selectedModLoading: false,
+            selectedModPendingName: null,
+          }))
         }
         onDownload={(selection) =>
           store.selectedMod

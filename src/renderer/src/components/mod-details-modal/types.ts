@@ -7,6 +7,8 @@ export interface ModDownloadSelection {
 
 export interface ModDetailsModalProps {
   mod: ModDetails | null;
+  loading?: boolean;
+  pendingName?: string | null;
   onClose(): void;
   onDownload(selection: ModDownloadSelection): void;
 }
