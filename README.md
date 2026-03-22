@@ -2,6 +2,25 @@
 
 Desktop Factorio mod downloader and manager built with Electron, Vite, React, TypeScript, Tailwind CSS, and daisyUI.
 
+## Quick Navigation
+
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [How it works](#how-it-works)
+- [Project Structure](#project-structure)
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+- [Available Scripts](#available-scripts)
+- [Building](#building)
+- [Settings](#settings)
+- [Download Behavior](#download-behavior)
+- [Data Sources](#data-sources)
+- [Packaging](#packaging)
+- [Notes for Contributors](#notes-for-contributors)
+- [Current Gaps / Nice Next Steps](#current-gaps--nice-next-steps)
+- [Credits](#credits)
+
 ## Overview
 
 Yarrtorio is a desktop app for browsing Factorio mods, viewing release details, queuing downloads, syncing against `mod-list.json`, and managing installed mod archives from a local mods folder.
@@ -10,7 +29,7 @@ The app uses Electron for the desktop shell, a React renderer for the UI, and a 
 
 ## Features
 
-- Browse Factorio mods with search, tabs, category filters, tag filters, version filters, and pagination
+- Browse Factorio mods with search, tabs, tag filters, version filters, and pagination
 - View full mod details, releases, dependencies, images, source/homepage/license links, and descriptions
 - Queue downloads for a selected version, with optional dependency downloads
 - Track download state for queued, running, completed, failed, and cancelled downloads
@@ -136,6 +155,29 @@ npm run typecheck  # TypeScript check without emitting files
 npm run dist       # build Windows NSIS + portable packages
 ```
 
+## Building
+
+To build the app for distribution, run:
+
+```bash
+npm install
+npm run dist
+```
+
+This will:
+
+1. Run `npm run build` to compile main, preload, and renderer using electron-vite
+2. Use electron-builder to create Windows packages
+
+### Output
+
+After building, the distributable files will be in the `release` folder:
+
+- `Yarrtorio-Setup-<version>-x64.exe` - NSIS installer
+- `Yarrtorio-Portable-<version>-x64.exe` - Portable executable
+
+You can also run `npm run build` alone if you just want the compiled output without packaging. The built files will be in the `out` folder.
+
 ## Settings
 
 The app persists settings in Electron's `userData` directory. Current settings in source include:
@@ -197,7 +239,7 @@ Typical flow:
 ## Current Gaps / Nice Next Steps
 
 - better error reporting and structured logging (mayhaps)
-- richer loading states and skeleton UI
+- ~~richer loading states and skeleton UI~~
 - stronger end-to-end type-safe settings evolution/migrations (maybe)
 - tests for reducers, mappers, and settings/mod parser flows
 - Linux/macOS packaging if needed
