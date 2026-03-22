@@ -33,11 +33,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-release-windows:
+  build-windows:
     runs-on: windows-latest
-
-    env:
-      GH_TOKEN: ${{ github.token }}
 
     steps:
       - name: Check out repository
@@ -98,18 +95,15 @@ jobs:
       - name: Upload workflow artifacts (Windows)
         uses: actions/upload-artifact@v6
         with:
-          name: yarrtorio-release-windows-${{ env.RELEASE_TAG }}
+          name: yarrtorio-release-windows
           path: |
             dist/*.exe
             dist/*.blockmap
             dist/latest*.yml
           if-no-files-found: warn
 
-  build-and-release-linux:
+  build-linux:
     runs-on: ubuntu-latest
-
-    env:
-      GH_TOKEN: ${{ github.token }}
 
     steps:
       - name: Check out repository
@@ -166,66 +160,81 @@ jobs:
       - name: Upload workflow artifacts (Linux)
         uses: actions/upload-artifact@v6
         with:
-          name: yarrtorio-release-linux-${{ env.RELEASE_TAG }}
+          name: yarrtorio-release-linux
           path: |
             dist/*.AppImage
             dist/*.blockmap
             dist/latest*.yml
           if-no-files-found: warn
 
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-linux]
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: yarrtorio-release-windows
+          path: dist-windows
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: yarrtorio-release-linux
+          path: dist-linux
+
+      - name: Set release variables for manual run
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          VERSION='${{ inputs.release_version }}'
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "RELEASE_TAG=v$VERSION" >> $GITHUB_ENV
+
+      - name: Set release variables for tag push
+        if: github.event_name == 'push'
+        run: |
+          TAG='${{ github.ref_name }}'
+          VERSION="${TAG:1}"
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
+
       - name: Create or update GitHub release
-        shell: pwsh
         run: |
-          $tag = $env:RELEASE_TAG
-          $title = "Yarrtorio $($env:RELEASE_VERSION)"
-          $notes = "${{ inputs.release_notes }}"
-
-          $releaseExists = $true
-          gh release view $tag | Out-Null
-          if ($LASTEXITCODE -ne 0) {
-            $releaseExists = $false
-          }
-
-          if ($releaseExists) {
-            gh release edit $tag --title $title $(if ('${{ inputs.prerelease }}' -eq 'true') { '--prerelease' }) $(if ('${{ inputs.draft }}' -eq 'true') { '--draft' })
-          }
-          else {
-            if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
-              if ([string]::IsNullOrWhiteSpace($notes)) {
-                gh release create $tag --title $title --target '${{ github.sha }}' --generate-notes $(if ('${{ inputs.prerelease }}' -eq 'true') { '--prerelease' }) $(if ('${{ inputs.draft }}' -eq 'true') { '--draft' })
-              }
-              else {
-                $tmp = New-TemporaryFile
-                Set-Content -Path $tmp -Value $notes
-                gh release create $tag --title $title --target '${{ github.sha }}' --notes-file $tmp $(if ('${{ inputs.prerelease }}' -eq 'true') { '--prerelease' }) $(if ('${{ inputs.draft }}' -eq 'true') { '--draft' })
-              }
-            }
-            else {
-              gh release create $tag --title $title --verify-tag --generate-notes
-            }
-          }
-
-      - name: Upload assets to GitHub release (Windows)
-        shell: pwsh
-        run: |
-          $files = Get-ChildItem -Path dist -File | Where-Object {
-            $_.Extension -in '.exe', '.blockmap', '.yml'
-          } | Select-Object -ExpandProperty FullName
-
-          if (-not $files) {
-            throw 'No release files were found in dist.'
-          }
-
-          gh release upload $env:RELEASE_TAG $files --clobber
-
-      - name: Upload assets to GitHub release (Linux)
-        run: |
-          shopt -s nullglob
-          files=(dist/*.AppImage dist/*.blockmap dist/latest*.yml)
-
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "No release files were found in dist."
-            exit 1
+          TAG="$RELEASE_TAG"
+          TITLE="Yarrtorio $RELEASE_VERSION"
+          
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --title "$TITLE" \
+              $([ '${{ inputs.prerelease }}' == 'true' ] && echo "--prerelease" || true) \
+              $([ '${{ inputs.draft }}' == 'true' ] && echo "--draft" || true)
+          else
+            if [ '${{ github.event_name }}' == 'workflow_dispatch' ]; then
+              NOTES='${{ inputs.release_notes }}'
+              if [ -z "$NOTES" ]; then
+                gh release create "$TAG" --title "$TITLE" --target '${{ github.sha }}' --generate-notes
+              else
+                echo "$NOTES" > /tmp/notes.txt
+                gh release create "$TAG" --title "$TITLE" --target '${{ github.sha }}' --notes-file /tmp/notes.txt
+              fi
+            else
+              gh release create "$TAG" --title "$TITLE" --verify-tag --generate-notes
+            fi
           fi
 
-          gh release upload $env.RELEASE_TAG "${files[@]}" --clobber
+      - name: Upload all assets to GitHub release
+        run: |
+          TAG="$RELEASE_TAG"
+          
+          # Upload Windows assets
+          for f in dist-windows/*; do
+            [ -f "$f" ] && gh release upload "$TAG" "$f" --clobber
+          done
+          
+          # Upload Linux assets
+          for f in dist-linux/*; do
+            [ -f "$f" ] && gh release upload "$TAG" "$f" --clobber
+          done
