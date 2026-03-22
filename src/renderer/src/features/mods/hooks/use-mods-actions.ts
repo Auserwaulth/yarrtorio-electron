@@ -219,14 +219,22 @@ export function useModsActions(
     }
   }
 
-  async function fetchLatestVersions(): Promise<void> {
+  async function fetchLatestVersions(): Promise<number> {
     const result = await modsService.getLatestVersions();
+    let updateCount = 0;
     if (result.ok) {
-      setStore((current) => ({
-        ...current,
-        latestVersions: result.data,
-      }));
+      setStore((current) => {
+        updateCount = current.installed.filter(
+          (mod) =>
+            result.data[mod.name] && result.data[mod.name] !== mod.version,
+        ).length;
+        return {
+          ...current,
+          latestVersions: result.data,
+        };
+      });
     }
+    return updateCount;
   }
 
   return {

@@ -166,7 +166,17 @@ export function App() {
               void modsActions.setEnabled(modName, enabled)
             }
             onOpen={(modName) => void modsActions.selectMod(modName)}
-            onCheckUpdates={() => void modsActions.fetchLatestVersions()}
+            onCheckUpdates={async () => {
+              const updateCount = await modsActions.fetchLatestVersions();
+              if (updateCount > 0) {
+                pushToast(
+                  "info",
+                  `${updateCount} mod${updateCount === 1 ? "" : "s"} ${updateCount === 1 ? "has" : "have"} updates available`,
+                );
+              } else {
+                pushToast("info", "All mods are up to date");
+              }
+            }}
           />
         )}
 

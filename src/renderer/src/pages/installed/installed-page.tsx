@@ -97,7 +97,7 @@ export function InstalledPage({
             disabled={busy}
             type="button"
           >
-            Check for updates
+            {busy ? "Checking..." : "Check for updates"}
           </button>
         </div>
       </div>
