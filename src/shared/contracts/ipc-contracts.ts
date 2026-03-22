@@ -7,6 +7,7 @@ export const ipcChannels = {
     deleteInstalled: "mods:delete-installed",
     queueUpdateInstalled: "mods:queue-update-installed",
     setEnabled: "mods:set-enabled",
+    getLatestVersions: "mods:get-latest-versions",
   },
   downloads: {
     enqueue: "downloads:enqueue",

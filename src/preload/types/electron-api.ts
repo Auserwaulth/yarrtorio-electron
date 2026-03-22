@@ -32,6 +32,7 @@ export interface ElectronApi {
       modName: string;
       enabled: boolean;
     }): Promise<OperationResult<boolean>>;
+    getLatestVersions(): Promise<OperationResult<Record<string, string>>>;
   };
   downloads: {
     enqueue(request: DownloadRequest): Promise<OperationResult<string>>;

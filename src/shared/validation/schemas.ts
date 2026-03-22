@@ -25,6 +25,7 @@ export const modListFileSchema = z.object({
     z.object({
       name: z.string().min(1),
       enabled: z.boolean(),
+      version: z.string().optional(),
     }),
   ),
 });

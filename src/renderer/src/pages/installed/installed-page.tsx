@@ -6,9 +6,12 @@ import { InstalledPageSkeleton } from "./installed-page-skeleton";
 interface InstalledPageProps {
   items: InstalledMod[];
   busy: boolean;
+  latestVersions: Record<string, string>;
   onDelete(modName: string, filePath: string): void;
   onUpdate(modName: string, filePath: string): void;
   onToggleEnabled(modName: string, enabled: boolean): void;
+  onOpen(modName: string): void;
+  onCheckUpdates(): void;
 }
 
 type StatusFilter = "all" | "enabled" | "disabled";
@@ -25,9 +28,12 @@ const statusFilters: Array<{
 export function InstalledPage({
   items,
   busy,
+  latestVersions,
   onDelete,
   onUpdate,
   onToggleEnabled,
+  onOpen,
+  onCheckUpdates,
 }: InstalledPageProps) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -71,7 +77,7 @@ export function InstalledPage({
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {statusFilters.map((filter) => (
             <button
               key={filter.key}
@@ -85,6 +91,14 @@ export function InstalledPage({
               {filter.label}
             </button>
           ))}
+          <button
+            className="btn btn-sm btn-outline"
+            onClick={onCheckUpdates}
+            disabled={busy}
+            type="button"
+          >
+            Check for updates
+          </button>
         </div>
       </div>
 
@@ -96,7 +110,8 @@ export function InstalledPage({
             <thead className="bg-base-100 sticky top-0 z-10">
               <tr>
                 <th>Name</th>
-                <th>Version</th>
+                <th>Installed</th>
+                <th>Latest</th>
                 <th>Enabled</th>
                 <th>Archive</th>
                 <th className="text-right">Actions</th>
@@ -107,6 +122,21 @@ export function InstalledPage({
                 <tr key={item.filePath}>
                   <td>{item.name}</td>
                   <td>{item.version}</td>
+                  <td>
+                    {latestVersions[item.name] ? (
+                      <span
+                        className={
+                          latestVersions[item.name] !== item.version
+                            ? "text-warning"
+                            : ""
+                        }
+                      >
+                        {latestVersions[item.name]}
+                      </span>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
                   <td>
                     <input
                       type="checkbox"
@@ -121,6 +151,13 @@ export function InstalledPage({
                   <td className="max-w-56 truncate">{item.fileName}</td>
                   <td>
                     <div className="flex justify-end gap-2">
+                      <button
+                        className="btn btn-sm"
+                        disabled={busy}
+                        onClick={() => onOpen(item.name)}
+                      >
+                        Details
+                      </button>
                       <button
                         className="btn btn-sm"
                         disabled={busy}

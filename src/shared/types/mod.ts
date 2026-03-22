@@ -26,6 +26,7 @@ export interface ModLibraryState {
 export interface ModListEntry {
   name: string;
   enabled: boolean;
+  version?: string;
 }
 
 export interface InstalledMod {

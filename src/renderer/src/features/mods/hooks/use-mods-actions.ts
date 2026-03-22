@@ -219,6 +219,16 @@ export function useModsActions(
     }
   }
 
+  async function fetchLatestVersions(): Promise<void> {
+    const result = await modsService.getLatestVersions();
+    if (result.ok) {
+      setStore((current) => ({
+        ...current,
+        latestVersions: result.data,
+      }));
+    }
+  }
+
   return {
     browse,
     selectMod,
@@ -230,6 +240,7 @@ export function useModsActions(
     setEnabled,
     retryDownload,
     retryAllFailed,
+    fetchLatestVersions,
     busy,
   };
 }

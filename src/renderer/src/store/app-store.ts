@@ -21,6 +21,7 @@ export interface AppStore {
   selectedModPendingName: string | null;
   installed: InstalledMod[];
   downloads: DownloadProgress[];
+  latestVersions: Record<string, string>;
 }
 
 const initialStore: AppStore = {
@@ -33,6 +34,7 @@ const initialStore: AppStore = {
   selectedModPendingName: null,
   installed: [],
   downloads: [],
+  latestVersions: {},
 };
 
 function upsertRecentDownload(

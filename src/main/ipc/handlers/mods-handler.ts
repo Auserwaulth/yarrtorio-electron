@@ -195,8 +195,12 @@ export function createModsHandler(
 
       for (const entry of managedMods) {
         const details = await getModDetails(entry.name);
+
+        // Use version from mod-list if specified, otherwise get latest
         const version =
-          details.latestRelease?.version ?? details.releases[0]?.version;
+          entry.version ??
+          details.latestRelease?.version ??
+          details.releases[0]?.version;
 
         resolvedMods.push(details);
 
@@ -258,6 +262,7 @@ export function createModsHandler(
       await upsertModListEntry(settings, {
         name: parsed.data.modName,
         enabled: true,
+        version,
       });
 
       const progress = queue.enqueue({
@@ -286,6 +291,37 @@ export function createModsHandler(
         enabled: parsed.data.enabled,
       });
       return { ok: true, data: true };
+    },
+
+    getLatestVersions: async (): Promise<
+      OperationResult<Record<string, string>>
+    > => {
+      const settings = await settingsService.getSettings();
+
+      if (!settings.modsFolder) {
+        return { ok: true, data: {} };
+      }
+
+      const installed = await listInstalledMods(settings.modsFolder);
+      const latestVersions: Record<string, string> = {};
+
+      // Fetch latest version for each installed mod
+      await Promise.all(
+        installed.map(async (mod) => {
+          try {
+            const details = await getModDetails(mod.name);
+            const latest =
+              details.latestRelease?.version ?? details.releases[0]?.version;
+            if (latest) {
+              latestVersions[mod.name] = latest;
+            }
+          } catch {
+            // Ignore errors for individual mods
+          }
+        }),
+      );
+
+      return { ok: true, data: latestVersions };
     },
   };
 }

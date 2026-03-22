@@ -20,4 +20,5 @@ export const modsService = {
     window.electronApi.downloads.enqueue(request),
   retryDownload: (download: DownloadProgress) =>
     window.electronApi.downloads.retry(download),
+  getLatestVersions: () => window.electronApi.mods.getLatestVersions(),
 };

@@ -73,6 +73,11 @@ export function registerIpc(settingsService: SettingsService): void {
   );
 
   ipcMain.handle(
+    ipcChannels.mods.getLatestVersions,
+    safeHandle("mods:get-latest-versions", modsHandler.getLatestVersions),
+  );
+
+  ipcMain.handle(
     ipcChannels.downloads.enqueue,
     safeHandle("downloads:enqueue", downloadsHandler.enqueue),
   );

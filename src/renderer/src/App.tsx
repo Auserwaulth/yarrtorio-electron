@@ -74,6 +74,12 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
+  useEffect(() => {
+    if (page !== "installed") return;
+    void modsActions.fetchLatestVersions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
   if (loading) {
     return <AppLoadingScreen progress={progress} stage={stage} />;
   }
@@ -149,6 +155,7 @@ export function App() {
           <InstalledPage
             items={store.installed}
             busy={modsActions.busy}
+            latestVersions={store.latestVersions}
             onDelete={(modName, filePath) =>
               void modsActions.deleteInstalled(modName, filePath)
             }
@@ -158,6 +165,8 @@ export function App() {
             onToggleEnabled={(modName, enabled) =>
               void modsActions.setEnabled(modName, enabled)
             }
+            onOpen={(modName) => void modsActions.selectMod(modName)}
+            onCheckUpdates={() => void modsActions.fetchLatestVersions()}
           />
         )}
 
