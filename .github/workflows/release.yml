@@ -161,7 +161,7 @@ jobs:
         run: npx electron-vite build
 
       - name: Package app (Linux)
-        run: npx electron-builder --linux AppImage deb --x64 --publish never
+        run: npx electron-builder --linux AppImage --x64 --publish never
 
       - name: Upload workflow artifacts (Linux)
         uses: actions/upload-artifact@v6
@@ -169,7 +169,6 @@ jobs:
           name: yarrtorio-release-linux-${{ env.RELEASE_TAG }}
           path: |
             dist/*.AppImage
-            dist/*.deb
             dist/*.blockmap
             dist/latest*.yml
           if-no-files-found: warn
@@ -222,7 +221,7 @@ jobs:
       - name: Upload assets to GitHub release (Linux)
         run: |
           shopt -s nullglob
-          files=(dist/*.AppImage dist/*.deb dist/*.blockmap dist/latest*.yml)
+          files=(dist/*.AppImage dist/*.blockmap dist/latest*.yml)
 
           if [ ${#files[@]} -eq 0 ]; then
             echo "No release files were found in dist."

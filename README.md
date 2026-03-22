@@ -136,7 +136,7 @@ src/
 
 - Node.js 20+ recommended
 - npm
-- Windows and Linux (AppImage, deb) are supported packaging targets
+- Windows and Linux (AppImage) are supported packaging targets
 - A valid Factorio mods folder for installed-mod management
 - Network access to the Factorio Mod Portal/API for browse/details/download planning
 
@@ -175,8 +175,8 @@ npm run build         # build main, preload, and renderer output
 npm run preview       # preview the built app with electron-vite
 npm run typecheck     # TypeScript check without emitting files
 npm run dist          # build Windows NSIS + portable packages
-npm run dist:linux    # build Linux AppImage + deb packages (x64)
-pm run dist:linux:arm64 # build Linux AppImage + deb packages (arm64)
+npm run dist:linux    # build Linux AppImage (x64)
+npm run dist:linux:arm64 # build Linux AppImage (arm64)
 ```
 
 ## Building
@@ -201,8 +201,6 @@ After building, the distributable files will be in the `release` folder:
 - `Yarrtorio-Portable-<version>-x64.exe` - Portable executable (Windows)
 - `Yarrtorio-<version>-x64.AppImage` - AppImage (Linux x64)
 - `Yarrtorio-<version>-arm64.AppImage` - AppImage (Linux arm64)
-- `Yarrtorio_<version>_amd64.deb` - Debian package (Linux x64)
-- `Yarrtorio_<version>_arm64.deb` - Debian package (Linux arm64)
 
 You can also run `npm run build` alone if you just want the compiled output without packaging. The built files will be in the `out` folder.
 
@@ -244,7 +242,6 @@ The project is configured to produce builds for Windows and Linux via `electron-
 ### Linux
 
 - AppImage (x64 and arm64)
-- Debian packages (.deb) (x64 and arm64)
 
 Icons live under `resources/icons`. The PNG icon is used for Linux builds.
 

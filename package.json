@@ -13,8 +13,8 @@
     "preview": "electron-vite preview",
     "typecheck": "tsc --noEmit",
     "dist": "npm run build && electron-builder --win portable nsis --x64",
-    "dist:linux": "npm run build && electron-builder --linux AppImage deb --x64",
-    "dist:linux:arm64": "npm run build && electron-builder --linux AppImage deb --arm64",
+    "dist:linux": "npm run build && electron-builder --linux AppImage --x64",
+    "dist:linux:arm64": "npm run build && electron-builder --linux AppImage --arm64",
     "format": "prettier . --write",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
@@ -100,21 +100,10 @@
             "x64",
             "arm64"
           ]
-        },
-        {
-          "target": "deb",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
         }
       ],
       "category": "Game",
       "icon": "resources/icons"
-    },
-    "deb": {
-      "depends": [],
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
     },
     "appImage": {
       "artifactName": "${productName}-${version}-${arch}.${ext}"
