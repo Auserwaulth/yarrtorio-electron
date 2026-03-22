@@ -240,7 +240,7 @@ Typical flow:
 
 - ~~better error reporting and structured logging (mayhaps)~~
 - ~~richer loading states and skeleton UI~~
-- stronger end-to-end type-safe settings evolution/migrations (maybe)
+- ~~stronger end-to-end type-safe settings evolution/migrations (maybe)~~
 - tests for reducers, mappers, and settings/mod parser flows
 - Linux/macOS packaging if needed
 - README badges, screenshots, and contribution guide (idk)
