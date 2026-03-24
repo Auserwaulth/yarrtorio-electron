@@ -211,7 +211,7 @@ jobs:
         run: |
           TAG="$RELEASE_TAG"
           TITLE="Yarrtorio $RELEASE_VERSION"
-          
+
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release edit "$TAG" --title "$TITLE" \
               $([ '${{ inputs.prerelease }}' == 'true' ] && echo "--prerelease" || true) \
@@ -233,12 +233,12 @@ jobs:
       - name: Upload all assets to GitHub release
         run: |
           TAG="$RELEASE_TAG"
-          
+
           # Upload Windows assets
           for f in dist-windows/*; do
             [ -f "$f" ] && gh release upload "$TAG" "$f" --clobber
           done
-          
+
           # Upload Linux assets
           for f in dist-linux/*; do
             [ -f "$f" ] && gh release upload "$TAG" "$f" --clobber

@@ -6,6 +6,21 @@ import {
   getSkippedDependencies,
 } from "../utils";
 
+/**
+ * A tab component that displays all dependencies for a mod release.
+ * Shows required, optional, hidden optional, and incompatible dependencies,
+ * as well as which ones will be auto-downloaded or skipped.
+ *
+ * @param props - Component props
+ * @param props.release - The selected release to show dependencies for
+ * @param props.onDownload - Callback to download a release
+ *
+ * @example
+ * <DependenciesTab
+ *   release={selectedRelease}
+ *   onDownload={(r) => download(r)}
+ * />
+ */
 export function DependenciesTab({ release, onDownload }: DependenciesTabProps) {
   const requiredDependencies = getDependenciesByKind(release, "required");
   const optionalDependencies = getDependenciesByKind(release, "optional");

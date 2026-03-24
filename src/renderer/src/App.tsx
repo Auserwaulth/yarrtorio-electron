@@ -77,8 +77,7 @@ export function App() {
   useEffect(() => {
     if (page !== "installed") return;
     void modsActions.fetchLatestVersions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, modsActions]);
 
   if (loading) {
     return <AppLoadingScreen progress={progress} stage={stage} />;

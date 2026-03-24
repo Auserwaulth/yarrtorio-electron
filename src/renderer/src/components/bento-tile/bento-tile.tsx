@@ -1,5 +1,14 @@
 import type { BentoTileProps } from "./bento-tile.types";
 
+/**
+ * A card-like container component with a glassmorphism effect.
+ * Features a title bar with optional action button and a content area.
+ *
+ * @example
+ * <BentoTile title="Mods" action={<Button>Install</Button>}>
+ *   <p>Mod content here</p>
+ * </BentoTile>
+ */
 export function BentoTile({
   title,
   action,

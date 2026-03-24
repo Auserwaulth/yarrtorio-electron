@@ -8,6 +8,11 @@ import {
 } from "@shared/types/mod";
 import type { ModFiltersProps } from "./mod-filters.types";
 
+/**
+ * Converts a string to title case (e.g., "most-downloaded" -> "Most Downloaded")
+ * @param value - The string to titleize
+ * @returns The titleized string
+ */
 function titleize(value: string): string {
   return value
     .split("-")
@@ -15,6 +20,10 @@ function titleize(value: string): string {
     .join(" ");
 }
 
+/**
+ * A toggleable filter chip component.
+ * @template T - The type of filter values
+ */
 function FilterChip<T extends string>({
   value,
   selected,
@@ -37,6 +46,11 @@ function FilterChip<T extends string>({
   );
 }
 
+/**
+ * A chevron icon component that rotates based on open state.
+ * @param props - Component props
+ * @param props.open - Whether the section is open (controls rotation)
+ */
 function Chevron({ open }: { open: boolean }) {
   return (
     <svg
@@ -56,6 +70,10 @@ function Chevron({ open }: { open: boolean }) {
   );
 }
 
+/**
+ * A collapsible section component for filter groups.
+ * @template T - The type of filter values
+ */
 function CollapsibleFilterSection<T extends string>({
   title,
   subtitle,
@@ -131,6 +149,34 @@ function CollapsibleFilterSection<T extends string>({
   );
 }
 
+/**
+ * A filter component for browsing Factorio mods.
+ * Provides search, Factorio version selection, category filters,
+ * and options to include deprecated mods.
+ *
+ * @param props - Component props
+ * @param props.filters - Current filter values
+ * @param props.busy - Loading state while applying filters
+ * @param props.onQueryChange - Search query change callback
+ * @param props.onVersionChange - Factorio version change callback
+ * @param props.onToggleCategory - Category toggle callback
+ * @param props.onToggleTag - Tag toggle callback
+ * @param props.onIncludeCategoriesChange - Category inclusion toggle callback
+ * @param props.onIncludeTagsChange - Tag inclusion toggle callback
+ * @param props.onIncludeDeprecatedChange - Include deprecated toggle callback
+ * @param props.onReset - Reset filters callback
+ * @param props.onSubmit - Apply filters callback
+ *
+ * @example
+ * <ModFilters
+ *   filters={currentFilters}
+ *   busy={isLoading}
+ *   onQueryChange={setQuery}
+ *   onVersionChange={setVersion}
+ *   onReset={() => resetFilters()}
+ *   onSubmit={() => applyFilters()}
+ * />
+ */
 export function ModFilters(props: ModFiltersProps) {
   const { filters } = props;
 

@@ -94,7 +94,8 @@ export async function removeModListEntry(
   let mods: ModListEntry[] = [];
   try {
     mods = await parseModList(settings);
-  } catch {
+  } catch (error) {
+    console.error("Failed to parse mod list:", error);
     return;
   }
 

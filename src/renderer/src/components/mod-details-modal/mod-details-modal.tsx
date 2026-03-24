@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { ModReleaseSummary } from "@shared/types/mod";
+import { FadeSkeleton } from "../fade-skeleton";
 import { InfoLink } from "./components/info-link";
 import { GalleryImages } from "./components/gallery-Images";
 import { DependenciesTab } from "./tabs/dependencies-tab";
@@ -10,6 +11,10 @@ import { TAB_LABELS, getInstallableDependencies, getPortalUrl } from "./utils";
 
 import { DownloadWarning } from "./components/download-warning";
 
+/**
+ * A loading skeleton placeholder for the modal content.
+ * Displayed while mod details are being fetched.
+ */
 function SkeletonContent() {
   return (
     <div className="space-y-6 px-6 py-7 sm:px-8 sm:py-8">
@@ -58,6 +63,26 @@ function SkeletonContent() {
   );
 }
 
+/**
+ * A modal component that displays detailed information about a Factorio mod.
+ * Includes tabs for overview, dependencies, and releases, as well as
+ * functionality to download the mod and manage dependencies.
+ *
+ * @param props - Component props
+ * @param props.mod - The mod details to display
+ * @param props.loading - Whether the content is loading
+ * @param props.pendingName - The pending mod name while loading
+ * @param props.onClose - Callback to close the modal
+ * @param props.onDownload - Callback when a download is requested
+ *
+ * @example
+ * <ModDetailsModal
+ *   mod={modDetails}
+ *   loading={false}
+ *   onClose={() => closeModal()}
+ *   onDownload={(selection) => startDownload(selection)}
+ * />
+ */
 export function ModDetailsModal({
   mod,
   loading = false,
@@ -160,21 +185,27 @@ export function ModDetailsModal({
   return (
     <dialog className="modal modal-open px-3 py-6 sm:px-6 sm:py-10">
       <div className="modal-box max-h-[92vh] max-w-5xl overflow-x-hidden p-0">
-        {loading ? (
-          <div className="skeleton h-64 w-full"></div>
-        ) : activeImage ? (
-          <figure className="bg-base-200 max-h-100 overflow-hidden">
-            <img
-              src={activeImage}
-              alt={mod?.title}
-              className="h-full w-full object-cover"
-            />
-          </figure>
-        ) : null}
+        <FadeSkeleton
+          loading={loading}
+          skeleton={<div className="skeleton h-64 w-full" />}
+          minHeight="16rem"
+        >
+          {activeImage ? (
+            <figure className="bg-base-200 max-h-100 overflow-hidden">
+              <img
+                src={activeImage}
+                alt={mod?.title}
+                className="h-full w-full object-cover"
+              />
+            </figure>
+          ) : null}
+        </FadeSkeleton>
 
-        {loading ? (
-          <SkeletonContent />
-        ) : (
+        <FadeSkeleton
+          loading={loading}
+          skeleton={<SkeletonContent />}
+          minHeight="30rem"
+        >
           <div className="space-y-6 px-6 py-7 sm:px-8 sm:py-8">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0 space-y-1.5">
@@ -366,7 +397,7 @@ export function ModDetailsModal({
               />
             ) : null}
           </div>
-        )}
+        </FadeSkeleton>
       </div>
 
       <form method="dialog" className="modal-backdrop">

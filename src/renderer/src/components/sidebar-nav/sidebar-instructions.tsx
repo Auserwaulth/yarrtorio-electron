@@ -1,5 +1,13 @@
 import { APP_NAME } from "@shared/constants";
 
+/**
+ * A component that displays usage instructions for the application.
+ * Explains how to set up the mod folder, browse and download mods,
+ * and manage installed mods.
+ *
+ * @example
+ * <SidebarInstructions />
+ */
 export function SidebarInstructions() {
   return (
     <div className="card bg-base-100 border border-dashed shadow-xl">

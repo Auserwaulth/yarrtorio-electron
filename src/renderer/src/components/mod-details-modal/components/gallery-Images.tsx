@@ -1,10 +1,35 @@
+/**
+ * Props for the GalleryImages component
+ */
 export interface GalleryImagesProps {
+  /** The index of the currently active image */
   activeImageIndex: number;
+  /** Callback when a different image is selected */
   setActiveImageIndex: (index: number) => void;
+  /** Array of image URLs to display in the gallery */
   galleryImages: string[];
+  /** The title of the mod, used for alt text */
   modTitle: string;
 }
 
+/**
+ * A thumbnail gallery component that displays mod screenshots.
+ * Allows users to navigate between multiple images.
+ *
+ * @param props - Component props
+ * @param props.activeImageIndex - Currently selected image index
+ * @param props.setActiveImageIndex - Callback to change the active image
+ * @param props.galleryImages - Array of image URLs
+ * @param props.modTitle - Mod title for alt text
+ *
+ * @example
+ * <GalleryImages
+ *   activeImageIndex={0}
+ *   setActiveImageIndex={setIndex}
+ *   galleryImages={images}
+ *   modTitle="My Mod"
+ * />
+ */
 export function GalleryImages({
   activeImageIndex,
   setActiveImageIndex,

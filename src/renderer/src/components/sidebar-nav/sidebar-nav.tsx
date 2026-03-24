@@ -9,6 +9,20 @@ const items = [
   ["settings", "Settings"],
 ] as const;
 
+/**
+ * A sidebar navigation component that provides navigation between
+ * the main application pages: Dashboard, Browse, Installed, and Settings.
+ *
+ * @param props - Component props
+ * @param props.active - The currently active page
+ * @param props.onSelect - Callback when a page is selected
+ *
+ * @example
+ * <SidebarNav
+ *   active="browse"
+ *   onSelect={(page) => navigateTo(page)}
+ * />
+ */
 export function SidebarNav({ active, onSelect }: SidebarNavProps) {
   return (
     <div className="h-full space-y-4">

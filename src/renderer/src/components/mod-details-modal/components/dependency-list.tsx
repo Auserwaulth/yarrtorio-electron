@@ -5,13 +5,38 @@ import {
   describeDependency,
 } from "../utils";
 
+/**
+ * Props for the DependencyList component
+ */
 interface DependencyListProps {
+  /** The title of the dependency section */
   title: string;
+  /** Optional description for the dependency section */
   description?: string;
+  /** Text to display when there are no dependencies */
   emptyLabel: string;
+  /** Array of dependencies to display */
   items: ModDependency[];
 }
 
+/**
+ * A component that displays a list of mod dependencies with their
+ * kind badges and download status.
+ *
+ * @param props - Component props
+ * @param props.title - The title of the dependency section
+ * @param props.description - Optional description
+ * @param props.emptyLabel - Text to show when no items
+ * @param props.items - Array of dependencies to display
+ *
+ * @example
+ * <DependencyList
+ *   title="Required"
+ *   description="Needed for the mod to work."
+ *   emptyLabel="No required dependencies."
+ *   items={dependencies}
+ * />
+ */
 export function DependencyList({
   title,
   description,

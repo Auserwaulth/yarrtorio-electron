@@ -1,6 +1,13 @@
+/**
+ * A loading skeleton component that mimics the ModCard layout.
+ * Used to display a placeholder while mod data is being loaded.
+ *
+ * @example
+ * <ModCardSkeleton />
+ */
 export function ModCardSkeleton() {
   return (
-    <article className="card border-base-300 bg-base-100 overflow-hidden border shadow-lg">
+    <article className="card border-base-300 bg-base-100 min-h-96 overflow-hidden border shadow-lg">
       <div className="skeleton h-44 w-full" />
 
       <div className="card-body gap-3">

@@ -5,14 +5,43 @@ import {
   getInstallableDependencies,
 } from "../utils";
 
+/**
+ * Props for the ReleaseCard component
+ */
 interface ReleaseCardProps {
+  /** The release to display */
   release: ModReleaseSummary;
+  /** Whether this release is currently selected */
   isSelected: boolean;
+  /** Whether this is the latest release */
   isLatest: boolean;
+  /** Callback when this release is selected */
   onSelect(releaseVersion: string): void;
+  /** Callback when download is requested for this release */
   onDownload(release: ModReleaseSummary): void;
 }
 
+/**
+ * A card component that displays information about a specific mod release.
+ * Shows version, release date, Factorio version compatibility, dependency counts,
+ * and provides download and selection actions.
+ *
+ * @param props - Component props
+ * @param props.release - The release to display
+ * @param props.isSelected - Whether this release is selected
+ * @param props.isLatest - Whether this is the latest release
+ * @param props.onSelect - Callback when selecting this release
+ * @param props.onDownload - Callback to download this release
+ *
+ * @example
+ * <ReleaseCard
+ *   release={releaseData}
+ *   isSelected={true}
+ *   isLatest={false}
+ *   onSelect={(v) => selectVersion(v)}
+ *   onDownload={(r) => download(r)}
+ * />
+ */
 export function ReleaseCard({
   release,
   isSelected,

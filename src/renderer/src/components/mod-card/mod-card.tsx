@@ -2,13 +2,27 @@ import { useState } from "react";
 import { formatDownloads } from "./mod-card.utils";
 import type { ModCardProps } from "./mod-card.types";
 
+/**
+ * A card component that displays a mod's summary information including
+ * thumbnail, title, owner, download count, and installation status.
+ *
+ * @param props - Component props
+ * @param props.mod - The mod summary data to display
+ * @param props.onOpen - Callback to open the mod details modal
+ *
+ * @example
+ * <ModCard
+ *   mod={modData}
+ *   onOpen={(modName) => openModal(modName)}
+ * />
+ */
 export function ModCard({ mod, onOpen }: ModCardProps) {
   const [imageFailed, setImageFailed] = useState(false);
   const showImage = Boolean(mod.thumbnail) && !imageFailed;
   const releaseVersion = mod.latestRelease?.version;
 
   return (
-    <article className="card border-base-300 bg-base-100 overflow-hidden border shadow-lg">
+    <article className="card border-base-300 bg-base-100 min-h-96 overflow-hidden border shadow-lg">
       {showImage && (
         <figure className="bg-base-200 h-44">
           <img

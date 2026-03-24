@@ -1,6 +1,31 @@
 import { ReleaseCard } from "../components/release-card";
 import type { ReleasesTabProps } from "../types";
 
+/**
+ * A tab component that displays all available releases for a mod.
+ * Each release is shown as a card with version info, release date,
+ * and download/selection options.
+ *
+ * @param props - Component props
+ * @param props.isLatestDownloaded - Whether the latest version is downloaded
+ * @param props.latestRelease - The latest release
+ * @param props.latestVersion - The latest version string
+ * @param props.releases - Array of all releases
+ * @param props.selectedReleaseVersion - Currently selected version
+ * @param props.onDownload - Callback to download a release
+ * @param props.onSelectRelease - Callback to select a release
+ *
+ * @example
+ * <ReleasesTab
+ *   isLatestDownloaded={false}
+ *   latestRelease={latest}
+ *   latestVersion="1.0.0"
+ *   releases={allReleases}
+ *   selectedReleaseVersion={selected}
+ *   onDownload={(r) => download(r)}
+ *   onSelectRelease={(v) => select(v)}
+ * />
+ */
 export function ReleasesTab({
   isLatestDownloaded,
   latestRelease,

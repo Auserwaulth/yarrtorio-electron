@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { BentoTile } from "../../components/bento-tile";
+import { FadeSkeleton } from "../../components/fade-skeleton";
 import type { InstalledMod } from "@shared/types/mod";
 import { InstalledPageSkeleton } from "./installed-page-skeleton";
 
@@ -77,35 +78,41 @@ export function InstalledPage({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {statusFilters.map((filter) => (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex gap-2">
+            {statusFilters.map((filter) => (
+              <button
+                key={filter.key}
+                className={`btn btn-sm ${
+                  statusFilter === filter.key ? "btn-primary" : "btn-ghost"
+                }`}
+                onClick={() => setStatusFilter(filter.key)}
+                disabled={busy}
+                type="button"
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2">
             <button
-              key={filter.key}
-              className={`btn btn-sm ${
-                statusFilter === filter.key ? "btn-primary" : "btn-ghost"
-              }`}
-              onClick={() => setStatusFilter(filter.key)}
+              className="btn btn-sm btn-outline"
+              onClick={onCheckUpdates}
               disabled={busy}
               type="button"
             >
-              {filter.label}
+              {busy ? "Checking..." : "Check for updates"}
             </button>
-          ))}
-          <button
-            className="btn btn-sm btn-outline"
-            onClick={onCheckUpdates}
-            disabled={busy}
-            type="button"
-          >
-            {busy ? "Checking..." : "Check for updates"}
-          </button>
+          </div>
         </div>
       </div>
 
-      {busy ? (
-        <InstalledPageSkeleton />
-      ) : (
-        <div className="max-h-[60vh] overflow-x-auto overflow-y-auto">
+      <FadeSkeleton
+        loading={busy}
+        skeleton={<InstalledPageSkeleton />}
+        minHeight="20rem"
+      >
+        <div className="max-h-[60vh] overflow-auto">
           <table className="table">
             <thead className="bg-base-100 sticky top-0 z-10">
               <tr>
@@ -179,7 +186,7 @@ export function InstalledPage({
             </tbody>
           </table>
         </div>
-      )}
+      </FadeSkeleton>
 
       {!busy && (
         <div>

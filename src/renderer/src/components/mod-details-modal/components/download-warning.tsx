@@ -5,17 +5,45 @@ import {
   describeDependency,
 } from "../utils";
 
+/**
+ * Props for the DownloadWarning component
+ */
+interface DownloadWarningProps {
+  /** The release being downloaded */
+  pendingDownload: ModReleaseSummary;
+  /** Callback to confirm download with dependencies */
+  onConfirm(): void;
+  /** Callback to skip dependencies and download only the mod */
+  onSkipDependencies(): void;
+  /** Callback to cancel the download */
+  onCancel(): void;
+}
+
+/**
+ * A warning component that informs users about required dependencies
+ * before they download a mod. Provides options to download with dependencies,
+ * download only the mod, or cancel.
+ *
+ * @param props - Component props
+ * @param props.pendingDownload - The release being downloaded
+ * @param props.onConfirm - Confirm download with dependencies
+ * @param props.onSkipDependencies - Download mod only
+ * @param props.onCancel - Cancel the download
+ *
+ * @example
+ * <DownloadWarning
+ *   pendingDownload={release}
+ *   onConfirm={() => downloadWithDeps()}
+ *   onSkipDependencies={() => downloadOnly()}
+ *   onCancel={() => cancel()}
+ * />
+ */
 export function DownloadWarning({
   pendingDownload,
   onConfirm,
   onSkipDependencies,
   onCancel,
-}: {
-  pendingDownload: ModReleaseSummary;
-  onConfirm(): void;
-  onSkipDependencies(): void;
-  onCancel(): void;
-}) {
+}: DownloadWarningProps) {
   const installableDependencies = getInstallableDependencies(pendingDownload);
   const skippedDependencies = getSkippedDependencies(pendingDownload);
 

@@ -193,8 +193,32 @@ export function createModsHandler(
       const installed = await listInstalledMods(settings.modsFolder);
       const resolvedMods: ModSummary[] = [];
 
-      for (const entry of managedMods) {
-        const details = await getModDetails(entry.name);
+      // Fetch details for all managed mods in parallel
+      const detailsResults = await Promise.allSettled(
+        managedMods.map((entry) => getModDetails(entry.name)),
+      );
+
+      // Process results and prepare enqueue operations
+      const enqueueRequests: Array<{
+        modName: string;
+        version: string;
+        targetFolder: string;
+        replaceExisting: boolean;
+        existingFilePath?: string;
+      }> = [];
+
+      for (let i = 0; i < managedMods.length; i++) {
+        const entry = managedMods[i]!;
+        const result = detailsResults[i];
+
+        // Skip if no result or if the promise was rejected
+        if (!result || !("value" in result)) {
+          console.error(`Failed to fetch details for ${entry.name}:`, result);
+          continue;
+        }
+
+        const details = result.value;
+        resolvedMods.push(details);
 
         // Use version from mod-list if specified, otherwise get latest
         const version =
@@ -202,13 +226,11 @@ export function createModsHandler(
           details.latestRelease?.version ??
           details.releases[0]?.version;
 
-        resolvedMods.push(details);
-
         if (!version) continue;
 
         const existing = installed.find((item) => item.name === entry.name);
 
-        queue.enqueue({
+        enqueueRequests.push({
           modName: entry.name,
           version,
           targetFolder: settings.modsFolder,
@@ -217,6 +239,11 @@ export function createModsHandler(
             ? { existingFilePath: existing.filePath }
             : {}),
         });
+      }
+
+      // Enqueue all downloads
+      for (const request of enqueueRequests) {
+        queue.enqueue(request);
       }
 
       return {

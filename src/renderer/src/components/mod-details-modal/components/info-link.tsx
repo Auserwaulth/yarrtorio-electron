@@ -1,12 +1,37 @@
 import { getDisplayUrl } from "../utils";
 
+/**
+ * Props for the InfoLink component
+ */
 interface InfoLinkProps {
+  /** The label for this info item */
   label: string;
+  /** Callback when the link is clicked */
   onOpen(url: string): void | Promise<void>;
+  /** The URL to link to (optional) */
   url?: string | undefined;
+  /** Display value if different from URL */
   value?: string | undefined;
 }
 
+/**
+ * A component that displays informational links such as source code,
+ * homepage, license, or selected release. Renders as a clickable link
+ * if a URL is provided, or as plain text otherwise.
+ *
+ * @param props - Component props
+ * @param props.label - Label for the info item
+ * @param props.onOpen - Callback to open URL externally
+ * @param props.url - URL to link to
+ * @param props.value - Custom display value
+ *
+ * @example
+ * <InfoLink
+ *   label="Source"
+ *   onOpen={handleOpen}
+ *   url="https://github.com/example"
+ * />
+ */
 export function InfoLink({ label, onOpen, url, value }: InfoLinkProps) {
   if (!url && !value) return null;
 

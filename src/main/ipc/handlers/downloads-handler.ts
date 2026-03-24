@@ -36,6 +36,9 @@ export function createDownloadsHandler(settingsService: SettingsService) {
       return;
     }
 
+    // Clean up seenStates entry to prevent memory leak
+    seenStates.delete(progress.key);
+
     // Log download completion/failure
     if (progress.state === "completed") {
       await logInfo("downloads", "Download completed", {

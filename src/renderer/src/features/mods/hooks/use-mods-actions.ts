@@ -214,9 +214,9 @@ export function useModsActions(
 
   async function retryAllFailed(downloads: DownloadProgress[]): Promise<void> {
     const failedDownloads = downloads.filter((d) => d.state === "failed");
-    for (const download of failedDownloads) {
-      await retryDownload(download);
-    }
+    await Promise.all(
+      failedDownloads.map((download) => retryDownload(download)),
+    );
   }
 
   async function fetchLatestVersions(): Promise<number> {

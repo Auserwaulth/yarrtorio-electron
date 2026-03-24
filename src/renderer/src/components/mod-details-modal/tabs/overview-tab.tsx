@@ -2,6 +2,27 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { OverviewTabProps } from "../types";
 
+/**
+ * A tab component that displays the mod's overview information.
+ * Shows a short summary and the full description in markdown format.
+ * The description can be expanded/collapsed if it's too long.
+ *
+ * @param props - Component props
+ * @param props.description - Full markdown description
+ * @param props.descExpanded - Whether description is fully expanded
+ * @param props.onOpenExternal - Callback to open external links
+ * @param props.onToggleExpanded - Callback to toggle expand/collapse
+ * @param props.summary - Short summary of the mod
+ *
+ * @example
+ * <OverviewTab
+ *   description={mod.description}
+ *   descExpanded={expanded}
+ *   onOpenExternal={openUrl}
+ *   onToggleExpanded={() => setExpanded(!expanded)}
+ *   summary={mod.summary}
+ * />
+ */
 export function OverviewTab({
   description,
   descExpanded,

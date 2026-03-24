@@ -1,9 +1,28 @@
 import type { DownloadProgressProps } from "./download-progress.types";
 
+/**
+ * Formats a download state string for display by capitalizing the first letter.
+ * @param state - The download state string (e.g., "running", "completed", "failed")
+ * @returns The formatted state string with first letter capitalized
+ */
 function formatStatus(state: string): string {
   return state.charAt(0).toUpperCase() + state.slice(1);
 }
 
+/**
+ * A component that displays the progress of ongoing and queued mod downloads.
+ * Shows download status, progress bars, and provides retry functionality for failed downloads.
+ *
+ * @param props - Component props
+ * @param props.items - Array of download items to display
+ * @param props.onRetry - Optional callback to retry a failed download
+ *
+ * @example
+ * <DownloadProgress
+ *   items={downloads}
+ *   onRetry={(item) => retryDownload(item)}
+ * />
+ */
 export function DownloadProgress({ items, onRetry }: DownloadProgressProps) {
   if (items.length === 0) {
     return (

@@ -93,7 +93,7 @@ export function BrowsePage(props: BrowsePageProps) {
       {props.pagination &&
         paginationComponent(props.pagination, props.busy, props.onApply)}
 
-      <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {props.busy
           ? Array.from({ length: 12 }).map((_, i) => (
               <ModCardSkeleton key={i} />
