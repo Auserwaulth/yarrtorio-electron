@@ -1,6 +1,10 @@
 import {
   browseFiltersSchema,
   manageInstalledModSchema,
+  modListProfileCreateSchema,
+  modListProfileRemoveSchema,
+  modListProfileSwitchSchema,
+  modListProfileUpdateSchema,
   setModEnabledSchema,
   syncRequestSchema,
 } from "@shared/validation/schemas";
@@ -11,8 +15,12 @@ import {
 } from "../../mods/mod-installer";
 import { browseMods, getModDetails } from "../../mods/mod-resolver";
 import {
+  createModListProfileStorage,
+  deleteModListProfileStorage,
+  getActiveModListProfile,
   parseModList,
   removeModListEntry,
+  switchActiveModListProfile,
   upsertModListEntry,
 } from "../../mods/mod-parser";
 import type { IpcMainInvokeEvent } from "electron";
@@ -21,10 +29,16 @@ import type {
   BrowseResult,
   InstalledMod,
   ModDetails,
+  ModListProfile,
   ModSummary,
   OperationResult,
+  AppSettings,
 } from "@shared/types/mod";
 import type { SettingsService } from "../../services/settings-service";
+
+function buildProfileName(name: string): string {
+  return name.trim() || "Untitled list";
+}
 
 async function loadLibraryState(settingsService: SettingsService) {
   const settings = await settingsService.getSettings();
@@ -349,6 +363,152 @@ export function createModsHandler(
       );
 
       return { ok: true, data: latestVersions };
+    },
+
+    createModListProfile: async (
+      _event: IpcMainInvokeEvent,
+      input: unknown,
+    ): Promise<OperationResult<AppSettings>> => {
+      const parsed = modListProfileCreateSchema.safeParse(input);
+      if (!parsed.success) {
+        return { ok: false, error: "Invalid mod-list profile payload." };
+      }
+
+      const settings = await settingsService.getSettings();
+      const profile: ModListProfile = {
+        id: crypto.randomUUID(),
+        name: buildProfileName(parsed.data.name),
+      };
+
+      await createModListProfileStorage(settings, profile.id);
+
+      const nextSettings = await settingsService.saveSettings({
+        ...settings,
+        modListProfiles: [...settings.modListProfiles, profile],
+      });
+
+      return { ok: true, data: nextSettings };
+    },
+
+    renameModListProfile: async (
+      _event: IpcMainInvokeEvent,
+      input: unknown,
+    ): Promise<OperationResult<AppSettings>> => {
+      const parsed = modListProfileUpdateSchema.safeParse(input);
+      if (!parsed.success) {
+        return { ok: false, error: "Invalid mod-list profile payload." };
+      }
+
+      const settings = await settingsService.getSettings();
+      const nextSettings = await settingsService.saveSettings({
+        ...settings,
+        modListProfiles: settings.modListProfiles.map((profile) =>
+          profile.id === parsed.data.profileId
+            ? { ...profile, name: buildProfileName(parsed.data.name) }
+            : profile,
+        ),
+      });
+
+      return { ok: true, data: nextSettings };
+    },
+
+    switchModListProfile: async (
+      _event: IpcMainInvokeEvent,
+      input: unknown,
+    ): Promise<OperationResult<AppSettings>> => {
+      const parsed = modListProfileSwitchSchema.safeParse(input);
+      if (!parsed.success) {
+        return { ok: false, error: "Invalid mod-list profile payload." };
+      }
+
+      const settings = await settingsService.getSettings();
+
+      if (!settings.modsFolder) {
+        return {
+          ok: false,
+          error: "Mods folder is not configured.",
+        };
+      }
+
+      const targetProfile = settings.modListProfiles.find(
+        (profile) => profile.id === parsed.data.profileId,
+      );
+
+      if (!targetProfile) {
+        return { ok: false, error: "Mod-list profile was not found." };
+      }
+
+      await switchActiveModListProfile(settings, targetProfile.id);
+
+      const nextSettings = await settingsService.saveSettings({
+        ...settings,
+        activeModListProfileId: targetProfile.id,
+      });
+
+      return { ok: true, data: nextSettings };
+    },
+
+    removeModListProfile: async (
+      _event: IpcMainInvokeEvent,
+      input: unknown,
+    ): Promise<OperationResult<AppSettings>> => {
+      const parsed = modListProfileRemoveSchema.safeParse(input);
+      if (!parsed.success) {
+        return { ok: false, error: "Invalid mod-list profile payload." };
+      }
+
+      const settings = await settingsService.getSettings();
+      const targetProfile = settings.modListProfiles.find(
+        (profile) => profile.id === parsed.data.profileId,
+      );
+
+      if (!targetProfile) {
+        return { ok: false, error: "Mod-list profile was not found." };
+      }
+
+      if (settings.modListProfiles.length <= 1) {
+        return { ok: false, error: "At least one mod-list profile is required." };
+      }
+
+      const remainingProfiles = settings.modListProfiles.filter(
+        (profile) => profile.id !== parsed.data.profileId,
+      );
+
+      if (settings.activeModListProfileId === parsed.data.profileId) {
+        const fallbackProfile = remainingProfiles[0];
+        if (!fallbackProfile) {
+          return { ok: false, error: "No fallback mod-list profile was found." };
+        }
+
+        if (!settings.modsFolder) {
+          return {
+            ok: false,
+            error: "Mods folder is not configured.",
+          };
+        }
+
+        await switchActiveModListProfile(
+          {
+            ...settings,
+            modListProfiles: remainingProfiles,
+            activeModListProfileId: getActiveModListProfile(settings)?.id ?? parsed.data.profileId,
+          },
+          fallbackProfile.id,
+        );
+      }
+
+      await deleteModListProfileStorage(parsed.data.profileId);
+
+      const nextSettings = await settingsService.saveSettings({
+        ...settings,
+        modListProfiles: remainingProfiles,
+        activeModListProfileId:
+          settings.activeModListProfileId === parsed.data.profileId
+            ? remainingProfiles[0]!.id
+            : settings.activeModListProfileId,
+      });
+
+      return { ok: true, data: nextSettings };
     },
   };
 }

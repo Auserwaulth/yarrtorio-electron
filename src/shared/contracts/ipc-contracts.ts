@@ -8,6 +8,10 @@ export const ipcChannels = {
     queueUpdateInstalled: "mods:queue-update-installed",
     setEnabled: "mods:set-enabled",
     getLatestVersions: "mods:get-latest-versions",
+    createModListProfile: "mods:create-mod-list-profile",
+    renameModListProfile: "mods:rename-mod-list-profile",
+    switchModListProfile: "mods:switch-mod-list-profile",
+    removeModListProfile: "mods:remove-mod-list-profile",
   },
   downloads: {
     enqueue: "downloads:enqueue",

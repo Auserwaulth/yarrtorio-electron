@@ -9,7 +9,6 @@ interface SettingsPageProps {
   appMeta?: AppMeta | null;
   onChange(settings: AppSettings): void;
   onPickFolder(): void;
-  onPickModListFile(): void;
   onOpenLogFolder(): void;
 }
 
@@ -38,7 +37,6 @@ export function SettingsPage({
   saving,
   onChange,
   onPickFolder,
-  onPickModListFile,
   onOpenLogFolder,
   appMeta,
 }: SettingsPageProps) {
@@ -64,26 +62,9 @@ export function SettingsPage({
               </fieldset>
             </div>
 
-            <div>
-              <fieldset className="fieldset">
-                <legend className="fieldset-legend">Mod-list.json path</legend>
-                <div className="join w-full">
-                  <input
-                    className="input input-bordered join-item w-full min-w-0 blur-sm transition-all hover:blur-none"
-                    value={settings.modListPath}
-                    readOnly
-                    placeholder="mod-list.json path (optional)"
-                  />
-                  <button className="btn join-item" onClick={onPickModListFile}>
-                    Browse
-                  </button>
-                </div>
-              </fieldset>
-            </div>
-
             <div className="border-base-300 bg-base-200/70 text-base-content/70 rounded-xl border p-4 text-sm">
-              Leave the mod-list.json path empty to use the default location in
-              the Factorio user data folder.
+              Mod-list profiles are managed from the Installed page. The active
+              profile swaps the real `mod-list.json` inside this mods folder.
             </div>
           </div>
         </BentoTile>

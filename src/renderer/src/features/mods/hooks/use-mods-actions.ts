@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { modsService } from "../services/mods-service";
-import type { BrowseFilters, DownloadProgress } from "@shared/types/mod";
+import type {
+  AppSettings,
+  BrowseFilters,
+  DownloadProgress,
+} from "@shared/types/mod";
 import type { AppStore } from "../../../store/app-store";
 
 interface ModsActionOptions {
@@ -18,6 +22,20 @@ export function useModsActions(
 
   function reportError(message: string) {
     options.onError?.(message);
+  }
+
+  async function applySettingsAndRefresh(
+    result: { ok: true; data: AppSettings } | { ok: false; error: string },
+    successMessage: string,
+  ): Promise<void> {
+    if (!result.ok) {
+      reportError(result.error);
+      return;
+    }
+
+    setStore((current) => ({ ...current, settings: result.data }));
+    options.onSuccess?.(successMessage);
+    await refreshInstalled();
   }
 
   async function browse(filters: BrowseFilters): Promise<void> {
@@ -192,17 +210,90 @@ export function useModsActions(
   }
 
   async function setEnabled(modName: string, enabled: boolean): Promise<void> {
-    setBusy(true);
+    let previousEnabled: boolean | undefined;
+
+    setStore((current) => {
+      previousEnabled = current.installed.find(
+        (item) => item.name === modName,
+      )?.enabled;
+
+      return {
+        ...current,
+        installed: current.installed.map((item) =>
+          item.name === modName ? { ...item, enabled } : item,
+        ),
+        mods: current.mods.map((mod) =>
+          mod.name === modName && mod.libraryState
+            ? {
+                ...mod,
+                libraryState: {
+                  ...mod.libraryState,
+                  isInModList: true,
+                  isEnabledInModList: enabled,
+                },
+              }
+            : mod,
+        ),
+        selectedMod:
+          current.selectedMod?.name === modName && current.selectedMod.libraryState
+            ? {
+                ...current.selectedMod,
+                libraryState: {
+                  ...current.selectedMod.libraryState,
+                  isInModList: true,
+                  isEnabledInModList: enabled,
+                },
+              }
+            : current.selectedMod,
+      };
+    });
+
     const result = await modsService.setEnabled(modName, enabled);
     if (result.ok) {
       options.onSuccess?.(
         `${enabled ? "Enabled" : "Disabled"} ${modName} in mod-list.`,
       );
-      await refreshInstalled();
     } else {
+      setStore((current) => ({
+        ...current,
+        installed: current.installed.map((item) =>
+          item.name === modName
+            ? previousEnabled === undefined
+              ? (() => {
+                  const nextItem = { ...item };
+                  delete nextItem.enabled;
+                  return nextItem;
+                })()
+              : { ...item, enabled: previousEnabled }
+            : item,
+        ),
+        mods: current.mods.map((mod) =>
+          mod.name === modName && mod.libraryState
+            ? {
+                ...mod,
+                libraryState: {
+                  ...mod.libraryState,
+                  isEnabledInModList:
+                    previousEnabled ?? mod.libraryState.isEnabledInModList,
+                },
+              }
+            : mod,
+        ),
+        selectedMod:
+          current.selectedMod?.name === modName && current.selectedMod.libraryState
+            ? {
+                ...current.selectedMod,
+                libraryState: {
+                  ...current.selectedMod.libraryState,
+                  isEnabledInModList:
+                    previousEnabled ??
+                    current.selectedMod.libraryState.isEnabledInModList,
+                },
+              }
+            : current.selectedMod,
+      }));
       reportError(result.error);
     }
-    setBusy(false);
   }
 
   async function retryDownload(download: DownloadProgress): Promise<void> {
@@ -237,6 +328,50 @@ export function useModsActions(
     return updateCount;
   }
 
+  async function createModListProfile(name: string): Promise<void> {
+    setBusy(true);
+    await applySettingsAndRefresh(
+      await modsService.createModListProfile(name),
+      `Created mod-list profile ${name}.`,
+    );
+    setBusy(false);
+  }
+
+  async function renameModListProfile(
+    profileId: string,
+    name: string,
+  ): Promise<void> {
+    await applySettingsAndRefresh(
+      await modsService.renameModListProfile(profileId, name),
+      "Renamed mod-list profile.",
+    );
+  }
+
+  async function switchModListProfile(profileId: string): Promise<void> {
+    setBusy(true);
+    const result = await modsService.switchModListProfile(profileId);
+
+    if (!result.ok) {
+      reportError(result.error);
+      setBusy(false);
+      return;
+    }
+
+    setStore((current) => ({ ...current, settings: result.data }));
+    await refreshInstalled();
+    options.onSuccess?.("Switched active mod-list profile.");
+    setBusy(false);
+  }
+
+  async function removeModListProfile(profileId: string): Promise<void> {
+    setBusy(true);
+    await applySettingsAndRefresh(
+      await modsService.removeModListProfile(profileId),
+      "Removed mod-list profile.",
+    );
+    setBusy(false);
+  }
+
   return {
     browse,
     selectMod,
@@ -249,6 +384,10 @@ export function useModsActions(
     retryDownload,
     retryAllFailed,
     fetchLatestVersions,
+    createModListProfile,
+    renameModListProfile,
+    switchModListProfile,
+    removeModListProfile,
     busy,
   };
 }

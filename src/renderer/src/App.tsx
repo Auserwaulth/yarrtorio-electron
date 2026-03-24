@@ -75,6 +75,12 @@ export function App() {
   }, [page]);
 
   useEffect(() => {
+    if (page !== "browse" || !store.settings) return;
+    void modsActions.browse(browse.filters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, store.settings?.activeModListProfileId]);
+
+  useEffect(() => {
     if (page !== "installed") return;
     void modsActions.fetchLatestVersions();
   }, [page, modsActions]);
@@ -152,6 +158,7 @@ export function App() {
 
         {page === "installed" && (
           <InstalledPage
+            settings={settings}
             items={store.installed}
             busy={modsActions.busy}
             latestVersions={store.latestVersions}
@@ -176,6 +183,18 @@ export function App() {
                 pushToast("info", "All mods are up to date");
               }
             }}
+            onCreateModListProfile={(name) =>
+              void modsActions.createModListProfile(name)
+            }
+            onRenameModListProfile={(profileId, name) =>
+              void modsActions.renameModListProfile(profileId, name)
+            }
+            onSwitchModListProfile={(profileId) =>
+              void modsActions.switchModListProfile(profileId)
+            }
+            onRemoveModListProfile={(profileId) =>
+              void modsActions.removeModListProfile(profileId)
+            }
           />
         )}
 
@@ -189,12 +208,6 @@ export function App() {
               void settingsActions.chooseFolder().then((folder) => {
                 if (folder)
                   return saveSettings({ ...settings, modsFolder: folder });
-              })
-            }
-            onPickModListFile={() =>
-              void settingsActions.chooseModListFile().then((filePath) => {
-                if (filePath)
-                  return saveSettings({ ...settings, modListPath: filePath });
               })
             }
             onOpenLogFolder={() => {

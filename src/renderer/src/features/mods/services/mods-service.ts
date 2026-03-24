@@ -21,4 +21,12 @@ export const modsService = {
   retryDownload: (download: DownloadProgress) =>
     window.electronApi.downloads.retry(download),
   getLatestVersions: () => window.electronApi.mods.getLatestVersions(),
+  createModListProfile: (name: string) =>
+    window.electronApi.mods.createModListProfile({ name }),
+  renameModListProfile: (profileId: string, name: string) =>
+    window.electronApi.mods.renameModListProfile({ profileId, name }),
+  switchModListProfile: (profileId: string) =>
+    window.electronApi.mods.switchModListProfile({ profileId }),
+  removeModListProfile: (profileId: string) =>
+    window.electronApi.mods.removeModListProfile({ profileId }),
 };

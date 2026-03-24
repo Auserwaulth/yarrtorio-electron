@@ -15,4 +15,12 @@ export const modsApi: ElectronApi["mods"] = {
   setEnabled: (input) => ipcRenderer.invoke(ipcChannels.mods.setEnabled, input),
   getLatestVersions: () =>
     ipcRenderer.invoke(ipcChannels.mods.getLatestVersions),
+  createModListProfile: (input) =>
+    ipcRenderer.invoke(ipcChannels.mods.createModListProfile, input),
+  renameModListProfile: (input) =>
+    ipcRenderer.invoke(ipcChannels.mods.renameModListProfile, input),
+  switchModListProfile: (input) =>
+    ipcRenderer.invoke(ipcChannels.mods.switchModListProfile, input),
+  removeModListProfile: (input) =>
+    ipcRenderer.invoke(ipcChannels.mods.removeModListProfile, input),
 };

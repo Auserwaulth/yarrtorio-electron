@@ -13,6 +13,10 @@ import {
   migrateSettings,
 } from "./settings-migrations";
 
+type PersistedAppSettings = AppSettings & {
+  modListPath?: string;
+};
+
 export interface SettingsService {
   getSettings(): Promise<AppSettings>;
   saveSettings(input: AppSettings): Promise<AppSettings>;
@@ -21,7 +25,13 @@ export interface SettingsService {
 const defaults: AppSettings = {
   version: CURRENT_SETTINGS_VERSION,
   modsFolder: "",
-  modListPath: "",
+  modListProfiles: [
+    {
+      id: "default",
+      name: "Default",
+    },
+  ],
+  activeModListProfileId: "default",
   snackbarPosition: "bottom-right",
   concurrency: DEFAULT_DOWNLOAD_CONCURRENCY,
   ignoreDisabledMods: true,
@@ -30,32 +40,47 @@ const defaults: AppSettings = {
   theme: "system",
 };
 
+function normalizeSettings(input: PersistedAppSettings): AppSettings {
+  const settings = { ...input };
+  delete settings.modListPath;
+  return settings;
+}
+
 export function createSettingsService(): SettingsService {
   const filePath = join(app.getPath("userData"), SETTINGS_FILE_NAME);
 
   async function getSettings(): Promise<AppSettings> {
     try {
       const raw = await readFile(filePath, "utf8");
-      const parsed = settingsSchema.parse(JSON.parse(raw));
+      const parsed = settingsSchema.parse(
+        JSON.parse(raw),
+      ) as PersistedAppSettings;
 
       // Apply migrations if needed
       const savedVersion = getMigrationVersion(parsed);
       if (savedVersion < CURRENT_SETTINGS_VERSION) {
         const migrated = migrateSettings(parsed, savedVersion);
         // Validate migrated settings against schema
-        const validated = settingsSchema.parse(migrated);
+        const validated = settingsSchema.parse(
+          migrated,
+        ) as PersistedAppSettings;
+        const normalized = normalizeSettings(validated);
         // Save migrated settings
         try {
           await mkdir(dirname(filePath), { recursive: true });
-          await writeFile(filePath, JSON.stringify(validated, null, 2), "utf8");
+          await writeFile(
+            filePath,
+            JSON.stringify(normalized, null, 2),
+            "utf8",
+          );
         } catch (writeErr) {
           // Log error but return migrated settings in memory
           console.error("Failed to save migrated settings:", writeErr);
         }
-        return validated;
+        return normalized;
       }
 
-      return parsed;
+      return normalizeSettings(parsed);
     } catch {
       return defaults;
     }
@@ -65,10 +90,11 @@ export function createSettingsService(): SettingsService {
     const parsed = settingsSchema.parse({
       ...input,
       version: CURRENT_SETTINGS_VERSION,
-    });
+    }) as PersistedAppSettings;
+    const normalized = normalizeSettings(parsed);
     await mkdir(dirname(filePath), { recursive: true });
-    await writeFile(filePath, JSON.stringify(parsed, null, 2), "utf8");
-    return parsed;
+    await writeFile(filePath, JSON.stringify(normalized, null, 2), "utf8");
+    return normalized;
   }
 
   return { getSettings, saveSettings };

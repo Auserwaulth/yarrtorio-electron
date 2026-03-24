@@ -9,13 +9,19 @@ export type DownloadState =
 export interface AppSettings {
   version: number;
   modsFolder: string;
-  modListPath: string;
+  modListProfiles: ModListProfile[];
+  activeModListProfileId: string;
   snackbarPosition: "top-left" | "top-right" | "bottom-left" | "bottom-right";
   concurrency: number;
   ignoreDisabledMods: boolean;
   includeDisabledModsByDefault: boolean;
   desktopNotifications: boolean;
   theme: ThemeMode;
+}
+
+export interface ModListProfile {
+  id: string;
+  name: string;
 }
 
 export interface ModLibraryState {

@@ -7,7 +7,13 @@ import type { AppSettings } from "@shared/types/mod";
 export const defaultSettings: AppSettings = {
   version: CURRENT_SETTINGS_VERSION,
   modsFolder: "",
-  modListPath: "",
+  modListProfiles: [
+    {
+      id: "default",
+      name: "Default",
+    },
+  ],
+  activeModListProfileId: "default",
   snackbarPosition: "bottom-right",
   concurrency: DEFAULT_DOWNLOAD_CONCURRENCY,
   ignoreDisabledMods: true,

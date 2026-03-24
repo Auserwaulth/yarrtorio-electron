@@ -76,6 +76,34 @@ export function registerIpc(settingsService: SettingsService): void {
     ipcChannels.mods.getLatestVersions,
     safeHandle("mods:get-latest-versions", modsHandler.getLatestVersions),
   );
+  ipcMain.handle(
+    ipcChannels.mods.createModListProfile,
+    safeHandle(
+      "mods:create-mod-list-profile",
+      modsHandler.createModListProfile,
+    ),
+  );
+  ipcMain.handle(
+    ipcChannels.mods.renameModListProfile,
+    safeHandle(
+      "mods:rename-mod-list-profile",
+      modsHandler.renameModListProfile,
+    ),
+  );
+  ipcMain.handle(
+    ipcChannels.mods.switchModListProfile,
+    safeHandle(
+      "mods:switch-mod-list-profile",
+      modsHandler.switchModListProfile,
+    ),
+  );
+  ipcMain.handle(
+    ipcChannels.mods.removeModListProfile,
+    safeHandle(
+      "mods:remove-mod-list-profile",
+      modsHandler.removeModListProfile,
+    ),
+  );
 
   ipcMain.handle(
     ipcChannels.downloads.enqueue,

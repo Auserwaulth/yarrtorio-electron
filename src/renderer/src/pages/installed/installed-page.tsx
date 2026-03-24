@@ -1,10 +1,13 @@
 import { useMemo, useState } from "react";
 import { BentoTile } from "../../components/bento-tile";
+import { ConfirmAction } from "../../components/confirm-action";
 import { FadeSkeleton } from "../../components/fade-skeleton";
-import type { InstalledMod } from "@shared/types/mod";
+import type { AppSettings, InstalledMod } from "@shared/types/mod";
 import { InstalledPageSkeleton } from "./installed-page-skeleton";
+import { ModListPanel } from "./components/mod-list-panel";
 
 interface InstalledPageProps {
+  settings: AppSettings;
   items: InstalledMod[];
   busy: boolean;
   latestVersions: Record<string, string>;
@@ -13,6 +16,10 @@ interface InstalledPageProps {
   onToggleEnabled(modName: string, enabled: boolean): void;
   onOpen(modName: string): void;
   onCheckUpdates(): void;
+  onCreateModListProfile(name: string): void;
+  onRenameModListProfile(profileId: string, name: string): void;
+  onSwitchModListProfile(profileId: string): void;
+  onRemoveModListProfile(profileId: string): void;
 }
 
 type StatusFilter = "all" | "enabled" | "disabled";
@@ -27,6 +34,7 @@ const statusFilters: Array<{
 ];
 
 export function InstalledPage({
+  settings,
   items,
   busy,
   latestVersions,
@@ -35,6 +43,10 @@ export function InstalledPage({
   onToggleEnabled,
   onOpen,
   onCheckUpdates,
+  onCreateModListProfile,
+  onRenameModListProfile,
+  onSwitchModListProfile,
+  onRemoveModListProfile,
 }: InstalledPageProps) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -57,10 +69,18 @@ export function InstalledPage({
       return matchesQuery && matchesStatus;
     });
   }, [items, query, statusFilter]);
-
   return (
     <BentoTile title="Installed archives">
       <div className="mb-4 flex flex-col gap-3">
+        <ModListPanel
+          settings={settings}
+          busy={busy}
+          onCreateModListProfile={onCreateModListProfile}
+          onRenameModListProfile={onRenameModListProfile}
+          onSwitchModListProfile={onSwitchModListProfile}
+          onRemoveModListProfile={onRemoveModListProfile}
+        />
+
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <label className="input input-bordered flex w-full items-center gap-2 md:max-w-md">
             <input
@@ -112,80 +132,100 @@ export function InstalledPage({
         skeleton={<InstalledPageSkeleton />}
         minHeight="20rem"
       >
-        <div className="max-h-[60vh] overflow-auto">
-          <table className="table">
-            <thead className="bg-base-100 sticky top-0 z-10">
-              <tr>
-                <th>Name</th>
-                <th>Installed</th>
-                <th>Latest</th>
-                <th>Enabled</th>
-                <th>Archive</th>
-                <th className="text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredItems.map((item) => (
-                <tr key={item.filePath}>
-                  <td>{item.name}</td>
-                  <td>{item.version}</td>
-                  <td>
-                    {latestVersions[item.name] ? (
-                      <span
-                        className={
-                          latestVersions[item.name] !== item.version
-                            ? "text-warning"
-                            : ""
-                        }
-                      >
-                        {latestVersions[item.name]}
-                      </span>
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      className="toggle toggle-primary"
-                      checked={item.enabled ?? true}
-                      onChange={(event) =>
-                        onToggleEnabled(item.name, event.target.checked)
-                      }
-                      disabled={busy}
-                    />
-                  </td>
-                  <td className="max-w-56 truncate">{item.fileName}</td>
-                  <td>
-                    <div className="flex justify-end gap-2">
-                      <button
-                        className="btn btn-sm"
-                        disabled={busy}
-                        onClick={() => onOpen(item.name)}
-                      >
-                        Details
-                      </button>
-                      <button
-                        className="btn btn-sm"
-                        disabled={busy}
-                        onClick={() => onUpdate(item.name, item.filePath)}
-                      >
-                        Update
-                      </button>
-                      <button
-                        className="btn btn-sm btn-error btn-outline"
-                        disabled={busy}
-                        onClick={() => onDelete(item.name, item.filePath)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <>
+          {items.length > 0 && filteredItems.length === 0 ? (
+            <div className="bg-base-200 rounded-xl border border-dashed p-8 text-center text-sm">
+              <p>No installed mods matched your filter.</p>
+            </div>
+          ) : (
+            <div className="max-h-[60vh] overflow-auto">
+              <table className="table">
+                <thead className="bg-base-100 sticky top-0 z-10">
+                  <tr>
+                    <th>Name</th>
+                    <th>Installed</th>
+                    <th>Latest</th>
+                    <th>Enabled</th>
+                    <th>Archive</th>
+                    <th className="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredItems.map((item) => (
+                    <tr key={item.filePath}>
+                      <td>{item.name}</td>
+                      <td>{item.version}</td>
+                      <td>
+                        {latestVersions[item.name] ? (
+                          <span
+                            className={
+                              latestVersions[item.name] !== item.version
+                                ? "text-warning"
+                                : ""
+                            }
+                          >
+                            {latestVersions[item.name]}
+                          </span>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td>
+                        <input
+                          type="checkbox"
+                          className="toggle toggle-primary"
+                          checked={item.enabled ?? true}
+                          onChange={(event) =>
+                            onToggleEnabled(item.name, event.target.checked)
+                          }
+                          disabled={busy}
+                        />
+                      </td>
+                      <td className="max-w-56 truncate">{item.fileName}</td>
+                      <td>
+                        <div className="flex justify-end gap-2">
+                          <button
+                            className="btn btn-sm"
+                            disabled={busy}
+                            onClick={() => onOpen(item.name)}
+                          >
+                            Details
+                          </button>
+                          <button
+                            className="btn btn-sm"
+                            disabled={busy}
+                            onClick={() => onUpdate(item.name, item.filePath)}
+                          >
+                            Update
+                          </button>
+                          <ConfirmAction
+                            triggerLabel="Delete"
+                            triggerClassName="btn btn-sm btn-error btn-outline"
+                            confirmLabel="Delete archive"
+                            title={`Delete ${item.name}?`}
+                            description={
+                              <div className="space-y-2">
+                                <p>
+                                  This removes the ZIP archive from your
+                                  configured mods folder.
+                                </p>
+                                <p className="text-base-content/70 text-xs">
+                                  File: {item.fileName}
+                                </p>
+                              </div>
+                            }
+                            disabled={busy}
+                            onConfirm={() => onDelete(item.name, item.filePath)}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       </FadeSkeleton>
 
       {!busy && (
@@ -196,11 +236,6 @@ export function InstalledPage({
             </div>
           )}
 
-          {items.length > 0 && filteredItems.length === 0 && (
-            <div className="bg-base-200 mt-4 rounded-xl border border-dashed p-8 text-center text-sm">
-              <p>No installed mods matched your filter.</p>
-            </div>
-          )}
         </div>
       )}
     </BentoTile>

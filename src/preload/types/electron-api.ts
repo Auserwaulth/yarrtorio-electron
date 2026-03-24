@@ -33,6 +33,19 @@ export interface ElectronApi {
       enabled: boolean;
     }): Promise<OperationResult<boolean>>;
     getLatestVersions(): Promise<OperationResult<Record<string, string>>>;
+    createModListProfile(input: {
+      name: string;
+    }): Promise<OperationResult<AppSettings>>;
+    renameModListProfile(input: {
+      profileId: string;
+      name: string;
+    }): Promise<OperationResult<AppSettings>>;
+    switchModListProfile(input: {
+      profileId: string;
+    }): Promise<OperationResult<AppSettings>>;
+    removeModListProfile(input: {
+      profileId: string;
+    }): Promise<OperationResult<AppSettings>>;
   };
   downloads: {
     enqueue(request: DownloadRequest): Promise<OperationResult<string>>;

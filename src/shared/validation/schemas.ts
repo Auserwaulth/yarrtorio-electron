@@ -10,7 +10,16 @@ import {
 export const settingsSchema = z.object({
   version: z.number().default(1),
   modsFolder: z.string().default(""),
-  modListPath: z.string().default(""),
+  modListProfiles: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        name: z.string().min(1),
+      }),
+    )
+    .default([]),
+  activeModListProfileId: z.string().default("default"),
+  modListPath: z.string().optional(),
   snackbarPosition: z
     .enum(["top-left", "top-right", "bottom-left", "bottom-right"])
     .default("top-right"),
@@ -65,4 +74,21 @@ export const downloadRequestSchema = z.object({
 
 export const syncRequestSchema = z.object({
   includeDisabled: z.boolean().default(false),
+});
+
+export const modListProfileCreateSchema = z.object({
+  name: z.string().trim().min(1),
+});
+
+export const modListProfileUpdateSchema = z.object({
+  profileId: z.string().min(1),
+  name: z.string().trim().min(1),
+});
+
+export const modListProfileSwitchSchema = z.object({
+  profileId: z.string().min(1),
+});
+
+export const modListProfileRemoveSchema = z.object({
+  profileId: z.string().min(1),
 });

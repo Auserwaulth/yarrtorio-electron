@@ -3,9 +3,13 @@ import type { AppSettings } from "@shared/types/mod";
 
 export { CURRENT_SETTINGS_VERSION };
 
+type PersistedAppSettings = AppSettings & {
+  modListPath?: string;
+};
+
 type SettingsMigration = {
   version: number;
-  migrate: (settings: AppSettings) => AppSettings;
+  migrate: (settings: PersistedAppSettings) => PersistedAppSettings;
 };
 
 /**
@@ -26,12 +30,43 @@ type SettingsMigration = {
  *   }),
  * },
  */
-const migrations: SettingsMigration[] = [];
+const migrations: SettingsMigration[] = [
+  {
+    version: 2,
+    migrate: (settings) => {
+      const existingProfiles =
+        settings.modListProfiles?.filter(
+          (profile) => profile.id && profile.name,
+        ) ?? [];
+      const profiles =
+        existingProfiles.length > 0
+          ? existingProfiles
+          : [
+              {
+                id: "default",
+                name: "Default",
+              },
+            ];
+      const activeId = profiles.some(
+        (profile) => profile.id === settings.activeModListProfileId,
+      )
+        ? settings.activeModListProfileId
+        : (profiles[0]?.id ?? "default");
+
+      return {
+        ...settings,
+        version: 2,
+        modListProfiles: profiles,
+        activeModListProfileId: activeId,
+      };
+    },
+  },
+];
 
 export function migrateSettings(
-  settings: AppSettings,
+  settings: PersistedAppSettings,
   fromVersion: number,
-): AppSettings {
+): PersistedAppSettings {
   let current = settings;
   let version = fromVersion;
 
@@ -49,6 +84,8 @@ export function migrateSettings(
   return current;
 }
 
-export function getMigrationVersion(settings: AppSettings): number {
+export function getMigrationVersion(
+  settings: Pick<PersistedAppSettings, "version">,
+): number {
   return settings.version ?? 0;
 }
