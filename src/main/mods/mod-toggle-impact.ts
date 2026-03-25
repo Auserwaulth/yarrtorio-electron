@@ -34,10 +34,7 @@ export async function getModToggleImpact(
 
   if (enabled) {
     const releases = await getModReleaseSummaries(modName);
-    const dependencies = getInstalledReleaseDependencies(
-      targetMod,
-      releases,
-    );
+    const dependencies = getInstalledReleaseDependencies(targetMod, releases);
     const relatedRequiredDependencies = dependencies
       .filter((dependency) => dependency.kind === "required")
       .map((dependency) => dependency.name)

@@ -149,9 +149,8 @@ export async function getModReleaseSummaries(
   }
 
   const dependencyCacheKey = `${fullCacheKey}:releases`;
-  const cachedReleases = await readCache<ModReleaseSummary[]>(
-    dependencyCacheKey,
-  );
+  const cachedReleases =
+    await readCache<ModReleaseSummary[]>(dependencyCacheKey);
 
   if (cachedReleases) {
     return cachedReleases;
