@@ -111,7 +111,7 @@ export function App() {
 
   useEffect(() => {
     if (page !== "installed") return;
-    void modsActions.refreshInstalled();
+    void modsActions.refreshInstalled(true);
     void modsActions.fetchLatestVersions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, settings.activeModListProfileId, settings.modsFolder]);
@@ -196,6 +196,7 @@ export function App() {
             settings,
             items: store.installed,
             busy: modsActions.installedBusy,
+            pendingModNames: modsActions.pendingInstalledModNames,
             latestVersions: store.latestVersions,
             installedConflicts: store.installedConflicts,
             onDelete: (modName, filePath) =>

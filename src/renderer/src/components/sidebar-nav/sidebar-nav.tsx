@@ -19,19 +19,17 @@ import type { SidebarNavProps } from "./sidebar-nav.types";
 export function SidebarNav({ active, collapsed, onSelect }: SidebarNavProps) {
   return (
     <aside
-      className={`card sticky top-4 z-20 h-fit overflow-hidden transition-[width] duration-300 ease-out ${
-        collapsed ? "w-full lg:w-21" : "w-full lg:w-70"
-      }`}
+      className={`card sticky top-4 z-20 h-fit overflow-hidden transition-[width] duration-300 ease-out `}
     >
       <div className="card-body border-base-300/35 bg-base-100/45 border p-2 shadow-lg backdrop-blur-md">
-        <nav aria-label="Primary" className="grid gap-2">
+        <nav aria-label="Primary" className={`grid gap-2 ${collapsed && "justify-center"}`}>
           {appRoutes.map(({ key, label, icon }) => {
             const isActive = active === key;
 
             return (
               <button
                 key={key}
-                className={`group flex h-14 w-full items-center transition-colors duration-200 ${
+                className={`btn px-1 btn-box justify-start group flex h-14 min-w-full items-center transition-colors duration-200 ${
                   isActive
                     ? "bg-base-100 text-base-content shadow-sm"
                     : "text-base-content/70 hover:bg-base-100/70 hover:text-base-content"
@@ -55,7 +53,7 @@ export function SidebarNav({ active, collapsed, onSelect }: SidebarNavProps) {
                   className={`min-w-0 overflow-hidden text-left text-sm font-medium whitespace-nowrap transition-[max-width,opacity,padding] duration-200 ease-out ${
                     collapsed
                       ? "max-w-0 px-0 opacity-0"
-                      : "max-w-40 pr-4 opacity-100"
+                      : "max-w-40 pr-2 opacity-100"
                   }`}
                 >
                   {label}

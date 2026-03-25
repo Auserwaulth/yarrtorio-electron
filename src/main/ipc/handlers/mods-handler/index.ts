@@ -120,8 +120,16 @@ export function createModsHandler(
           !settings.ignoreDisabledMods,
       );
 
+      if (managedMods.length === 0) {
+        return {
+          ok: false,
+          error:
+            "No eligible mods were found in mod-list. Base game and official expansion entries are skipped, and disabled mods are ignored unless your settings include them.",
+        };
+      }
+
       const installed = await listInstalledMods(settings.modsFolder);
-      const resolvedMods: ModSummary[] = [];
+      const queuedMods: ModSummary[] = [];
       const detailsResults = await Promise.allSettled(
         managedMods.map((entry) => getModDetails(entry.name)),
       );
@@ -143,8 +151,6 @@ export function createModsHandler(
         }
 
         const details = result.value;
-        resolvedMods.push(details);
-
         const version =
           entry.version ??
           details.latestRelease?.version ??
@@ -163,13 +169,22 @@ export function createModsHandler(
             ? { existingFilePath: existing.filePath }
             : {}),
         });
+        queuedMods.push(details);
+      }
+
+      if (enqueueRequests.length === 0) {
+        return {
+          ok: false,
+          error:
+            "No mods from mod-list could be queued. Check that the listed mods exist on the portal and have downloadable releases.",
+        };
       }
 
       for (const request of enqueueRequests) {
         queue.enqueue(request);
       }
 
-      return { ok: true, data: resolvedMods };
+      return { ok: true, data: queuedMods };
     },
 
     deleteInstalled: async (

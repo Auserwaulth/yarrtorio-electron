@@ -5,6 +5,7 @@ export function InstalledModsTable({
   items,
   filteredItems,
   busy,
+  pendingModNames,
   latestVersions,
   installedConflicts,
   onDelete,
@@ -43,11 +44,18 @@ export function InstalledModsTable({
           </tr>
         </thead>
         <tbody>
-          {filteredItems.map((item) => (
-            <tr key={item.filePath}>
+          {filteredItems.map((item) => {
+            const rowPending = pendingModNames.includes(item.name);
+            const rowBusy = busy || rowPending;
+
+            return (
+              <tr key={item.filePath}>
               <td>
                 <div className="flex flex-wrap items-center gap-2">
                   <span>{item.name}</span>
+                  {rowPending ? (
+                    <span className="badge badge-outline">Working</span>
+                  ) : null}
                   {(installedConflicts[item.name]?.length ?? 0) > 0 ? (
                     <button
                       className="badge badge-error badge-soft hover:badge-outline focus:ring-error/40 cursor-pointer gap-1 transition hover:scale-[1.02] focus:ring-2 focus:outline-none"
@@ -84,7 +92,7 @@ export function InstalledModsTable({
                   onChange={(event) =>
                     onToggleEnabled(item.name, event.target.checked)
                   }
-                  disabled={busy}
+                  disabled={rowBusy}
                 />
               </td>
               <td className="max-w-56 truncate">{item.fileName}</td>
@@ -92,14 +100,14 @@ export function InstalledModsTable({
                 <div className="flex justify-end gap-2">
                   <button
                     className="btn btn-sm"
-                    disabled={busy}
+                    disabled={rowBusy}
                     onClick={() => onOpen(item.name)}
                   >
                     Details
                   </button>
                   <button
                     className="btn btn-sm"
-                    disabled={busy}
+                    disabled={rowBusy}
                     onClick={() => onUpdate(item.name, item.filePath)}
                   >
                     Update
@@ -120,13 +128,14 @@ export function InstalledModsTable({
                         </p>
                       </div>
                     }
-                    disabled={busy}
+                    disabled={rowBusy}
                     onConfirm={() => onDelete(item.name, item.filePath)}
                   />
                 </div>
               </td>
-            </tr>
-          ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

@@ -174,12 +174,6 @@ export async function createModListProfileStorage(
   await writeModListFile(resolveProfileStoragePath(profileId), activeMods);
 }
 
-export async function renameModListProfileStorage(
-  _profileId: string,
-): Promise<void> {
-  return Promise.resolve();
-}
-
 export async function deleteModListProfileStorage(
   profileId: string,
 ): Promise<void> {

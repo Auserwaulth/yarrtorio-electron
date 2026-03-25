@@ -19,6 +19,7 @@ interface InstalledPageProps {
   settings: AppSettings;
   items: InstalledMod[];
   busy: boolean;
+  pendingModNames: string[];
   latestVersions: Record<string, string>;
   installedConflicts: Record<string, InstalledConflict[]>;
   onDelete(modName: string, filePath: string): void;
@@ -44,6 +45,7 @@ export function InstalledPage({
   settings,
   items,
   busy,
+  pendingModNames,
   latestVersions,
   installedConflicts,
   onDelete,
@@ -179,6 +181,7 @@ export function InstalledPage({
           items={items}
           filteredItems={filteredItems}
           busy={busy}
+          pendingModNames={pendingModNames}
           latestVersions={latestVersions}
           installedConflicts={installedConflicts}
           onDelete={onDelete}
