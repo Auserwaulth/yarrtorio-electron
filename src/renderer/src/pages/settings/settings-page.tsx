@@ -39,7 +39,6 @@ const colors = ["bg-primary", "bg-secondary", "bg-accent", "bg-accent-content"];
 
 export function SettingsPage({
   settings,
-  saving,
   onChange,
   onPickFolder,
   onOpenLogFolder,

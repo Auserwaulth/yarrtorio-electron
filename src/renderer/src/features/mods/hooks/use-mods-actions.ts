@@ -380,63 +380,63 @@ export function useModsActions(
     await runWithPendingInstalledMods(
       [modName, ...relatedModNames],
       async () => {
-      const result = await modsService.setEnabled(
-        modName,
-        enabled,
-        relatedModNames,
-      );
-      if (result.ok) {
-        options.onSuccess?.(
-          `${enabled ? "Enabled" : "Disabled"} ${modName} in mod-list.`,
+        const result = await modsService.setEnabled(
+          modName,
+          enabled,
+          relatedModNames,
         );
-        if (relatedModNames.length > 0) {
-          await refreshInstalled();
+        if (result.ok) {
+          options.onSuccess?.(
+            `${enabled ? "Enabled" : "Disabled"} ${modName} in mod-list.`,
+          );
+          if (relatedModNames.length > 0) {
+            await refreshInstalled();
+          } else {
+            await refreshInstalledConflicts();
+          }
         } else {
+          setStore((current) => ({
+            ...current,
+            installed: current.installed.map((item) =>
+              item.name === modName
+                ? previousEnabled === undefined
+                  ? (() => {
+                      const nextItem = { ...item };
+                      delete nextItem.enabled;
+                      return nextItem;
+                    })()
+                  : { ...item, enabled: previousEnabled }
+                : item,
+            ),
+            mods: current.mods.map((mod) =>
+              mod.name === modName && mod.libraryState
+                ? {
+                    ...mod,
+                    libraryState: {
+                      ...mod.libraryState,
+                      isEnabledInModList:
+                        previousEnabled ?? mod.libraryState.isEnabledInModList,
+                    },
+                  }
+                : mod,
+            ),
+            selectedMod:
+              current.selectedMod?.name === modName &&
+              current.selectedMod.libraryState
+                ? {
+                    ...current.selectedMod,
+                    libraryState: {
+                      ...current.selectedMod.libraryState,
+                      isEnabledInModList:
+                        previousEnabled ??
+                        current.selectedMod.libraryState.isEnabledInModList,
+                    },
+                  }
+                : current.selectedMod,
+          }));
+          reportError(result.error);
           await refreshInstalledConflicts();
         }
-      } else {
-        setStore((current) => ({
-          ...current,
-          installed: current.installed.map((item) =>
-            item.name === modName
-              ? previousEnabled === undefined
-                ? (() => {
-                    const nextItem = { ...item };
-                    delete nextItem.enabled;
-                    return nextItem;
-                  })()
-                : { ...item, enabled: previousEnabled }
-              : item,
-          ),
-          mods: current.mods.map((mod) =>
-            mod.name === modName && mod.libraryState
-              ? {
-                  ...mod,
-                  libraryState: {
-                    ...mod.libraryState,
-                    isEnabledInModList:
-                      previousEnabled ?? mod.libraryState.isEnabledInModList,
-                  },
-                }
-              : mod,
-          ),
-          selectedMod:
-            current.selectedMod?.name === modName &&
-            current.selectedMod.libraryState
-              ? {
-                  ...current.selectedMod,
-                  libraryState: {
-                    ...current.selectedMod.libraryState,
-                    isEnabledInModList:
-                      previousEnabled ??
-                      current.selectedMod.libraryState.isEnabledInModList,
-                  },
-                }
-              : current.selectedMod,
-        }));
-        reportError(result.error);
-        await refreshInstalledConflicts();
-      }
       },
     );
   }

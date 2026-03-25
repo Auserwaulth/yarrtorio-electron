@@ -19,17 +19,20 @@ import type { SidebarNavProps } from "./sidebar-nav.types";
 export function SidebarNav({ active, collapsed, onSelect }: SidebarNavProps) {
   return (
     <aside
-      className={`card sticky top-4 z-20 h-fit overflow-hidden transition-[width] duration-300 ease-out `}
+      className={`card sticky top-4 z-20 h-fit overflow-hidden transition-[width] duration-300 ease-out`}
     >
       <div className="card-body border-base-300/35 bg-base-100/45 border p-2 shadow-lg backdrop-blur-md">
-        <nav aria-label="Primary" className={`grid gap-2 ${collapsed && "justify-center"}`}>
+        <nav
+          aria-label="Primary"
+          className={`grid gap-2 ${collapsed && "justify-center"}`}
+        >
           {appRoutes.map(({ key, label, icon }) => {
             const isActive = active === key;
 
             return (
               <button
                 key={key}
-                className={`btn px-1 btn-box justify-start group flex h-14 min-w-full items-center transition-colors duration-200 ${
+                className={`btn btn-box group flex h-14 min-w-full items-center justify-start px-1 transition-colors duration-200 ${
                   isActive
                     ? "bg-base-100 text-base-content shadow-sm"
                     : "text-base-content/70 hover:bg-base-100/70 hover:text-base-content"
