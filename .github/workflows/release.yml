@@ -207,6 +207,18 @@ jobs:
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
           echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
 
+      - name: Generate release checksums
+        run: |
+          > SHA256SUMS.txt
+
+          for f in dist-windows/*.exe dist-linux/*.AppImage; do
+            if [ -f "$f" ]; then
+              sha256sum "$f" >> SHA256SUMS.txt
+            fi
+          done
+
+          cat SHA256SUMS.txt
+
       - name: Create or update GitHub release
         run: |
           TAG="$RELEASE_TAG"
@@ -243,3 +255,5 @@ jobs:
           for f in dist-linux/*; do
             [ -f "$f" ] && gh release upload "$TAG" "$f" --clobber
           done
+
+          gh release upload "$TAG" SHA256SUMS.txt --clobber
