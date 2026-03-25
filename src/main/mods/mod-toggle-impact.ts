@@ -3,7 +3,7 @@ import type {
   ModDependency,
   ModToggleImpact,
 } from "@shared/types/mod";
-import { getModDetails } from "./mod-resolver";
+import { getModReleaseSummaries } from "./mod-resolver";
 
 function getInstalledReleaseDependencies(
   installedMod: InstalledMod,
@@ -33,10 +33,10 @@ export async function getModToggleImpact(
   }
 
   if (enabled) {
-    const details = await getModDetails(modName);
+    const releases = await getModReleaseSummaries(modName);
     const dependencies = getInstalledReleaseDependencies(
       targetMod,
-      details.releases,
+      releases,
     );
     const relatedRequiredDependencies = dependencies
       .filter((dependency) => dependency.kind === "required")
@@ -63,7 +63,7 @@ export async function getModToggleImpact(
     (item) => item.name !== modName && (item.enabled ?? true),
   );
   const detailsResults = await Promise.allSettled(
-    enabledInstalled.map((item) => getModDetails(item.name)),
+    enabledInstalled.map((item) => getModReleaseSummaries(item.name)),
   );
 
   for (let index = 0; index < enabledInstalled.length; index += 1) {
@@ -76,7 +76,7 @@ export async function getModToggleImpact(
 
     const dependencies = getInstalledReleaseDependencies(
       installedMod,
-      detailsResult.value.releases,
+      detailsResult.value,
     );
 
     if (

@@ -113,7 +113,8 @@ export function App() {
     if (page !== "installed") return;
     void modsActions.refreshInstalled();
     void modsActions.fetchLatestVersions();
-  }, [page, modsActions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, settings.activeModListProfileId, settings.modsFolder]);
 
   if (loading) {
     return <AppLoadingScreen progress={progress} stage={stage} />;

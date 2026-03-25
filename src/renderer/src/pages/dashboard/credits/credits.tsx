@@ -14,7 +14,7 @@ export function Credits({ appMeta }: CreditsProps) {
           <p className="mt-1">
             Electron rewrite by{" "}
             <span className="text-base-content font-semibold">
-              Zoard3945 (Auser)
+              Zoard3945 (Auserwaulth)
             </span>
           </p>
         </div>

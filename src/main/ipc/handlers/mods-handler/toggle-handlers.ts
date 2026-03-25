@@ -3,9 +3,13 @@ import {
   setModEnabledSchema,
 } from "@shared/validation/schemas";
 import { getModToggleImpact } from "../../../mods/mod-toggle-impact";
-import { upsertModListEntry } from "../../../mods/mod-parser";
+import { parseModList, writeModList } from "../../../mods/mod-parser";
 import type { IpcMainInvokeEvent } from "electron";
-import type { ModToggleImpact, OperationResult } from "@shared/types/mod";
+import type {
+  ModListEntry,
+  ModToggleImpact,
+  OperationResult,
+} from "@shared/types/mod";
 import type { SettingsService } from "../../../services/settings-service";
 import { loadInstalledMods } from "./installed-mods";
 
@@ -59,13 +63,30 @@ export function createToggleHandlers(settingsService: SettingsService) {
         parsed.data.modName,
         ...parsed.data.relatedModNames,
       ]);
+      let mods: ModListEntry[] = await parseModList(settings).catch(
+        (): ModListEntry[] => [],
+      );
 
       for (const name of affectedModNames) {
-        await upsertModListEntry(settings, {
+        const index = mods.findIndex((item) => item.name === name);
+
+        if (index >= 0) {
+          const existing = mods[index]!;
+          mods[index] = {
+            ...existing,
+            enabled: parsed.data.enabled,
+          };
+          continue;
+        }
+
+        mods.push({
           name,
           enabled: parsed.data.enabled,
         });
       }
+
+      mods = mods.sort((left, right) => left.name.localeCompare(right.name));
+      await writeModList(settings, mods);
 
       return { ok: true, data: true };
     },

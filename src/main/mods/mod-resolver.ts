@@ -25,9 +25,12 @@ import type {
   BrowseFilters,
   BrowseResult,
   ModDetails,
+  ModReleaseSummary,
   ModSummary,
 } from "@shared/types/mod";
 import type { PortalDetailsExtras } from "./portal/portal-types";
+
+const DEPENDENCY_RELEASES_CACHE_TTL_MS = DETAILS_TTL_MS;
 
 async function fetchBrowseDataset(
   version: BrowseFilters["version"],
@@ -133,4 +136,34 @@ export async function getModDetails(modName: string): Promise<ModDetails> {
   await writeCache(cacheKey, details, DETAILS_TTL_MS);
 
   return details;
+}
+
+export async function getModReleaseSummaries(
+  modName: string,
+): Promise<ModReleaseSummary[]> {
+  const fullCacheKey = buildDetailsCacheKey(modName);
+  const cachedDetails = await readCache<ModDetails>(fullCacheKey);
+
+  if (cachedDetails) {
+    return cachedDetails.releases;
+  }
+
+  const dependencyCacheKey = `${fullCacheKey}:releases`;
+  const cachedReleases = await readCache<ModReleaseSummary[]>(
+    dependencyCacheKey,
+  );
+
+  if (cachedReleases) {
+    return cachedReleases;
+  }
+
+  const mod = await fetchModFull(modName);
+  const releases = (mod.releases ?? []).map(mapRelease).reverse();
+  await writeCache(
+    dependencyCacheKey,
+    releases,
+    DEPENDENCY_RELEASES_CACHE_TTL_MS,
+  );
+
+  return releases;
 }

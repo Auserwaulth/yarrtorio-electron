@@ -3,7 +3,7 @@ import type {
   InstalledMod,
   ModDependency,
 } from "@shared/types/mod";
-import { getModDetails } from "./mod-resolver";
+import { getModReleaseSummaries } from "./mod-resolver";
 
 function getInstalledReleaseDependencies(
   installedMod: InstalledMod,
@@ -26,7 +26,7 @@ export async function detectInstalledConflicts(
   }
 
   const detailsResults = await Promise.allSettled(
-    enabledInstalled.map((item) => getModDetails(item.name)),
+    enabledInstalled.map((item) => getModReleaseSummaries(item.name)),
   );
   const enabledNames = new Set(enabledInstalled.map((item) => item.name));
   const conflicts = new Map<string, InstalledConflict[]>();
@@ -41,7 +41,7 @@ export async function detectInstalledConflicts(
 
     const dependencies = getInstalledReleaseDependencies(
       installedMod,
-      detailsResult.value.releases,
+      detailsResult.value,
     );
 
     for (const dependency of dependencies) {

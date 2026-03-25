@@ -4,7 +4,7 @@
   "private": true,
   "description": "Yarrtorio - Factorio mod downloader and manager built with Electron, Vite, React, Tailwind CSS, and daisyUI.",
   "main": "out/main/index.js",
-  "author": "aUser",
+  "author": "Auserwaulth",
   "type": "module",
   "scripts": {
     "version:date": "node scripts/set-date-version.mjs",
