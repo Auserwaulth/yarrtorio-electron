@@ -45,6 +45,20 @@ export interface InstalledMod {
   managedByModList?: boolean;
 }
 
+export interface InstalledConflict {
+  modName: string;
+  conflictsWith: string;
+  reason: string;
+  source: "declared-incompatibility";
+}
+
+export interface ModToggleImpact {
+  modName: string;
+  enabled: boolean;
+  relatedRequiredDependencies: string[];
+  dependentMods: string[];
+}
+
 export const modPortalTabs = [
   "recently_updated",
   "most_downloaded",

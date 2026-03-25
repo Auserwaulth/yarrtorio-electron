@@ -61,6 +61,12 @@ export const manageInstalledModSchema = z.object({
 export const setModEnabledSchema = z.object({
   modName: z.string().min(1),
   enabled: z.boolean(),
+  relatedModNames: z.array(z.string().min(1)).optional().default([]),
+});
+
+export const modToggleImpactSchema = z.object({
+  modName: z.string().min(1),
+  enabled: z.boolean(),
 });
 
 export const downloadRequestSchema = z.object({

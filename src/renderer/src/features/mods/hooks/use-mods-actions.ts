@@ -4,6 +4,7 @@ import type {
   AppSettings,
   BrowseFilters,
   DownloadProgress,
+  ModToggleImpact,
 } from "@shared/types/mod";
 import type { AppStore } from "../../../store/app-store";
 
@@ -22,6 +23,20 @@ export function useModsActions(
 
   function reportError(message: string) {
     options.onError?.(message);
+  }
+
+  async function refreshInstalledConflicts(): Promise<void> {
+    const result = await modsService.getInstalledConflicts();
+
+    if (!result.ok) {
+      reportError(result.error);
+      return;
+    }
+
+    setStore((current) => ({
+      ...current,
+      installedConflicts: result.data,
+    }));
   }
 
   async function applySettingsAndRefresh(
@@ -85,13 +100,18 @@ export function useModsActions(
   }
 
   async function refreshInstalled(): Promise<void> {
-    const result = await modsService.installed();
-    if (result.ok) {
-      const installedNames = new Set(result.data.map((item) => item.name));
+    const [installedResult, conflictsResult] = await Promise.all([
+      modsService.installed(),
+      modsService.getInstalledConflicts(),
+    ]);
+
+    if (installedResult.ok) {
+      const installedNames = new Set(installedResult.data.map((item) => item.name));
 
       setStore((current) => ({
         ...current,
-        installed: result.data,
+        installed: installedResult.data,
+        installedConflicts: conflictsResult.ok ? conflictsResult.data : {},
         mods: current.mods.map((mod) =>
           mod.libraryState
             ? {
@@ -119,7 +139,10 @@ export function useModsActions(
       return;
     }
 
-    reportError(result.error);
+    reportError(installedResult.error);
+    if (!conflictsResult.ok) {
+      reportError(conflictsResult.error);
+    }
   }
 
   async function queueSelectedMod(
@@ -209,7 +232,11 @@ export function useModsActions(
     setBusy(false);
   }
 
-  async function setEnabled(modName: string, enabled: boolean): Promise<void> {
+  async function setEnabled(
+    modName: string,
+    enabled: boolean,
+    relatedModNames: string[] = [],
+  ): Promise<void> {
     let previousEnabled: boolean | undefined;
 
     setStore((current) => {
@@ -248,11 +275,20 @@ export function useModsActions(
       };
     });
 
-    const result = await modsService.setEnabled(modName, enabled);
+    const result = await modsService.setEnabled(
+      modName,
+      enabled,
+      relatedModNames,
+    );
     if (result.ok) {
       options.onSuccess?.(
         `${enabled ? "Enabled" : "Disabled"} ${modName} in mod-list.`,
       );
+      if (relatedModNames.length > 0) {
+        await refreshInstalled();
+      } else {
+        await refreshInstalledConflicts();
+      }
     } else {
       setStore((current) => ({
         ...current,
@@ -293,7 +329,22 @@ export function useModsActions(
             : current.selectedMod,
       }));
       reportError(result.error);
+      await refreshInstalledConflicts();
     }
+  }
+
+  async function getModToggleImpact(
+    modName: string,
+    enabled: boolean,
+  ): Promise<ModToggleImpact | null> {
+    const result = await modsService.getModToggleImpact(modName, enabled);
+
+    if (!result.ok) {
+      reportError(result.error);
+      return null;
+    }
+
+    return result.data;
   }
 
   async function retryDownload(download: DownloadProgress): Promise<void> {
@@ -380,6 +431,7 @@ export function useModsActions(
     syncFromModList,
     deleteInstalled,
     queueUpdateInstalled,
+    getModToggleImpact,
     setEnabled,
     retryDownload,
     retryAllFailed,

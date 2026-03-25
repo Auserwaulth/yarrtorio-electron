@@ -14,13 +14,20 @@ export const modsService = {
     window.electronApi.mods.deleteInstalled({ modName, filePath }),
   queueUpdateInstalled: (modName: string, filePath: string) =>
     window.electronApi.mods.queueUpdateInstalled({ modName, filePath }),
-  setEnabled: (modName: string, enabled: boolean) =>
-    window.electronApi.mods.setEnabled({ modName, enabled }),
+  setEnabled: (modName: string, enabled: boolean, relatedModNames?: string[]) =>
+    window.electronApi.mods.setEnabled({
+      modName,
+      enabled,
+      ...(relatedModNames !== undefined ? { relatedModNames } : {}),
+    }),
+  getModToggleImpact: (modName: string, enabled: boolean) =>
+    window.electronApi.mods.getModToggleImpact({ modName, enabled }),
   enqueueDownload: (request: DownloadRequest) =>
     window.electronApi.downloads.enqueue(request),
   retryDownload: (download: DownloadProgress) =>
     window.electronApi.downloads.retry(download),
   getLatestVersions: () => window.electronApi.mods.getLatestVersions(),
+  getInstalledConflicts: () => window.electronApi.mods.getInstalledConflicts(),
   createModListProfile: (name: string) =>
     window.electronApi.mods.createModListProfile({ name }),
   renameModListProfile: (profileId: string, name: string) =>

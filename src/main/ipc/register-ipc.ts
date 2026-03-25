@@ -71,10 +71,21 @@ export function registerIpc(settingsService: SettingsService): void {
     ipcChannels.mods.setEnabled,
     safeHandle("mods:set-enabled", modsHandler.setEnabled),
   );
+  ipcMain.handle(
+    ipcChannels.mods.getModToggleImpact,
+    safeHandle("mods:get-mod-toggle-impact", modsHandler.getModToggleImpact),
+  );
 
   ipcMain.handle(
     ipcChannels.mods.getLatestVersions,
     safeHandle("mods:get-latest-versions", modsHandler.getLatestVersions),
+  );
+  ipcMain.handle(
+    ipcChannels.mods.getInstalledConflicts,
+    safeHandle(
+      "mods:get-installed-conflicts",
+      modsHandler.getInstalledConflicts,
+    ),
   );
   ipcMain.handle(
     ipcChannels.mods.createModListProfile,

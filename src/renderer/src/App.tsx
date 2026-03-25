@@ -162,14 +162,18 @@ export function App() {
             items={store.installed}
             busy={modsActions.busy}
             latestVersions={store.latestVersions}
+            installedConflicts={store.installedConflicts}
             onDelete={(modName, filePath) =>
               void modsActions.deleteInstalled(modName, filePath)
             }
             onUpdate={(modName, filePath) =>
               void modsActions.queueUpdateInstalled(modName, filePath)
             }
-            onToggleEnabled={(modName, enabled) =>
-              void modsActions.setEnabled(modName, enabled)
+            onToggleEnabled={(modName, enabled, relatedModNames) =>
+              void modsActions.setEnabled(modName, enabled, relatedModNames)
+            }
+            onGetModToggleImpact={(modName, enabled) =>
+              modsActions.getModToggleImpact(modName, enabled)
             }
             onOpen={(modName) => void modsActions.selectMod(modName)}
             onCheckUpdates={async () => {

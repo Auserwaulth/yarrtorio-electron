@@ -5,6 +5,7 @@ import type { ModListPanelProps } from "./mod-list-panel.types";
 export function ModListPanel({
   settings,
   busy,
+  conflictCount,
   onCreateModListProfile,
   onRenameModListProfile,
   onSwitchModListProfile,
@@ -25,6 +26,11 @@ export function ModListPanel({
               <span className="badge badge-outline">
                 {profileCount} profile{profileCount === 1 ? "" : "s"}
               </span>
+              {conflictCount > 0 ? (
+                <span className="badge badge-error badge-soft">
+                  {conflictCount} conflict{conflictCount === 1 ? "" : "s"}
+                </span>
+              ) : null}
             </div>
 
             <div>
@@ -41,7 +47,7 @@ export function ModListPanel({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="border-base-300 bg-base-100/80 rounded-xl border p-3">
+          <div className="py-3">
             <p className="text-base-content/60 text-xs tracking-wide uppercase">
               Switching
             </p>
@@ -49,7 +55,7 @@ export function ModListPanel({
               Swap which saved mod-list controls enabled states and syncs.
             </p>
           </div>
-          <div className="border-base-300 bg-base-100/80 rounded-xl border p-3">
+          <div className=" py-3">
             <p className="text-base-content/60 text-xs tracking-wide uppercase">
               Saving
             </p>

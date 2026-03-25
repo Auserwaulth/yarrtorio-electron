@@ -1,19 +1,33 @@
 import { useMemo, useState } from "react";
 import { BentoTile } from "../../components/bento-tile";
-import { ConfirmAction } from "../../components/confirm-action";
 import { FadeSkeleton } from "../../components/fade-skeleton";
-import type { AppSettings, InstalledMod } from "@shared/types/mod";
-import { InstalledPageSkeleton } from "./installed-page-skeleton";
+import type {
+  AppSettings,
+  InstalledConflict,
+  InstalledMod,
+  ModToggleImpact,
+} from "@shared/types/mod";
+import { ConflictDetailsDialog } from "./components/conflict-details-dialog";
+import { InstalledModsTable } from "./components/installed-mods-table";
+import { InstalledPageSkeleton } from "./components/installed-page-skeleton";
+import { InstalledPageToolbar } from "./components/installed-page-toolbar";
+import type { StatusFilter } from "./components/installed-page-toolbar";
 import { ModListPanel } from "./components/mod-list-panel";
+import { ToggleImpactDialog } from "./components/toggle-impact-dialog";
 
 interface InstalledPageProps {
   settings: AppSettings;
   items: InstalledMod[];
   busy: boolean;
   latestVersions: Record<string, string>;
+  installedConflicts: Record<string, InstalledConflict[]>;
   onDelete(modName: string, filePath: string): void;
   onUpdate(modName: string, filePath: string): void;
-  onToggleEnabled(modName: string, enabled: boolean): void;
+  onToggleEnabled(modName: string, enabled: boolean, relatedModNames?: string[]): void;
+  onGetModToggleImpact(
+    modName: string,
+    enabled: boolean,
+  ): Promise<ModToggleImpact | null>;
   onOpen(modName: string): void;
   onCheckUpdates(): void;
   onCreateModListProfile(name: string): void;
@@ -22,25 +36,16 @@ interface InstalledPageProps {
   onRemoveModListProfile(profileId: string): void;
 }
 
-type StatusFilter = "all" | "enabled" | "disabled";
-
-const statusFilters: Array<{
-  key: StatusFilter;
-  label: string;
-}> = [
-  { key: "all", label: "All" },
-  { key: "enabled", label: "Enabled" },
-  { key: "disabled", label: "Disabled" },
-];
-
 export function InstalledPage({
   settings,
   items,
   busy,
   latestVersions,
+  installedConflicts,
   onDelete,
   onUpdate,
   onToggleEnabled,
+  onGetModToggleImpact,
   onOpen,
   onCheckUpdates,
   onCreateModListProfile,
@@ -50,6 +55,8 @@ export function InstalledPage({
 }: InstalledPageProps) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [pendingToggle, setPendingToggle] = useState<ModToggleImpact | null>(null);
+  const [selectedConflictModName, setSelectedConflictModName] = useState<string | null>(null);
 
   const filteredItems = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -61,70 +68,111 @@ export function InstalledPage({
         item.fileName.toLowerCase().includes(needle);
 
       const isEnabled = item.enabled ?? true;
+      const hasUpdate =
+        latestVersions[item.name] !== undefined &&
+        latestVersions[item.name] !== item.version;
+      const hasConflict = (installedConflicts[item.name]?.length ?? 0) > 0;
       const matchesStatus =
         statusFilter === "all" ||
         (statusFilter === "enabled" && isEnabled) ||
-        (statusFilter === "disabled" && !isEnabled);
+        (statusFilter === "disabled" && !isEnabled) ||
+        (statusFilter === "needs-update" && hasUpdate) ||
+        (statusFilter === "conflicted" && hasConflict);
 
       return matchesQuery && matchesStatus;
     });
-  }, [items, query, statusFilter]);
+  }, [installedConflicts, items, latestVersions, query, statusFilter]);
+
+  const conflictCount = useMemo(
+    () =>
+      Object.values(installedConflicts).reduce(
+        (count, conflicts) => count + conflicts.length,
+        0,
+      ),
+    [installedConflicts],
+  );
+
+  const needsUpdateCount = useMemo(
+    () =>
+      items.filter(
+        (item) =>
+          latestVersions[item.name] !== undefined &&
+          latestVersions[item.name] !== item.version,
+      ).length,
+    [items, latestVersions],
+  );
+
+  const conflictedModCount = useMemo(
+    () =>
+      items.filter((item) => (installedConflicts[item.name]?.length ?? 0) > 0)
+        .length,
+    [installedConflicts, items],
+  );
+
+  const selectedConflicts = selectedConflictModName
+    ? (installedConflicts[selectedConflictModName] ?? [])
+    : [];
+
+  async function handleToggleEnabled(
+    modName: string,
+    enabled: boolean,
+  ): Promise<void> {
+    const impact = await onGetModToggleImpact(modName, enabled);
+
+    if (!impact) {
+      return;
+    }
+
+    const needsEnableConfirmation =
+      enabled && impact.relatedRequiredDependencies.length > 0;
+    const needsDisableWarning =
+      !enabled && impact.dependentMods.length > 0;
+
+    if (needsEnableConfirmation || needsDisableWarning) {
+      setPendingToggle(impact);
+      return;
+    }
+
+    onToggleEnabled(modName, enabled);
+  }
+
   return (
     <BentoTile title="Installed archives">
       <div className="mb-4 flex flex-col gap-3">
         <ModListPanel
           settings={settings}
           busy={busy}
+          conflictCount={conflictCount}
           onCreateModListProfile={onCreateModListProfile}
           onRenameModListProfile={onRenameModListProfile}
           onSwitchModListProfile={onSwitchModListProfile}
           onRemoveModListProfile={onRemoveModListProfile}
         />
 
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <label className="input input-bordered flex w-full items-center gap-2 md:max-w-md">
-            <input
-              type="text"
-              className="grow"
-              placeholder="Filter installed mods by name"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
-          </label>
-
-          <p className="text-base-content/70 text-sm">
-            Showing {filteredItems.length} of {items.length} installed mod
-            {items.length === 1 ? "" : "s"}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex gap-2">
-            {statusFilters.map((filter) => (
-              <button
-                key={filter.key}
-                className={`btn btn-sm ${
-                  statusFilter === filter.key ? "btn-primary" : "btn-ghost"
-                }`}
-                onClick={() => setStatusFilter(filter.key)}
-                disabled={busy}
-                type="button"
-              >
-                {filter.label}
-              </button>
-            ))}
+        {conflictCount > 0 ? (
+          <div className="border-error/30 bg-error/8 rounded-xl border p-4">
+            <p className="text-error font-medium">
+              {conflictCount} active conflict{conflictCount === 1 ? "" : "s"} detected
+            </p>
+            <p className="text-base-content/70 mt-1 text-sm">
+              Conflict badges mark enabled installed mods that declare
+              incompatibilities with other enabled installed mods.
+            </p>
           </div>
-          <div className="flex gap-2">
-            <button
-              className="btn btn-sm btn-outline"
-              onClick={onCheckUpdates}
-              disabled={busy}
-              type="button"
-            >
-              {busy ? "Checking..." : "Check for updates"}
-            </button>
-          </div>
-        </div>
+        ) : null}
+
+        <InstalledPageToolbar
+          busy={busy}
+          query={query}
+          filteredCount={filteredItems.length}
+          totalCount={items.length}
+          statusFilter={statusFilter}
+          needsUpdateCount={needsUpdateCount}
+          conflictedCount={conflictedModCount}
+          onQueryChange={setQuery}
+          onStatusFilterChange={setStatusFilter}
+          onCheckUpdates={onCheckUpdates}
+        />
       </div>
 
       <FadeSkeleton
@@ -132,112 +180,40 @@ export function InstalledPage({
         skeleton={<InstalledPageSkeleton />}
         minHeight="20rem"
       >
-        <>
-          {items.length > 0 && filteredItems.length === 0 ? (
-            <div className="bg-base-200 rounded-xl border border-dashed p-8 text-center text-sm">
-              <p>No installed mods matched your filter.</p>
-            </div>
-          ) : (
-            <div className="max-h-[60vh] overflow-auto">
-              <table className="table">
-                <thead className="bg-base-100 sticky top-0 z-10">
-                  <tr>
-                    <th>Name</th>
-                    <th>Installed</th>
-                    <th>Latest</th>
-                    <th>Enabled</th>
-                    <th>Archive</th>
-                    <th className="text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredItems.map((item) => (
-                    <tr key={item.filePath}>
-                      <td>{item.name}</td>
-                      <td>{item.version}</td>
-                      <td>
-                        {latestVersions[item.name] ? (
-                          <span
-                            className={
-                              latestVersions[item.name] !== item.version
-                                ? "text-warning"
-                                : ""
-                            }
-                          >
-                            {latestVersions[item.name]}
-                          </span>
-                        ) : (
-                          "-"
-                        )}
-                      </td>
-                      <td>
-                        <input
-                          type="checkbox"
-                          className="toggle toggle-primary"
-                          checked={item.enabled ?? true}
-                          onChange={(event) =>
-                            onToggleEnabled(item.name, event.target.checked)
-                          }
-                          disabled={busy}
-                        />
-                      </td>
-                      <td className="max-w-56 truncate">{item.fileName}</td>
-                      <td>
-                        <div className="flex justify-end gap-2">
-                          <button
-                            className="btn btn-sm"
-                            disabled={busy}
-                            onClick={() => onOpen(item.name)}
-                          >
-                            Details
-                          </button>
-                          <button
-                            className="btn btn-sm"
-                            disabled={busy}
-                            onClick={() => onUpdate(item.name, item.filePath)}
-                          >
-                            Update
-                          </button>
-                          <ConfirmAction
-                            triggerLabel="Delete"
-                            triggerClassName="btn btn-sm btn-error btn-outline"
-                            confirmLabel="Delete archive"
-                            title={`Delete ${item.name}?`}
-                            description={
-                              <div className="space-y-2">
-                                <p>
-                                  This removes the ZIP archive from your
-                                  configured mods folder.
-                                </p>
-                                <p className="text-base-content/70 text-xs">
-                                  File: {item.fileName}
-                                </p>
-                              </div>
-                            }
-                            disabled={busy}
-                            onConfirm={() => onDelete(item.name, item.filePath)}
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </>
+        <InstalledModsTable
+          items={items}
+          filteredItems={filteredItems}
+          busy={busy}
+          latestVersions={latestVersions}
+          installedConflicts={installedConflicts}
+          onDelete={onDelete}
+          onUpdate={onUpdate}
+          onOpen={onOpen}
+          onToggleEnabled={(modName, enabled) => {
+            void handleToggleEnabled(modName, enabled);
+          }}
+          onShowConflicts={setSelectedConflictModName}
+        />
       </FadeSkeleton>
 
-      {!busy && (
-        <div>
-          {items.length === 0 && (
-            <div className="bg-base-200 rounded-xl border border-dashed p-8 text-center text-sm">
-              <p>No ZIP mods found in the configured mods folder.</p>
-            </div>
-          )}
+      <ToggleImpactDialog
+        impact={pendingToggle}
+        onClose={() => setPendingToggle(null)}
+        onConfirm={(modName, enabled, relatedModNames) => {
+          onToggleEnabled(modName, enabled, relatedModNames);
+          setPendingToggle(null);
+        }}
+      />
 
-        </div>
-      )}
+      <ConflictDetailsDialog
+        modName={selectedConflictModName}
+        conflicts={selectedConflicts}
+        onClose={() => setSelectedConflictModName(null)}
+        onOpenMod={(modName) => {
+          onOpen(modName);
+          setSelectedConflictModName(null);
+        }}
+      />
     </BentoTile>
   );
 }

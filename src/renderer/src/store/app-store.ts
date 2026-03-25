@@ -3,6 +3,7 @@ import type {
   AppSettings,
   BrowsePagination,
   DownloadProgress,
+  InstalledConflict,
   InstalledMod,
   ModDetails,
   ModSummary,
@@ -20,6 +21,7 @@ export interface AppStore {
   selectedModLoading: boolean;
   selectedModPendingName: string | null;
   installed: InstalledMod[];
+  installedConflicts: Record<string, InstalledConflict[]>;
   downloads: DownloadProgress[];
   latestVersions: Record<string, string>;
 }
@@ -33,6 +35,7 @@ const initialStore: AppStore = {
   selectedModLoading: false,
   selectedModPendingName: null,
   installed: [],
+  installedConflicts: {},
   downloads: [],
   latestVersions: {},
 };

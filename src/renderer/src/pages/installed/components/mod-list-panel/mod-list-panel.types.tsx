@@ -3,6 +3,7 @@ import type { AppSettings } from "@shared/types/mod";
 export interface ModListPanelProps {
   settings: AppSettings;
   busy: boolean;
+  conflictCount: number;
   onCreateModListProfile(name: string): void;
   onRenameModListProfile(profileId: string, name: string): void;
   onSwitchModListProfile(profileId: string): void;

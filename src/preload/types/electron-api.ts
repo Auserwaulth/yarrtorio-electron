@@ -4,7 +4,9 @@ import type {
   BrowseResult,
   DownloadProgress,
   DownloadRequest,
+  InstalledConflict,
   InstalledMod,
+  ModToggleImpact,
   ModDetails,
   ModSummary,
   OperationResult,
@@ -31,8 +33,16 @@ export interface ElectronApi {
     setEnabled(input: {
       modName: string;
       enabled: boolean;
+      relatedModNames?: string[];
     }): Promise<OperationResult<boolean>>;
+    getModToggleImpact(input: {
+      modName: string;
+      enabled: boolean;
+    }): Promise<OperationResult<ModToggleImpact>>;
     getLatestVersions(): Promise<OperationResult<Record<string, string>>>;
+    getInstalledConflicts(): Promise<
+      OperationResult<Record<string, InstalledConflict[]>>
+    >;
     createModListProfile(input: {
       name: string;
     }): Promise<OperationResult<AppSettings>>;
