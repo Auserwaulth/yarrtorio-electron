@@ -33,6 +33,10 @@ export function createProfileHandlers(settingsService: SettingsService) {
       }
 
       const settings = await settingsService.getSettings();
+      if (!settings.modsFolder) {
+        return { ok: false, error: "Mods folder is not configured." };
+      }
+
       const profile: ModListProfile = {
         id: crypto.randomUUID(),
         name: buildProfileName(parsed.data.name),

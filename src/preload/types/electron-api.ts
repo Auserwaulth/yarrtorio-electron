@@ -6,6 +6,7 @@ import type {
   DownloadRequest,
   InstalledConflict,
   InstalledMod,
+  ModLibraryState,
   ModToggleImpact,
   ModDetails,
   ModSummary,
@@ -35,6 +36,9 @@ export interface ElectronApi {
       enabled: boolean;
       relatedModNames?: string[];
     }): Promise<OperationResult<boolean>>;
+    getLibraryState(): Promise<
+      OperationResult<Record<string, ModLibraryState>>
+    >;
     getModToggleImpact(input: {
       modName: string;
       enabled: boolean;

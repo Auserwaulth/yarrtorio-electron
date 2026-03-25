@@ -1,5 +1,6 @@
 import { listInstalledMods } from "../../../mods/mod-installer";
 import { parseModList } from "../../../mods/mod-parser";
+import type { ModLibraryState } from "@shared/types/mod";
 import type { SettingsService } from "../../../services/settings-service";
 
 export async function loadLibraryState(settingsService: SettingsService) {
@@ -27,6 +28,26 @@ export async function loadLibraryState(settingsService: SettingsService) {
       modList.map((item) => [item.name, item.enabled]),
     ),
   };
+}
+
+export function serializeLibraryState(
+  state: Awaited<ReturnType<typeof loadLibraryState>>,
+): Record<string, ModLibraryState> {
+  const modNames = new Set([
+    ...state.installedNames,
+    ...state.modListEnabledByName.keys(),
+  ]);
+
+  return Object.fromEntries(
+    Array.from(modNames, (name) => [
+      name,
+      {
+        isInstalled: state.installedNames.has(name),
+        isInModList: state.modListEnabledByName.has(name),
+        isEnabledInModList: state.modListEnabledByName.get(name) ?? false,
+      },
+    ]),
+  );
 }
 
 export function withLibraryState<T extends { name: string }>(

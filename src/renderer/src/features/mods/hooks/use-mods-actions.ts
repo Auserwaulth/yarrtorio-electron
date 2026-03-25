@@ -4,6 +4,7 @@ import type {
   AppSettings,
   BrowseFilters,
   DownloadProgress,
+  ModLibraryState,
   ModToggleImpact,
 } from "@shared/types/mod";
 import type { AppStore } from "../../../store/app-store";
@@ -23,6 +24,26 @@ export function useModsActions(
 
   function reportError(message: string) {
     options.onError?.(message);
+  }
+
+  function getNextLibraryState(
+    currentState: ModLibraryState | undefined,
+    nextState: ModLibraryState | undefined,
+  ): ModLibraryState | undefined {
+    if (nextState) {
+      return nextState;
+    }
+
+    if (!currentState) {
+      return undefined;
+    }
+
+    return {
+      ...currentState,
+      isInstalled: false,
+      isInModList: false,
+      isEnabledInModList: false,
+    };
   }
 
   async function refreshInstalledConflicts(): Promise<void> {
@@ -100,41 +121,58 @@ export function useModsActions(
   }
 
   async function refreshInstalled(): Promise<void> {
-    const [installedResult, conflictsResult] = await Promise.all([
+    const [installedResult, conflictsResult, libraryStateResult] = await Promise.all([
       modsService.installed(),
       modsService.getInstalledConflicts(),
+      modsService.getLibraryState(),
     ]);
 
     if (installedResult.ok) {
-      const installedNames = new Set(installedResult.data.map((item) => item.name));
-
       setStore((current) => ({
         ...current,
         installed: installedResult.data,
         installedConflicts: conflictsResult.ok ? conflictsResult.data : {},
-        mods: current.mods.map((mod) =>
-          mod.libraryState
+        mods: current.mods.map((mod) => {
+          const nextLibraryState = getNextLibraryState(
+            mod.libraryState,
+            libraryStateResult.ok ? libraryStateResult.data[mod.name] : undefined,
+          );
+
+          return nextLibraryState
             ? {
                 ...mod,
-                libraryState: {
-                  ...mod.libraryState,
-                  isInstalled: installedNames.has(mod.name),
-                },
+                libraryState: nextLibraryState,
               }
-            : mod,
-        ),
-        selectedMod: current.selectedMod
-          ? current.selectedMod.libraryState
+            : mod;
+        }),
+        selectedMod: (() => {
+          if (!current.selectedMod) {
+            return null;
+          }
+
+          const nextLibraryState = getNextLibraryState(
+            current.selectedMod.libraryState,
+            libraryStateResult.ok
+              ? libraryStateResult.data[current.selectedMod.name]
+              : undefined,
+          );
+
+          return nextLibraryState
             ? {
                 ...current.selectedMod,
-                libraryState: {
-                  ...current.selectedMod.libraryState,
-                  isInstalled: installedNames.has(current.selectedMod.name),
-                },
+                libraryState: nextLibraryState,
               }
-            : current.selectedMod
-          : null,
+            : current.selectedMod;
+        })(),
       }));
+
+      if (!conflictsResult.ok) {
+        reportError(conflictsResult.error);
+      }
+
+      if (!libraryStateResult.ok) {
+        reportError(libraryStateResult.error);
+      }
 
       return;
     }
@@ -142,6 +180,9 @@ export function useModsActions(
     reportError(installedResult.error);
     if (!conflictsResult.ok) {
       reportError(conflictsResult.error);
+    }
+    if (!libraryStateResult.ok) {
+      reportError(libraryStateResult.error);
     }
   }
 

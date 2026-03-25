@@ -15,13 +15,18 @@ import type { DownloadQueue } from "../../../downloads/download-queue";
 import type {
   BrowseResult,
   InstalledMod,
+  ModLibraryState,
   ModDetails,
   ModSummary,
   OperationResult,
 } from "@shared/types/mod";
 import type { SettingsService } from "../../../services/settings-service";
 import { getInstalledConflictsResult, getInstalledResult } from "./installed-mods";
-import { loadLibraryState, withLibraryState } from "./library-state";
+import {
+  loadLibraryState,
+  serializeLibraryState,
+  withLibraryState,
+} from "./library-state";
 import { createProfileHandlers } from "./profile-handlers";
 import { createToggleHandlers } from "./toggle-handlers";
 
@@ -74,6 +79,13 @@ export function createModsHandler(
 
     installed: async (): Promise<OperationResult<InstalledMod[]>> =>
       getInstalledResult(settingsService),
+
+    getLibraryState: async (): Promise<
+      OperationResult<Record<string, ModLibraryState>>
+    > => ({
+      ok: true,
+      data: serializeLibraryState(await loadLibraryState(settingsService)),
+    }),
 
     syncFromModList: async (
       _event: IpcMainInvokeEvent,

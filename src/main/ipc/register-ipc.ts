@@ -72,6 +72,10 @@ export function registerIpc(settingsService: SettingsService): void {
     safeHandle("mods:set-enabled", modsHandler.setEnabled),
   );
   ipcMain.handle(
+    ipcChannels.mods.getLibraryState,
+    safeHandle("mods:get-library-state", modsHandler.getLibraryState),
+  );
+  ipcMain.handle(
     ipcChannels.mods.getModToggleImpact,
     safeHandle("mods:get-mod-toggle-impact", modsHandler.getModToggleImpact),
   );

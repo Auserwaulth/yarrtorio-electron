@@ -20,6 +20,7 @@ export const modsService = {
       enabled,
       ...(relatedModNames !== undefined ? { relatedModNames } : {}),
     }),
+  getLibraryState: () => window.electronApi.mods.getLibraryState(),
   getModToggleImpact: (modName: string, enabled: boolean) =>
     window.electronApi.mods.getModToggleImpact({ modName, enabled }),
   enqueueDownload: (request: DownloadRequest) =>

@@ -82,6 +82,7 @@ export function App() {
 
   useEffect(() => {
     if (page !== "installed") return;
+    void modsActions.refreshInstalled();
     void modsActions.fetchLatestVersions();
   }, [page, modsActions]);
 
