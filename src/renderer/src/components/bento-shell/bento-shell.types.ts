@@ -6,4 +6,6 @@ import type { PropsWithChildren, ReactNode } from "react";
 export interface BentoShellProps extends PropsWithChildren {
   /** The sidebar content to display on the left side of the layout */
   sidebar: ReactNode;
+  /** The header content displayed above the main content area */
+  header: ReactNode;
 }

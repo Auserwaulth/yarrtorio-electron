@@ -149,18 +149,6 @@ export function InstalledPage({
           onRemoveModListProfile={onRemoveModListProfile}
         />
 
-        {conflictCount > 0 ? (
-          <div className="border-error/30 bg-error/8 rounded-xl border p-4">
-            <p className="text-error font-medium">
-              {conflictCount} active conflict{conflictCount === 1 ? "" : "s"} detected
-            </p>
-            <p className="text-base-content/70 mt-1 text-sm">
-              Conflict badges mark enabled installed mods that declare
-              incompatibilities with other enabled installed mods.
-            </p>
-          </div>
-        ) : null}
-
         <InstalledPageToolbar
           busy={busy}
           query={query}

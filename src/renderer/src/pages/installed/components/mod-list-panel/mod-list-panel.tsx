@@ -46,23 +46,19 @@ export function ModListPanel({
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="py-3">
-            <p className="text-base-content/60 text-xs tracking-wide uppercase">
-              Switching
-            </p>
-            <p className="mt-1 text-sm">
-              Swap which saved mod-list controls enabled states and syncs.
-            </p>
-          </div>
-          <div className=" py-3">
-            <p className="text-base-content/60 text-xs tracking-wide uppercase">
-              Saving
-            </p>
-            <p className="mt-1 text-sm">
-              Snapshot the current active file as a new reusable profile.
-            </p>
-          </div>
+        <div className="grid">
+          {conflictCount > 0 ? (
+            <div className="border-error/30 bg-error/8 rounded-xl border p-3">
+              <p className="text-error font-medium">
+                {conflictCount} active conflict{conflictCount === 1 ? "" : "s"}{" "}
+                detected
+              </p>
+              <p className="text-base-content/70 mt-1 text-sm">
+                Conflict badges mark enabled installed mods that declare
+                incompatibilities with other enabled installed mods.
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
 

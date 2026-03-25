@@ -2,14 +2,12 @@
 // Have fun making sense of this mess. I sure don't.
 
 import { useEffect, useMemo, useState } from "react";
+import { AppContent } from "./app/app-content";
+import { type PageKey } from "./app/app-routes";
+import { AppHeader } from "./components/app-header";
 import { BentoShell } from "./components/bento-shell";
 import { ModDetailsModal } from "./components/mod-details-modal";
-import { SidebarNav, type PageKey } from "./components/sidebar-nav";
-import { DashboardPage } from "./pages/dashboard/dashboard-page";
-import { BrowsePage } from "./pages/browse/browse-page";
-import { InstalledPage } from "./pages/installed/installed-page";
-import { SettingsPage } from "./pages/settings/settings-page";
-import { UserManualPage } from "./pages/user-manual/user-manual-page";
+import { SidebarNav } from "./components/sidebar-nav";
 import { useAppStore } from "./store/app-store";
 import { useBootstrap } from "./hooks/use-bootstrap";
 import { useModsActions } from "./features/mods/hooks/use-mods-actions";
@@ -30,6 +28,7 @@ export function App() {
     error: bootstrapError,
   } = useBootstrap(setStore);
   const [page, setPage] = useState<PageKey>("dashboard");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const settings = store.settings ?? defaultSettings;
 
@@ -105,80 +104,81 @@ export function App() {
     await modsActions.browse(nextFilters);
   }
 
-  return (
+    return (
     <>
-      <BentoShell sidebar={<SidebarNav active={page} onSelect={setPage} />}>
-        {page === "dashboard" && (
-          <DashboardPage
-            installed={store.installed}
-            downloads={store.downloads}
-            onOpenBrowse={() => setPage("browse")}
-            openInstalled={() => setPage("installed")}
-            onSyncFromModList={() =>
-              void modsActions.syncFromModList(includeDisabled)
+      <BentoShell
+        header={
+          <AppHeader
+            collapsed={sidebarCollapsed}
+            onToggleSidebar={() =>
+              setSidebarCollapsed((current) => !current)
             }
-            onRetryDownload={(download) =>
-              void modsActions.retryDownload(download)
-            }
-            onRetryAllFailed={(downloads) =>
-              void modsActions.retryAllFailed(downloads)
-            }
-            appMeta={store.appMeta}
           />
-        )}
-
-        {page === "browse" && (
-          <BrowsePage
-            mods={store.mods}
-            filters={browse.filters}
-            pagination={store.modsPagination}
-            busy={modsActions.busy}
-            onQueryChange={browse.actions.setQuery}
-            onVersionChange={browse.actions.setVersion}
-            onToggleCategory={browse.actions.toggleCategory}
-            onToggleTag={browse.actions.toggleTag}
-            onIncludeCategoriesChange={browse.actions.setIncludeCategories}
-            onIncludeTagsChange={browse.actions.setIncludeTags}
-            onIncludeDeprecatedChange={browse.actions.setIncludeDeprecated}
-            onTabChange={browse.actions.setTab}
-            onApply={(nextPage) => void applyBrowse(nextPage)}
-            onReset={() => {
+        }
+        sidebar={
+          <SidebarNav
+            active={page}
+            collapsed={sidebarCollapsed}
+            onSelect={setPage}
+          />
+        }
+      >
+        <AppContent
+          page={page}
+          dashboard={{
+            installed: store.installed,
+            downloads: store.downloads,
+            onOpenBrowse: () => setPage("browse"),
+            openInstalled: () => setPage("installed"),
+            onSyncFromModList: () =>
+              void modsActions.syncFromModList(includeDisabled),
+            onRetryDownload: (download) => void modsActions.retryDownload(download),
+            onRetryAllFailed: (downloads) =>
+              void modsActions.retryAllFailed(downloads),
+            appMeta: store.appMeta,
+          }}
+          browse={{
+            mods: store.mods,
+            filters: browse.filters,
+            pagination: store.modsPagination,
+            busy: modsActions.busy,
+            onQueryChange: browse.actions.setQuery,
+            onVersionChange: browse.actions.setVersion,
+            onToggleCategory: browse.actions.toggleCategory,
+            onToggleTag: browse.actions.toggleTag,
+            onIncludeCategoriesChange: browse.actions.setIncludeCategories,
+            onIncludeTagsChange: browse.actions.setIncludeTags,
+            onIncludeDeprecatedChange: browse.actions.setIncludeDeprecated,
+            onTabChange: browse.actions.setTab,
+            onApply: (nextPage) => void applyBrowse(nextPage),
+            onReset: () => {
               browse.actions.reset();
               void modsActions.browse(browse.defaultFilters);
-            }}
-            onOpen={(modName) => void modsActions.selectMod(modName)}
-            onDownload={(modName, version) =>
+            },
+            onOpen: (modName) => void modsActions.selectMod(modName),
+            onDownload: (modName, version) =>
               version
                 ? void modsActions.queueSelectedMod(modName, version)
-                : undefined
-            }
-            onSyncFromModList={() =>
-              void modsActions.syncFromModList(includeDisabled)
-            }
-          />
-        )}
-
-        {page === "installed" && (
-          <InstalledPage
-            settings={settings}
-            items={store.installed}
-            busy={modsActions.busy}
-            latestVersions={store.latestVersions}
-            installedConflicts={store.installedConflicts}
-            onDelete={(modName, filePath) =>
-              void modsActions.deleteInstalled(modName, filePath)
-            }
-            onUpdate={(modName, filePath) =>
-              void modsActions.queueUpdateInstalled(modName, filePath)
-            }
-            onToggleEnabled={(modName, enabled, relatedModNames) =>
-              void modsActions.setEnabled(modName, enabled, relatedModNames)
-            }
-            onGetModToggleImpact={(modName, enabled) =>
-              modsActions.getModToggleImpact(modName, enabled)
-            }
-            onOpen={(modName) => void modsActions.selectMod(modName)}
-            onCheckUpdates={async () => {
+                : undefined,
+            onSyncFromModList: () =>
+              void modsActions.syncFromModList(includeDisabled),
+          }}
+          installed={{
+            settings,
+            items: store.installed,
+            busy: modsActions.busy,
+            latestVersions: store.latestVersions,
+            installedConflicts: store.installedConflicts,
+            onDelete: (modName, filePath) =>
+              void modsActions.deleteInstalled(modName, filePath),
+            onUpdate: (modName, filePath) =>
+              void modsActions.queueUpdateInstalled(modName, filePath),
+            onToggleEnabled: (modName, enabled, relatedModNames) =>
+              void modsActions.setEnabled(modName, enabled, relatedModNames),
+            onGetModToggleImpact: (modName, enabled) =>
+              modsActions.getModToggleImpact(modName, enabled),
+            onOpen: (modName) => void modsActions.selectMod(modName),
+            onCheckUpdates: async () => {
               const updateCount = await modsActions.fetchLatestVersions();
               if (updateCount > 0) {
                 pushToast(
@@ -188,42 +188,32 @@ export function App() {
               } else {
                 pushToast("info", "All mods are up to date");
               }
-            }}
-            onCreateModListProfile={(name) =>
-              void modsActions.createModListProfile(name)
-            }
-            onRenameModListProfile={(profileId, name) =>
-              void modsActions.renameModListProfile(profileId, name)
-            }
-            onSwitchModListProfile={(profileId) =>
-              void modsActions.switchModListProfile(profileId)
-            }
-            onRemoveModListProfile={(profileId) =>
-              void modsActions.removeModListProfile(profileId)
-            }
-          />
-        )}
-
-        {page === "user-manual" && <UserManualPage />}
-
-        {page === "settings" && (
-          <SettingsPage
-            settings={settings}
-            saving={settingsActions.saving}
-            appMeta={store.appMeta}
-            onChange={(next) => void saveSettings(next)}
-            onPickFolder={() =>
+            },
+            onCreateModListProfile: (name) =>
+              void modsActions.createModListProfile(name),
+            onRenameModListProfile: (profileId, name) =>
+              void modsActions.renameModListProfile(profileId, name),
+            onSwitchModListProfile: (profileId) =>
+              void modsActions.switchModListProfile(profileId),
+            onRemoveModListProfile: (profileId) =>
+              void modsActions.removeModListProfile(profileId),
+          }}
+          settings={{
+            settings,
+            saving: settingsActions.saving,
+            appMeta: store.appMeta,
+            onChange: (next) => void saveSettings(next),
+            onPickFolder: () =>
               void settingsActions.chooseFolder().then((folder) => {
                 if (folder)
                   return saveSettings({ ...settings, modsFolder: folder });
-              })
-            }
-            onOpenLogFolder={() => {
+              }),
+            onOpenLogFolder: () => {
               if (!store.appMeta?.logPath) return;
               void window.electronApi.external.openPath(store.appMeta.logPath);
-            }}
-          />
-        )}
+            },
+          }}
+        />
       </BentoShell>
 
       <AppToastRegion toasts={toasts} positionClass={toastPositionClass} />

@@ -31,7 +31,7 @@ body {
 
 .app-shell-bg::before {
   content: "";
-  position: absolute;
+  position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
@@ -39,7 +39,7 @@ body {
   background-image: url("../../public/topography.svg");
   background-repeat: repeat;
   background-size: 420px 420px;
-  background-position: center;
+  background-position: center top;
 
   opacity: 0.3;
   mix-blend-mode: normal;
