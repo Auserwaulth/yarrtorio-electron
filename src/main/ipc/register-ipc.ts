@@ -6,6 +6,7 @@ import { createSettingsHandler } from "./handlers/settings-handler";
 import { createAppHandler } from "./handlers/app-handler";
 import { createExternalHandler } from "./handlers/external-handler";
 import type { SettingsService } from "../services/settings-service";
+import type { AppUpdater } from "../updater/app-updater";
 import { logError } from "../logging/logger";
 import type { OperationResult } from "@shared/types/mod";
 
@@ -33,14 +34,17 @@ function safeHandle<T>(
   };
 }
 
-export function registerIpc(settingsService: SettingsService): void {
+export function registerIpc(
+  settingsService: SettingsService,
+  appUpdater: AppUpdater,
+): void {
   const downloadsHandler = createDownloadsHandler(settingsService);
   const modsHandler = createModsHandler(
     settingsService,
     downloadsHandler.queue,
   );
   const settingsHandler = createSettingsHandler(settingsService);
-  const appHandler = createAppHandler();
+  const appHandler = createAppHandler(appUpdater);
   const externalHandler = createExternalHandler();
 
   ipcMain.handle(
@@ -154,6 +158,22 @@ export function registerIpc(settingsService: SettingsService): void {
   );
 
   ipcMain.handle(ipcChannels.app.meta, safeHandle("app:meta", appHandler.meta));
+  ipcMain.handle(
+    ipcChannels.app.updateState,
+    safeHandle("app:update-state", appHandler.getUpdateState),
+  );
+  ipcMain.handle(
+    ipcChannels.app.checkForUpdates,
+    safeHandle("app:check-for-updates", appHandler.checkForUpdates),
+  );
+  ipcMain.handle(
+    ipcChannels.app.downloadUpdate,
+    safeHandle("app:download-update", appHandler.downloadUpdate),
+  );
+  ipcMain.handle(
+    ipcChannels.app.quitAndInstallUpdate,
+    safeHandle("app:quit-and-install-update", appHandler.quitAndInstallUpdate),
+  );
   ipcMain.handle(ipcChannels.external.openUrl, externalHandler.openUrl);
   ipcMain.handle(ipcChannels.external.openPath, externalHandler.openPath);
 }

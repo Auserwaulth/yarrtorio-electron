@@ -6,6 +6,7 @@ import { applyTheme } from "../utils/theme";
 import { MAX_DOWNLOAD_HISTORY } from "@shared/constants";
 import type { OperationResult } from "@shared/types/mod";
 import type { AppMeta } from "@shared/types/app-meta";
+import type { AppUpdateState } from "@shared/types/app-update";
 import type {
   AppSettings,
   DownloadProgress,
@@ -23,7 +24,8 @@ type BootstrapTaskResult =
   | OperationResult<AppSettings>
   | OperationResult<InstalledMod[]>
   | OperationResult<DownloadProgress[]>
-  | OperationResult<AppMeta>;
+  | OperationResult<AppMeta>
+  | OperationResult<AppUpdateState>;
 
 interface BootstrapTask {
   label: string;
@@ -77,6 +79,11 @@ export function useBootstrap(setStore: Dispatch<SetStateAction<AppStore>>) {
         label: "Preparing app metadata…",
         targetProgress: 90,
         run: () => window.electronApi.app.meta(),
+      },
+      {
+        label: "Loading updater statusâ€¦",
+        targetProgress: 96,
+        run: () => window.electronApi.app.getUpdateState(),
       },
     ];
 
@@ -136,11 +143,12 @@ export function useBootstrap(setStore: Dispatch<SetStateAction<AppStore>>) {
 
       if (cancelled) return;
 
-      const [settings, installed, downloads, appMeta] = results as [
+      const [settings, installed, downloads, appMeta, appUpdate] = results as [
         OperationResult<AppSettings>,
         OperationResult<InstalledMod[]>,
         OperationResult<DownloadProgress[]>,
         OperationResult<AppMeta>,
+        OperationResult<AppUpdateState>,
       ];
 
       if (settings.ok) {
@@ -151,6 +159,7 @@ export function useBootstrap(setStore: Dispatch<SetStateAction<AppStore>>) {
         ...current,
         settings: settings.ok ? settings.data : current.settings,
         appMeta: appMeta.ok ? appMeta.data : current.appMeta,
+        appUpdate: appUpdate.ok ? appUpdate.data : current.appUpdate,
         installed: installed.ok ? installed.data : [],
         downloads: downloads.ok
           ? downloads.data.slice(0, MAX_DOWNLOAD_HISTORY)

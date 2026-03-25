@@ -121,11 +121,12 @@ export function useModsActions(
   }
 
   async function refreshInstalled(): Promise<void> {
-    const [installedResult, conflictsResult, libraryStateResult] = await Promise.all([
-      modsService.installed(),
-      modsService.getInstalledConflicts(),
-      modsService.getLibraryState(),
-    ]);
+    const [installedResult, conflictsResult, libraryStateResult] =
+      await Promise.all([
+        modsService.installed(),
+        modsService.getInstalledConflicts(),
+        modsService.getLibraryState(),
+      ]);
 
     if (installedResult.ok) {
       setStore((current) => ({
@@ -135,7 +136,9 @@ export function useModsActions(
         mods: current.mods.map((mod) => {
           const nextLibraryState = getNextLibraryState(
             mod.libraryState,
-            libraryStateResult.ok ? libraryStateResult.data[mod.name] : undefined,
+            libraryStateResult.ok
+              ? libraryStateResult.data[mod.name]
+              : undefined,
           );
 
           return nextLibraryState
@@ -303,7 +306,8 @@ export function useModsActions(
             : mod,
         ),
         selectedMod:
-          current.selectedMod?.name === modName && current.selectedMod.libraryState
+          current.selectedMod?.name === modName &&
+          current.selectedMod.libraryState
             ? {
                 ...current.selectedMod,
                 libraryState: {
@@ -357,7 +361,8 @@ export function useModsActions(
             : mod,
         ),
         selectedMod:
-          current.selectedMod?.name === modName && current.selectedMod.libraryState
+          current.selectedMod?.name === modName &&
+          current.selectedMod.libraryState
             ? {
                 ...current.selectedMod,
                 libraryState: {

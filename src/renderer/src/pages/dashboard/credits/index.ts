@@ -1,1 +1,1 @@
-export * from './credits'
+export * from "./credits";

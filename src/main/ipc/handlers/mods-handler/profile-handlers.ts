@@ -130,7 +130,10 @@ export function createProfileHandlers(settingsService: SettingsService) {
       }
 
       if (settings.modListProfiles.length <= 1) {
-        return { ok: false, error: "At least one mod-list profile is required." };
+        return {
+          ok: false,
+          error: "At least one mod-list profile is required.",
+        };
       }
 
       const remainingProfiles = settings.modListProfiles.filter(
@@ -141,7 +144,10 @@ export function createProfileHandlers(settingsService: SettingsService) {
         const fallbackProfile = remainingProfiles[0];
 
         if (!fallbackProfile) {
-          return { ok: false, error: "No fallback mod-list profile was found." };
+          return {
+            ok: false,
+            error: "No fallback mod-list profile was found.",
+          };
         }
 
         if (!settings.modsFolder) {

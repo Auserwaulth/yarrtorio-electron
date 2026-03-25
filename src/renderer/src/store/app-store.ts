@@ -9,12 +9,14 @@ import type {
   ModSummary,
 } from "@shared/types/mod";
 import type { AppMeta } from "@shared/types/app-meta";
+import type { AppUpdateState } from "@shared/types/app-update";
 
 import { MAX_DOWNLOAD_HISTORY } from "@shared/constants";
 
 export interface AppStore {
   settings: AppSettings | null;
   appMeta: AppMeta | null;
+  appUpdate: AppUpdateState | null;
   mods: ModSummary[];
   modsPagination: BrowsePagination | null;
   selectedMod: ModDetails | null;
@@ -29,6 +31,7 @@ export interface AppStore {
 const initialStore: AppStore = {
   settings: null,
   appMeta: null,
+  appUpdate: null,
   mods: [],
   modsPagination: null,
   selectedMod: null,
@@ -89,6 +92,12 @@ export function useAppStore() {
         ...current,
         downloads: upsertRecentDownload(current.downloads, progress),
       }));
+    });
+  }, []);
+
+  useEffect(() => {
+    return window.electronApi.app.onUpdateState((appUpdate) => {
+      setStore((current) => ({ ...current, appUpdate }));
     });
   }, []);
 

@@ -5,10 +5,7 @@ import {
 import { getModToggleImpact } from "../../../mods/mod-toggle-impact";
 import { upsertModListEntry } from "../../../mods/mod-parser";
 import type { IpcMainInvokeEvent } from "electron";
-import type {
-  ModToggleImpact,
-  OperationResult,
-} from "@shared/types/mod";
+import type { ModToggleImpact, OperationResult } from "@shared/types/mod";
 import type { SettingsService } from "../../../services/settings-service";
 import { loadInstalledMods } from "./installed-mods";
 

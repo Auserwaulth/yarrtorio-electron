@@ -9,7 +9,11 @@ import {
   listInstalledMods,
 } from "../../../mods/mod-installer";
 import { browseMods, getModDetails } from "../../../mods/mod-resolver";
-import { parseModList, removeModListEntry, upsertModListEntry } from "../../../mods/mod-parser";
+import {
+  parseModList,
+  removeModListEntry,
+  upsertModListEntry,
+} from "../../../mods/mod-parser";
 import type { IpcMainInvokeEvent } from "electron";
 import type { DownloadQueue } from "../../../downloads/download-queue";
 import type {
@@ -21,7 +25,10 @@ import type {
   OperationResult,
 } from "@shared/types/mod";
 import type { SettingsService } from "../../../services/settings-service";
-import { getInstalledConflictsResult, getInstalledResult } from "./installed-mods";
+import {
+  getInstalledConflictsResult,
+  getInstalledResult,
+} from "./installed-mods";
 import {
   loadLibraryState,
   serializeLibraryState,
@@ -58,7 +65,9 @@ export function createModsHandler(
         ok: true,
         data: {
           ...result,
-          items: result.items.map((item) => withLibraryState(item, libraryState)),
+          items: result.items.map((item) =>
+            withLibraryState(item, libraryState),
+          ),
         },
       };
     },
@@ -150,7 +159,9 @@ export function createModsHandler(
           version,
           targetFolder: settings.modsFolder,
           replaceExisting: Boolean(existing),
-          ...(existing?.filePath ? { existingFilePath: existing.filePath } : {}),
+          ...(existing?.filePath
+            ? { existingFilePath: existing.filePath }
+            : {}),
         });
       }
 
@@ -212,7 +223,9 @@ export function createModsHandler(
       return { ok: true, data: progress.key };
     },
 
-    getLatestVersions: async (): Promise<OperationResult<Record<string, string>>> => {
+    getLatestVersions: async (): Promise<
+      OperationResult<Record<string, string>>
+    > => {
       const settings = await settingsService.getSettings();
 
       if (!settings.modsFolder) {
@@ -240,7 +253,8 @@ export function createModsHandler(
       return { ok: true, data: latestVersions };
     },
 
-    getInstalledConflicts: async () => getInstalledConflictsResult(settingsService),
+    getInstalledConflicts: async () =>
+      getInstalledConflictsResult(settingsService),
 
     ...profileHandlers,
     ...toggleHandlers,

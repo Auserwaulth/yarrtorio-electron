@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
+    "electron-updater": "^6.8.3",
     "lucide-react": "^1.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -113,6 +114,13 @@
     },
     "appImage": {
       "artifactName": "${productName}-${version}-${arch}.${ext}"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Auserwaulth",
+        "repo": "yarrtorio-electron"
+      }
+    ]
   }
 }

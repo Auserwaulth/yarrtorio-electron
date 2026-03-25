@@ -50,7 +50,7 @@ export function InstalledModsTable({
                   <span>{item.name}</span>
                   {(installedConflicts[item.name]?.length ?? 0) > 0 ? (
                     <button
-                      className="badge badge-error badge-soft cursor-pointer gap-1 transition hover:scale-[1.02] hover:badge-outline focus:outline-none focus:ring-2 focus:ring-error/40"
+                      className="badge badge-error badge-soft hover:badge-outline focus:ring-error/40 cursor-pointer gap-1 transition hover:scale-[1.02] focus:ring-2 focus:outline-none"
                       type="button"
                       aria-label={`View conflicts for ${item.name}`}
                       onClick={() => onShowConflicts(item.name)}

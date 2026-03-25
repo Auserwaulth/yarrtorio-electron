@@ -2,7 +2,11 @@ import { app } from "electron";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { modListFileSchema } from "@shared/validation/schemas";
-import type { AppSettings, ModListEntry, ModListProfile } from "@shared/types/mod";
+import type {
+  AppSettings,
+  ModListEntry,
+  ModListProfile,
+} from "@shared/types/mod";
 
 const MOD_LIST_PROFILES_DIR = "mod-list-profiles";
 
@@ -31,7 +35,9 @@ export function getActiveModListProfile(
   return (
     settings.modListProfiles.find(
       (profile) => profile.id === settings.activeModListProfileId,
-    ) ?? settings.modListProfiles[0] ?? null
+    ) ??
+    settings.modListProfiles[0] ??
+    null
   );
 }
 
@@ -76,7 +82,9 @@ export async function ensureActiveModListExists(
   return filePath;
 }
 
-export async function ensureProfileStorageExists(profileId: string): Promise<string> {
+export async function ensureProfileStorageExists(
+  profileId: string,
+): Promise<string> {
   const filePath = resolveProfileStoragePath(profileId);
   await ensureModListFile(filePath);
   return filePath;
@@ -101,7 +109,10 @@ export async function writeModList(
 
   const activeProfile = getActiveModListProfile(settings);
   if (activeProfile) {
-    await writeModListFile(resolveProfileStoragePath(activeProfile.id), normalized);
+    await writeModListFile(
+      resolveProfileStoragePath(activeProfile.id),
+      normalized,
+    );
   }
 }
 
@@ -163,11 +174,15 @@ export async function createModListProfileStorage(
   await writeModListFile(resolveProfileStoragePath(profileId), activeMods);
 }
 
-export async function renameModListProfileStorage(_profileId: string): Promise<void> {
+export async function renameModListProfileStorage(
+  _profileId: string,
+): Promise<void> {
   return Promise.resolve();
 }
 
-export async function deleteModListProfileStorage(profileId: string): Promise<void> {
+export async function deleteModListProfileStorage(
+  profileId: string,
+): Promise<void> {
   await rm(resolveProfileStoragePath(profileId), { force: true });
 }
 
@@ -183,7 +198,10 @@ export async function switchActiveModListProfile(
     const activeMods = await parseModList(settings).catch(() => [
       { name: "base", enabled: true },
     ]);
-    await writeModListFile(resolveProfileStoragePath(currentProfile.id), activeMods);
+    await writeModListFile(
+      resolveProfileStoragePath(currentProfile.id),
+      activeMods,
+    );
   }
 
   const nextProfilePath = await ensureProfileStorageExists(nextProfileId);

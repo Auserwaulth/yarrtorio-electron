@@ -23,7 +23,11 @@ interface InstalledPageProps {
   installedConflicts: Record<string, InstalledConflict[]>;
   onDelete(modName: string, filePath: string): void;
   onUpdate(modName: string, filePath: string): void;
-  onToggleEnabled(modName: string, enabled: boolean, relatedModNames?: string[]): void;
+  onToggleEnabled(
+    modName: string,
+    enabled: boolean,
+    relatedModNames?: string[],
+  ): void;
   onGetModToggleImpact(
     modName: string,
     enabled: boolean,
@@ -55,8 +59,12 @@ export function InstalledPage({
 }: InstalledPageProps) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [pendingToggle, setPendingToggle] = useState<ModToggleImpact | null>(null);
-  const [selectedConflictModName, setSelectedConflictModName] = useState<string | null>(null);
+  const [pendingToggle, setPendingToggle] = useState<ModToggleImpact | null>(
+    null,
+  );
+  const [selectedConflictModName, setSelectedConflictModName] = useState<
+    string | null
+  >(null);
 
   const filteredItems = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -125,8 +133,7 @@ export function InstalledPage({
 
     const needsEnableConfirmation =
       enabled && impact.relatedRequiredDependencies.length > 0;
-    const needsDisableWarning =
-      !enabled && impact.dependentMods.length > 0;
+    const needsDisableWarning = !enabled && impact.dependentMods.length > 0;
 
     if (needsEnableConfirmation || needsDisableWarning) {
       setPendingToggle(impact);

@@ -26,7 +26,9 @@ export async function loadInstalledMods(
     modList = [];
   }
 
-  const enabledByName = new Map(modList.map((item) => [item.name, item.enabled]));
+  const enabledByName = new Map(
+    modList.map((item) => [item.name, item.enabled]),
+  );
 
   return installed.map((item): InstalledMod => {
     const enabled = enabledByName.get(item.name);
@@ -63,6 +65,8 @@ export async function getInstalledConflictsResult(
 
   return {
     ok: true,
-    data: await detectInstalledConflicts(await loadInstalledMods(settingsService)),
+    data: await detectInstalledConflicts(
+      await loadInstalledMods(settingsService),
+    ),
   };
 }

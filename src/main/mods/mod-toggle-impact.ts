@@ -34,7 +34,10 @@ export async function getModToggleImpact(
 
   if (enabled) {
     const details = await getModDetails(modName);
-    const dependencies = getInstalledReleaseDependencies(targetMod, details.releases);
+    const dependencies = getInstalledReleaseDependencies(
+      targetMod,
+      details.releases,
+    );
     const relatedRequiredDependencies = dependencies
       .filter((dependency) => dependency.kind === "required")
       .map((dependency) => dependency.name)
@@ -42,7 +45,9 @@ export async function getModToggleImpact(
         const installedDependency = installed.find(
           (item) => item.name === dependencyName,
         );
-        return installedDependency ? !(installedDependency.enabled ?? true) : false;
+        return installedDependency
+          ? !(installedDependency.enabled ?? true)
+          : false;
       });
 
     return {

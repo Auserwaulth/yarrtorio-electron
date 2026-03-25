@@ -31,6 +31,11 @@ export const ipcChannels = {
   },
   app: {
     meta: "app:meta",
+    updateState: "app:update-state",
+    checkForUpdates: "app:check-for-updates",
+    downloadUpdate: "app:download-update",
+    quitAndInstallUpdate: "app:quit-and-install-update",
+    subscribeToUpdates: "app:update-progress",
   },
   external: {
     openUrl: "external:open-url",

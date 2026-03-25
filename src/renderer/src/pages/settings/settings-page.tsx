@@ -1,15 +1,20 @@
 import { daisyThemes, featuredThemes } from "@shared/constants/themes";
 import type { AppSettings } from "@shared/types/mod";
 import type { AppMeta } from "@shared/types/app-meta";
+import type { AppUpdateState } from "@shared/types/app-update";
 import { BentoTile } from "../../components/bento-tile";
 
 interface SettingsPageProps {
   settings: AppSettings;
   saving: boolean;
   appMeta?: AppMeta | null;
+  appUpdate?: AppUpdateState | null;
   onChange(settings: AppSettings): void;
   onPickFolder(): void;
   onOpenLogFolder(): void;
+  onCheckForUpdates(): void;
+  onDownloadUpdate(): void;
+  onInstallUpdate(): void;
 }
 
 const checkboxList = [
@@ -39,7 +44,26 @@ export function SettingsPage({
   onPickFolder,
   onOpenLogFolder,
   appMeta,
+  appUpdate,
+  onCheckForUpdates,
+  onDownloadUpdate,
+  onInstallUpdate,
 }: SettingsPageProps) {
+  const updateAction =
+    appUpdate?.status === "available" ? (
+      <button className="btn btn-primary btn-sm" onClick={onDownloadUpdate}>
+        Download update
+      </button>
+    ) : appUpdate?.status === "downloaded" ? (
+      <button className="btn btn-primary btn-sm" onClick={onInstallUpdate}>
+        Restart to install
+      </button>
+    ) : (
+      <button className="btn" onClick={onCheckForUpdates}>
+        Check for updates
+      </button>
+    );
+
   return (
     <div className="grid grid-cols-1 gap-3 xl:grid-cols-4">
       <div className="grid gap-2 xl:col-span-2">
@@ -240,7 +264,52 @@ export function SettingsPage({
         </div>
       </BentoTile>
 
-      <div className="flex justify-end xl:col-span-4">
+      <BentoTile
+        title="App updates"
+        action={updateAction}
+        className="xl:col-span-4"
+      >
+        <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-start">
+          <div className="space-y-2">
+            <p className="text-sm">
+              <span className="font-semibold">Installed version:</span>{" "}
+              {appMeta?.version ?? "Unknown"}
+            </p>
+            <p className="text-sm">
+              <span className="font-semibold">Updater status:</span>{" "}
+              {appUpdate?.message ?? "No update check has run yet."}
+            </p>
+            {appUpdate?.availableVersion ? (
+              <p className="text-base-content/70 text-sm">
+                Latest detected version: {appUpdate.availableVersion}
+              </p>
+            ) : null}
+            {appUpdate?.status === "downloading" ? (
+              <progress
+                className="progress progress-primary w-full"
+                max={100}
+                value={appUpdate.progressPercent ?? 0}
+              />
+            ) : null}
+            <div className="rounded-sm border border-dashed p-2">
+              <p className="text-base-content/60 text-xs">
+                Installed releases update best through the Windows NSIS
+                installer and Linux AppImage builds. Portable Windows builds are
+                treated as manual-download releases.
+              </p>
+              <p className="text-base-content/60 text-xs">
+                So, if youre using the portable build. It will not update.
+              </p>
+            </div>
+          </div>
+          <div className="border-base-300 bg-base-200/70 text-base-content/70 rounded-xl border p-4 text-sm">
+            When an update is available, download it here and then restart the
+            app to finish installation.
+          </div>
+        </div>
+      </BentoTile>
+
+      {/* <div className="flex justify-end xl:col-span-4">
         <button
           className="btn btn-primary"
           disabled={saving}
@@ -248,7 +317,7 @@ export function SettingsPage({
         >
           {saving ? "Saving…" : "Save locally"}
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }

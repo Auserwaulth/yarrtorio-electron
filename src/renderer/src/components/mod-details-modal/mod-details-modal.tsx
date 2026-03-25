@@ -98,15 +98,31 @@ export function ModDetailsModal({
   const [selectedReleaseVersion, setSelectedReleaseVersion] = useState<
     string | null
   >(null);
+  const activeModName = mod?.name ?? pendingName ?? null;
 
   useEffect(() => {
     setDescExpanded(false);
     setActiveImageIndex(0);
     setPendingDownload(null);
     setActiveTab("overview");
-    setSelectedReleaseVersion(
-      mod?.latestRelease?.version ?? mod?.releases[0]?.version ?? null,
-    );
+    setSelectedReleaseVersion(null);
+  }, [activeModName]);
+
+  useEffect(() => {
+    if (!mod) {
+      return;
+    }
+
+    setSelectedReleaseVersion((current) => {
+      if (
+        current &&
+        mod.releases.some((release) => release.version === current)
+      ) {
+        return current;
+      }
+
+      return mod.latestRelease?.version ?? mod.releases[0]?.version ?? null;
+    });
   }, [mod]);
 
   const portalUrl = useMemo(() => (mod ? getPortalUrl(mod) : ""), [mod]);

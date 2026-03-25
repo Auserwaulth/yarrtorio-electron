@@ -1,7 +1,7 @@
 // Welcome to my realm of spaghetti code!
 // Have fun making sense of this mess. I sure don't.
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AppContent } from "./app/app-content";
 import { type PageKey } from "./app/app-routes";
 import { AppHeader } from "./components/app-header";
@@ -37,6 +37,7 @@ export function App() {
   );
 
   const browse = useBrowseController();
+  const previousUpdateStatus = useRef(store.appUpdate?.status ?? null);
 
   const modsActions = useModsActions(setStore, settings.modsFolder, {
     onInfo: (message) => pushToast("info", message),
@@ -59,6 +60,34 @@ export function App() {
       pushToast("error", bootstrapError);
     }
   }, [bootstrapError, pushToast]);
+
+  useEffect(() => {
+    const nextStatus = store.appUpdate?.status ?? null;
+    if (!nextStatus || nextStatus === previousUpdateStatus.current) {
+      previousUpdateStatus.current = nextStatus;
+      return;
+    }
+
+    if (nextStatus === "available" && store.appUpdate?.availableVersion) {
+      pushToast(
+        "info",
+        `Version ${store.appUpdate.availableVersion} is available to download.`,
+      );
+    }
+
+    if (nextStatus === "downloaded" && store.appUpdate?.downloadedVersion) {
+      pushToast(
+        "success",
+        `Version ${store.appUpdate.downloadedVersion} is ready to install.`,
+      );
+    }
+
+    if (nextStatus === "error" && store.appUpdate?.message) {
+      pushToast("error", store.appUpdate.message);
+    }
+
+    previousUpdateStatus.current = nextStatus;
+  }, [pushToast, store.appUpdate]);
 
   useDownloadToastListener({
     downloads: store.downloads,
@@ -104,15 +133,13 @@ export function App() {
     await modsActions.browse(nextFilters);
   }
 
-    return (
+  return (
     <>
       <BentoShell
         header={
           <AppHeader
             collapsed={sidebarCollapsed}
-            onToggleSidebar={() =>
-              setSidebarCollapsed((current) => !current)
-            }
+            onToggleSidebar={() => setSidebarCollapsed((current) => !current)}
           />
         }
         sidebar={
@@ -132,7 +159,8 @@ export function App() {
             openInstalled: () => setPage("installed"),
             onSyncFromModList: () =>
               void modsActions.syncFromModList(includeDisabled),
-            onRetryDownload: (download) => void modsActions.retryDownload(download),
+            onRetryDownload: (download) =>
+              void modsActions.retryDownload(download),
             onRetryAllFailed: (downloads) =>
               void modsActions.retryAllFailed(downloads),
             appMeta: store.appMeta,
@@ -202,6 +230,7 @@ export function App() {
             settings,
             saving: settingsActions.saving,
             appMeta: store.appMeta,
+            appUpdate: store.appUpdate,
             onChange: (next) => void saveSettings(next),
             onPickFolder: () =>
               void settingsActions.chooseFolder().then((folder) => {
@@ -211,6 +240,42 @@ export function App() {
             onOpenLogFolder: () => {
               if (!store.appMeta?.logPath) return;
               void window.electronApi.external.openPath(store.appMeta.logPath);
+            },
+            onCheckForUpdates: () => {
+              void window.electronApi.app.checkForUpdates().then((result) => {
+                if (!result.ok) {
+                  pushToast("error", result.error);
+                  return;
+                }
+
+                if (
+                  ["unavailable", "unsupported"].includes(result.data.status) &&
+                  result.data.message
+                ) {
+                  pushToast("info", result.data.message);
+                }
+              });
+            },
+            onDownloadUpdate: () => {
+              void window.electronApi.app.downloadUpdate().then((result) => {
+                if (!result.ok) {
+                  pushToast("error", result.error);
+                }
+              });
+            },
+            onInstallUpdate: () => {
+              void window.electronApi.app
+                .quitAndInstallUpdate()
+                .then((result) => {
+                  if (!result.ok) {
+                    pushToast("error", result.error);
+                    return;
+                  }
+
+                  if (!result.data) {
+                    pushToast("info", "No downloaded update is ready yet.");
+                  }
+                });
             },
           }}
         />

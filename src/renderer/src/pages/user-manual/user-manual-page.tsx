@@ -47,7 +47,10 @@ function StepList({ steps }: { steps: readonly string[] }) {
 export function UserManualPage() {
   return (
     <div className="grid gap-4 xl:grid-cols-3">
-      <BentoTile title={`User Manual for ${APP_NAME}`} className="xl:col-span-3">
+      <BentoTile
+        title={`User Manual for ${APP_NAME}`}
+        className="xl:col-span-3"
+      >
         <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
           <div className="space-y-3">
             <p className="text-base-content/80 max-w-3xl text-sm leading-6">

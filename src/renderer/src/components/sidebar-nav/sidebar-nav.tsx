@@ -43,9 +43,7 @@ export function SidebarNav({ active, collapsed, onSelect }: SidebarNavProps) {
                 <span className="flex w-15 shrink-0 items-center justify-center">
                   <span
                     className={`flex h-10 w-10 items-center justify-center transition-colors duration-200 ${
-                      isActive
-                        ? "text-primary"
-                        : null
+                      isActive ? "text-primary" : null
                     }`}
                   >
                     <AppIcon className="h-4.5 w-4.5" name={icon} />

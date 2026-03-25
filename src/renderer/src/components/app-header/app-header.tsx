@@ -39,12 +39,12 @@ export function AppHeader({ collapsed, onToggleSidebar }: AppHeaderProps) {
           </button>
 
           <div className="min-w-0">
-            <p className="text-base-content/55 text-[0.65rem] font-semibold tracking-[0.32em] uppercase">
-              Factorio Mod Downloader
-            </p>
             <h1 className="truncate text-xl font-black tracking-tight md:text-2xl">
               {APP_NAME}
             </h1>
+            <p className="text-base-content/55 text-[0.65rem] font-semibold tracking-[0.32em] uppercase">
+              Factorio Mod Downloader
+            </p>
           </div>
         </div>
 

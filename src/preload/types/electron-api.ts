@@ -14,6 +14,7 @@ import type {
 } from "@shared/types/mod";
 
 import type { AppMeta } from "@shared/types/app-meta";
+import type { AppUpdateState } from "@shared/types/app-update";
 
 export interface ElectronApi {
   mods: {
@@ -75,6 +76,11 @@ export interface ElectronApi {
   };
   app: {
     meta(): Promise<OperationResult<AppMeta>>;
+    getUpdateState(): Promise<OperationResult<AppUpdateState>>;
+    checkForUpdates(): Promise<OperationResult<AppUpdateState>>;
+    downloadUpdate(): Promise<OperationResult<AppUpdateState>>;
+    quitAndInstallUpdate(): Promise<OperationResult<boolean>>;
+    onUpdateState(listener: (state: AppUpdateState) => void): () => void;
   };
   external: {
     openUrl(url: string): Promise<void>;

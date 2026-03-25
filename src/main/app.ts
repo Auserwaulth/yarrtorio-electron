@@ -4,6 +4,7 @@ import { registerIpc } from "./ipc/register-ipc";
 import { createSettingsService } from "./services/settings-service";
 import { APP_USER_MODEL_ID } from "@shared/constants";
 import { initLogger, logInfo } from "./logging/logger";
+import { createAppUpdater } from "./updater/app-updater";
 
 export async function createApp(): Promise<void> {
   if (process.platform === "win32") {
@@ -17,8 +18,10 @@ export async function createApp(): Promise<void> {
   await logInfo("app", "Yarrtorio starting up", { version: app.getVersion() });
 
   const settingsService = createSettingsService();
-  registerIpc(settingsService);
+  const appUpdater = createAppUpdater();
+  registerIpc(settingsService, appUpdater);
   createMainWindow();
+  appUpdater.init();
 
   await logInfo("app", "Yarrtorio initialized successfully");
 
