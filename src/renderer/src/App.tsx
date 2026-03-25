@@ -170,7 +170,7 @@ export function App() {
             mods: store.mods,
             filters: browse.filters,
             pagination: store.modsPagination,
-            busy: modsActions.busy,
+            busy: modsActions.browseBusy,
             onQueryChange: browse.actions.setQuery,
             onVersionChange: browse.actions.setVersion,
             onToggleCategory: browse.actions.toggleCategory,
@@ -195,7 +195,7 @@ export function App() {
           installed={{
             settings,
             items: store.installed,
-            busy: modsActions.busy,
+            busy: modsActions.installedBusy,
             latestVersions: store.latestVersions,
             installedConflicts: store.installedConflicts,
             onDelete: (modName, filePath) =>

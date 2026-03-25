@@ -19,7 +19,7 @@ export function ModListPanel({
 
   return (
     <div className="from-base-200/90 via-base-100 to-base-200/70 border-base-300 grid gap-4 rounded-2xl border bg-linear-to-br p-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]">
-      <div className="grid gap-4">
+      <div className="grid gap-2">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
@@ -34,7 +34,7 @@ export function ModListPanel({
             </div>
 
             <div>
-              <p className="text-2xl font-semibold tracking-tight">
+              <p className="text-xl font-semibold tracking-tight">
                 {activeProfile?.name ?? "Default"}
               </p>
               <p className="text-base-content/65 max-w-xl text-sm leading-6">
@@ -48,7 +48,7 @@ export function ModListPanel({
 
         <div className="grid">
           {conflictCount > 0 ? (
-            <div className="border-error/30 bg-error/8 rounded-xl border p-3">
+            <div className="border-error/30 bg-error/8 rounded-xl border p-2">
               <p className="text-error font-medium">
                 {conflictCount} active conflict{conflictCount === 1 ? "" : "s"}{" "}
                 detected

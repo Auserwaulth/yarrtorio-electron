@@ -20,7 +20,8 @@ export function useModsActions(
   modsFolder: string,
   options: ModsActionOptions = {},
 ) {
-  const [busy, setBusy] = useState(false);
+  const [browseBusy, setBrowseBusy] = useState(false);
+  const [installedBusy, setInstalledBusy] = useState(false);
 
   function reportError(message: string) {
     options.onError?.(message);
@@ -75,12 +76,12 @@ export function useModsActions(
   }
 
   async function browse(filters: BrowseFilters): Promise<void> {
-    setBusy(true);
+    setBrowseBusy(true);
 
     const result = await modsService.browse(filters);
     if (!result.ok) {
       reportError(result.error);
-      setBusy(false);
+      setBrowseBusy(false);
       return;
     }
 
@@ -90,7 +91,7 @@ export function useModsActions(
       modsPagination: result.data.pagination,
     }));
 
-    setBusy(false);
+    setBrowseBusy(false);
   }
 
   async function selectMod(modName: string): Promise<void> {
@@ -224,7 +225,7 @@ export function useModsActions(
       return;
     }
 
-    setBusy(true);
+    setInstalledBusy(true);
     const result = await modsService.syncFromModList(includeDisabled);
 
     if (result.ok) {
@@ -236,14 +237,14 @@ export function useModsActions(
       reportError(result.error);
     }
 
-    setBusy(false);
+    setInstalledBusy(false);
   }
 
   async function deleteInstalled(
     modName: string,
     filePath: string,
   ): Promise<void> {
-    setBusy(true);
+    setInstalledBusy(true);
     const result = await modsService.deleteInstalled(modName, filePath);
     if (result.ok) {
       options.onSuccess?.(`Deleted ${modName}.`);
@@ -251,7 +252,7 @@ export function useModsActions(
     } else {
       reportError(result.error);
     }
-    setBusy(false);
+    setInstalledBusy(false);
   }
 
   async function queueUpdateInstalled(
@@ -265,7 +266,7 @@ export function useModsActions(
       return;
     }
 
-    setBusy(true);
+    setInstalledBusy(true);
     const result = await modsService.queueUpdateInstalled(modName, filePath);
     if (result.ok) {
       options.onSuccess?.(`Queued update for ${modName}.`);
@@ -273,7 +274,7 @@ export function useModsActions(
     } else {
       reportError(result.error);
     }
-    setBusy(false);
+    setInstalledBusy(false);
   }
 
   async function setEnabled(
@@ -426,12 +427,12 @@ export function useModsActions(
   }
 
   async function createModListProfile(name: string): Promise<void> {
-    setBusy(true);
+    setInstalledBusy(true);
     await applySettingsAndRefresh(
       await modsService.createModListProfile(name),
       `Created mod-list profile ${name}.`,
     );
-    setBusy(false);
+    setInstalledBusy(false);
   }
 
   async function renameModListProfile(
@@ -445,28 +446,28 @@ export function useModsActions(
   }
 
   async function switchModListProfile(profileId: string): Promise<void> {
-    setBusy(true);
+    setInstalledBusy(true);
     const result = await modsService.switchModListProfile(profileId);
 
     if (!result.ok) {
       reportError(result.error);
-      setBusy(false);
+      setInstalledBusy(false);
       return;
     }
 
     setStore((current) => ({ ...current, settings: result.data }));
     await refreshInstalled();
     options.onSuccess?.("Switched active mod-list profile.");
-    setBusy(false);
+    setInstalledBusy(false);
   }
 
   async function removeModListProfile(profileId: string): Promise<void> {
-    setBusy(true);
+    setInstalledBusy(true);
     await applySettingsAndRefresh(
       await modsService.removeModListProfile(profileId),
       "Removed mod-list profile.",
     );
-    setBusy(false);
+    setInstalledBusy(false);
   }
 
   return {
@@ -486,6 +487,7 @@ export function useModsActions(
     renameModListProfile,
     switchModListProfile,
     removeModListProfile,
-    busy,
+    browseBusy,
+    installedBusy,
   };
 }
