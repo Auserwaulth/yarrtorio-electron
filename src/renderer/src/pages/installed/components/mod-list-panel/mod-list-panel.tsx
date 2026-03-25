@@ -39,7 +39,7 @@ export function ModListPanel({
               </p>
               <p className="text-base-content/65 max-w-xl text-sm leading-6">
                 The selected profile is the one currently written to the real
-                `mod-list.json` inside this mods folder. Other saved profiles
+                `mod-list.json` inside the mods folder. Other saved profiles
                 stay parked in app data until you switch to them.
               </p>
             </div>

@@ -9,6 +9,7 @@ import { DashboardPage } from "./pages/dashboard/dashboard-page";
 import { BrowsePage } from "./pages/browse/browse-page";
 import { InstalledPage } from "./pages/installed/installed-page";
 import { SettingsPage } from "./pages/settings/settings-page";
+import { UserManualPage } from "./pages/user-manual/user-manual-page";
 import { useAppStore } from "./store/app-store";
 import { useBootstrap } from "./hooks/use-bootstrap";
 import { useModsActions } from "./features/mods/hooks/use-mods-actions";
@@ -202,6 +203,8 @@ export function App() {
             }
           />
         )}
+
+        {page === "user-manual" && <UserManualPage />}
 
         {page === "settings" && (
           <SettingsPage

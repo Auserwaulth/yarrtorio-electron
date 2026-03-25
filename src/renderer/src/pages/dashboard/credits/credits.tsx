@@ -1,8 +1,4 @@
-import { AppMeta } from "@shared/types/app-meta";
-
-interface CreditsProps {
-  appMeta: AppMeta | null | undefined;
-}
+import { CreditsProps } from "./credits.types";
 
 export function Credits({ appMeta }: CreditsProps) {
   return (

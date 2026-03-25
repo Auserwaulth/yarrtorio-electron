@@ -1,11 +1,11 @@
 import { APP_NAME } from "@shared/constants";
 import type { SidebarNavProps } from "./sidebar-nav.types";
-import { SidebarInstructions } from "./sidebar-instructions";
 
 const items = [
   ["dashboard", "Dashboard"],
   ["browse", "Browse"],
   ["installed", "Installed"],
+  ["user-manual", "User Manual"],
   ["settings", "Settings"],
 ] as const;
 
@@ -25,7 +25,7 @@ const items = [
  */
 export function SidebarNav({ active, onSelect }: SidebarNavProps) {
   return (
-    <div className="h-full space-y-4">
+    <div className="h-full">
       <div className="card bg-base-100 sticky top-4 z-20 space-y-4 shadow-xl">
         <div className="card-body">
           <div className="flex flex-col gap-2">
@@ -53,7 +53,6 @@ export function SidebarNav({ active, onSelect }: SidebarNavProps) {
           </ul>
         </div>
       </div>
-      <SidebarInstructions />
     </div>
   );
 }

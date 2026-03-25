@@ -1,5 +1,10 @@
 /** Page keys for navigation */
-export type PageKey = "dashboard" | "browse" | "installed" | "settings";
+export type PageKey =
+  | "dashboard"
+  | "browse"
+  | "installed"
+  | "user-manual"
+  | "settings";
 
 /**
  * Props for the SidebarNav component
