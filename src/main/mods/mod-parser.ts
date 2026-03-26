@@ -23,12 +23,26 @@ function resolveProfileStoragePath(profileId: string): string {
   return join(getProfilesDirectory(), `${profileId}.json`);
 }
 
+/**
+ * Resolves the active on-disk `mod-list.json` path inside the configured mods
+ * folder.
+ *
+ * @param settings - Settings object containing the mods folder location.
+ * @returns Absolute path to the active Factorio mod list file.
+ */
 export function resolveModListPath(
   settings: Pick<AppSettings, "modsFolder">,
 ): string {
   return join(settings.modsFolder, "mod-list.json");
 }
 
+/**
+ * Returns the currently active mod-list profile, falling back to the first
+ * configured profile when the active id is missing or stale.
+ *
+ * @param settings - Settings fields that describe available profiles.
+ * @returns The active profile or `null` when no profiles are configured.
+ */
 export function getActiveModListProfile(
   settings: Pick<AppSettings, "modListProfiles" | "activeModListProfileId">,
 ): ModListProfile | null {
@@ -96,6 +110,15 @@ export async function parseModList(
   return parseModListFile(await ensureActiveModListExists(settings));
 }
 
+/**
+ * Persists the active mod list and mirrors it into the active profile storage.
+ *
+ * The saved list is normalized so the base game entry always exists.
+ *
+ * @param settings - Settings fields needed to resolve both active and profile
+ * storage locations.
+ * @param mods - Desired mod list entries to persist.
+ */
 export async function writeModList(
   settings: Pick<
     AppSettings,
@@ -116,6 +139,16 @@ export async function writeModList(
   }
 }
 
+/**
+ * Inserts or replaces a single mod entry in the active mod list, then writes
+ * the normalized result back to disk.
+ *
+ * If the current mod list cannot be parsed, the entry is applied to a fresh
+ * list so callers can recover from malformed files.
+ *
+ * @param settings - Settings fields needed to locate active/profile storage.
+ * @param entry - Mod list entry to insert or update by name.
+ */
 export async function upsertModListEntry(
   settings: Pick<
     AppSettings,
@@ -180,6 +213,16 @@ export async function deleteModListProfileStorage(
   await rm(resolveProfileStoragePath(profileId), { force: true });
 }
 
+/**
+ * Switches the active mod-list file to the chosen profile.
+ *
+ * Before switching, the current active mod list is saved back into the current
+ * profile storage. The target profile storage is created on demand and then
+ * copied into the active `mod-list.json`.
+ *
+ * @param settings - Settings fields needed to resolve profile and active paths.
+ * @param nextProfileId - Identifier of the profile to activate.
+ */
 export async function switchActiveModListProfile(
   settings: Pick<
     AppSettings,

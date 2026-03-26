@@ -37,6 +37,17 @@ import {
 import { createProfileHandlers } from "./profile-handlers";
 import { createToggleHandlers } from "./toggle-handlers";
 
+/**
+ * Creates the IPC handler set behind the renderer's mods API.
+ *
+ * The returned methods validate renderer input, coordinate settings and mod
+ * services, and translate internal results into `OperationResult` payloads that
+ * are safe to expose across the IPC boundary.
+ *
+ * @param settingsService - Settings facade used to resolve user configuration.
+ * @param queue - Shared download queue used for install/update requests.
+ * @returns A collection of IPC invoke handlers for mod-related operations.
+ */
 export function createModsHandler(
   settingsService: SettingsService,
   queue: DownloadQueue,

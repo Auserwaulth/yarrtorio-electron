@@ -46,6 +46,16 @@ function normalizeSettings(input: PersistedAppSettings): AppSettings {
   return settings;
 }
 
+/**
+ * Creates the persistent settings service used by the main process.
+ *
+ * Settings are read from the app's user-data directory, validated against the
+ * shared schema, migrated in-memory when an older version is detected, and
+ * saved back to disk after a successful migration. If the file is missing or
+ * unreadable, the current defaults are returned.
+ *
+ * @returns Service methods for reading and saving validated app settings.
+ */
 export function createSettingsService(): SettingsService {
   const filePath = join(app.getPath("userData"), SETTINGS_FILE_NAME);
 

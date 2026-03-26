@@ -18,6 +18,13 @@ const NON_DOWNLOADABLE_DEPENDENCIES = new Map<string, string>([
   ["elevated-rails", "Official expansion content."],
 ]);
 
+/**
+ * Parses a Factorio portal dependency string into the internal dependency
+ * model.
+ *
+ * The parser understands Factorio's dependency prefixes and marks built-in or
+ * otherwise unsupported dependencies as non-downloadable.
+ */
 export function parseDependency(raw: string): ModDependency | null {
   const value = raw.trim();
   if (!value) return null;
@@ -65,6 +72,7 @@ export function parseDependency(raw: string): ModDependency | null {
   };
 }
 
+/** Converts a portal release payload into the internal release summary shape. */
 export function mapRelease(release: ApiRelease) {
   return {
     version: release.version,
@@ -88,6 +96,7 @@ function toAbsoluteAssetUrl(path?: string): string | undefined {
   return `https://assets-mod.factorio.com${path}`;
 }
 
+/** Normalizes a portal thumbnail path into an absolute asset URL. */
 export function toAbsoluteThumbnailUrl(thumbnail?: string): string | undefined {
   return toAbsoluteAssetUrl(thumbnail);
 }
@@ -103,6 +112,7 @@ function normalizeTags(tags?: string[]): ModTag[] {
   return tags.map((tag) => tag.toLowerCase() as ModTag);
 }
 
+/** Converts a portal mod payload into a browse-list summary. */
 export function mapSummary(mod: ApiMod): ModSummary {
   const thumbnail = toAbsoluteThumbnailUrl(mod.thumbnail);
   const latestRelease = mod.latest_release
@@ -130,6 +140,12 @@ export function mapSummary(mod: ApiMod): ModSummary {
   };
 }
 
+/**
+ * Extracts the most useful license fields from the portal payload.
+ *
+ * The portal can represent licenses as either a plain string or a structured
+ * object, so this helper normalizes both forms into the same internal shape.
+ */
 export function mapLicense(
   mod: ApiMod,
 ): Pick<ModDetails, "licenseName" | "licenseUrl"> {

@@ -2,6 +2,12 @@ import { ipcRenderer } from "electron";
 import { ipcChannels } from "@shared/contracts/ipc-contracts";
 import type { ElectronApi } from "../types/electron-api";
 
+/**
+ * Renderer-safe wrapper around mod-related IPC calls.
+ *
+ * Each method mirrors a main-process handler and returns the serialized
+ * `OperationResult` payload produced there.
+ */
 export const modsApi: ElectronApi["mods"] = {
   browse: (filters) => ipcRenderer.invoke(ipcChannels.mods.browse, filters),
   details: (modName) => ipcRenderer.invoke(ipcChannels.mods.details, modName),

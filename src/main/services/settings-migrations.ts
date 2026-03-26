@@ -63,6 +63,15 @@ const migrations: SettingsMigration[] = [
   },
 ];
 
+/**
+ * Applies sequential settings migrations until the current schema version is
+ * reached or no matching migration exists.
+ *
+ * @param settings - Persisted settings loaded from disk.
+ * @param fromVersion - Detected version of the persisted settings payload.
+ * @returns Migrated settings object, potentially partially migrated when a
+ * version gap has no registered migration.
+ */
 export function migrateSettings(
   settings: PersistedAppSettings,
   fromVersion: number,
@@ -84,6 +93,13 @@ export function migrateSettings(
   return current;
 }
 
+/**
+ * Normalizes the stored settings version, treating legacy versionless payloads
+ * as version `0`.
+ *
+ * @param settings - Persisted settings payload or subset containing `version`.
+ * @returns Numeric version used to decide which migrations to run.
+ */
 export function getMigrationVersion(
   settings: Pick<PersistedAppSettings, "version">,
 ): number {

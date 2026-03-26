@@ -6,7 +6,7 @@ import type {
   DownloadProgress as DownloadItem,
   InstalledMod,
 } from "@shared/types/mod";
-import { Credits } from "./credits";
+import { Credits } from "./components/credits";
 
 interface DashboardPageProps {
   installed: InstalledMod[];

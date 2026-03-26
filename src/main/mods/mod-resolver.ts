@@ -49,6 +49,13 @@ async function fetchBrowseDataset(
   return items;
 }
 
+/**
+ * Resolves a browse result from the cached portal dataset, then applies local
+ * filtering, sorting, and pagination.
+ *
+ * @param filters - Browse filters selected by the user.
+ * @returns A single browse page plus pagination metadata.
+ */
 export async function browseMods(
   filters: BrowseFilters,
 ): Promise<BrowseResult> {
@@ -68,6 +75,17 @@ export async function browseMods(
   };
 }
 
+/**
+ * Loads full mod details, enriching API data with scraped portal metadata and
+ * caching the merged result.
+ *
+ * The returned releases are reversed so the newest releases appear first.
+ * Portal extras are best-effort; failures to scrape them do not fail the whole
+ * request.
+ *
+ * @param modName - Portal mod identifier.
+ * @returns Merged mod details used by the renderer details modal.
+ */
 export async function getModDetails(modName: string): Promise<ModDetails> {
   const cacheKey = buildDetailsCacheKey(modName);
   const cached = await readCache<ModDetails>(cacheKey);
@@ -138,6 +156,15 @@ export async function getModDetails(modName: string): Promise<ModDetails> {
   return details;
 }
 
+/**
+ * Returns release summaries for dependency resolution with lightweight caching.
+ *
+ * This reuses cached full details when available; otherwise it fetches only the
+ * portal API payload needed to derive release summaries.
+ *
+ * @param modName - Portal mod identifier.
+ * @returns Releases ordered newest first.
+ */
 export async function getModReleaseSummaries(
   modName: string,
 ): Promise<ModReleaseSummary[]> {

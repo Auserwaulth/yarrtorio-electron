@@ -66,6 +66,16 @@ export interface AppUpdater {
   quitAndInstall(): Promise<boolean>;
 }
 
+/**
+ * Creates the application updater state machine backed by `electron-updater`.
+ *
+ * The updater broadcasts state changes to all open windows, delays the initial
+ * automatic update check shortly after startup, and reports unsupported states
+ * for development, portable Windows builds, and unsupported Linux packaging
+ * formats.
+ *
+ * @returns An updater facade used by app startup and IPC handlers.
+ */
 export function createAppUpdater(): AppUpdater {
   let initialized = false;
   let state: AppUpdateState = { ...initialState };

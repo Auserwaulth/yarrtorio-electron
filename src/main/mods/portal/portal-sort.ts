@@ -1,11 +1,18 @@
 import { ModSummary, ModPortalTab } from "@shared/types/mod";
 
+/** Sorts ISO date strings newest-first while treating missing values as oldest. */
 export function compareByIsoDate(left?: string, right?: string): number {
   const leftValue = left ? Date.parse(left) : 0;
   const rightValue = right ? Date.parse(right) : 0;
   return rightValue - leftValue;
 }
 
+/**
+ * Calculates a sort score for a mod in the current portal tab.
+ *
+ * Each tab emphasizes a different signal, so the score mixes downloads,
+ * ratings, highlight dates, and recency with tab-specific weights.
+ */
 export function scoreSummary(mod: ModSummary, tab: ModPortalTab): number {
   const downloads = mod.downloadsCount ?? 0;
   const score = mod.score ?? 0;
@@ -29,6 +36,7 @@ export function scoreSummary(mod: ModSummary, tab: ModPortalTab): number {
   }
 }
 
+/** Returns a sorted copy of the current browse results. */
 export function sortSummaries(
   mods: ModSummary[],
   tab: ModPortalTab,

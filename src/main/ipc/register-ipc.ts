@@ -18,6 +18,15 @@ function normalizeErrorMessage(error: unknown): string {
   return `Unexpected app error. Please include your log file in the bug report.`;
 }
 
+/**
+ * Wraps an IPC handler so unhandled exceptions are logged and returned as a
+ * failed `OperationResult` instead of crashing the invoke call.
+ *
+ * @param scope - Log scope used when recording unexpected handler failures.
+ * @param handler - IPC handler that returns an `OperationResult`.
+ * @returns A handler with the same argument shape that always resolves to an
+ * `OperationResult`, including when the inner handler throws.
+ */
 function safeHandle<T>(
   scope: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,6 +43,18 @@ function safeHandle<T>(
   };
 }
 
+/**
+ * Registers all main-process IPC handlers used by the renderer and preload
+ * bridge.
+ *
+ * Handler factories are created first so shared dependencies such as the
+ * settings service, updater, and download queue can be wired once. Most invoke
+ * handlers are wrapped with `safeHandle` so unexpected exceptions are converted
+ * into a consistent `OperationResult`.
+ *
+ * @param settingsService - Persistent settings facade shared by IPC handlers.
+ * @param appUpdater - App updater instance exposed to renderer commands.
+ */
 export function registerIpc(
   settingsService: SettingsService,
   appUpdater: AppUpdater,

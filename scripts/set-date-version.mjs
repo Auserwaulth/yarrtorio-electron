@@ -3,11 +3,14 @@ import { resolve } from "node:path";
 
 const packageJsonPath = resolve("package.json");
 
-function getManilaDateParts() {
+/**
+ * Reads the current UTC date so generated versions stay timezone-neutral.
+ */
+function getUtcDateParts() {
   const now = new Date();
 
   const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Manila",
+    timeZone: "UTC",
     year: "numeric",
     month: "numeric",
     day: "numeric",
@@ -22,13 +25,37 @@ function getManilaDateParts() {
   };
 }
 
+/**
+ * Builds the next CalVer string using UTC date plus an optional same-day patch
+ * counter. The first release on a date is `YYYY.M.D`; additional releases on
+ * the same date become `YYYY.M.D.1`, `YYYY.M.D.2`, and so on.
+ */
+function getNextVersion(currentVersion, dateVersion) {
+  if (currentVersion === dateVersion) {
+    return `${dateVersion}.1`;
+  }
+
+  if (currentVersion.startsWith(`${dateVersion}.`)) {
+    const suffix = currentVersion.slice(dateVersion.length + 1);
+    const patch = Number.parseInt(suffix, 10);
+
+    if (Number.isFinite(patch) && patch >= 1) {
+      return `${dateVersion}.${patch + 1}`;
+    }
+  }
+
+  return dateVersion;
+}
+
+/** Updates `package.json` to match the current UTC date-based version. */
 async function main() {
   const raw = await readFile(packageJsonPath, "utf8");
   const pkg = JSON.parse(raw);
 
-  const { year, month, day } = getManilaDateParts();
+  const { year, month, day } = getUtcDateParts();
 
-  const nextVersion = `${year}.${month}.${day}`;
+  const dateVersion = `${year}.${month}.${day}`;
+  const nextVersion = getNextVersion(pkg.version, dateVersion);
 
   if (pkg.version !== nextVersion) {
     pkg.version = nextVersion;

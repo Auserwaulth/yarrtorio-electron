@@ -1,5 +1,6 @@
 import { BentoTile } from "../../components/bento-tile";
-import { ModCard, ModCardSkeleton } from "./components/mod-card";
+import { ModCard } from "./components/mod-card";
+import { ModCardSkeleton } from "./components/mod-card-skeleton";
 import { ModFilters } from "../../components/mod-filters";
 import { BrowseTabs } from "../../components/browse-tabs";
 import type {
