@@ -18,9 +18,10 @@ Thank you for your interest in contributing to Yarrtorio! This guide will help y
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 24+
 - npm
-- Windows (for building/packaging)
+- Windows for local Windows packaging
+- Linux for local AppImage packaging
 
 ### Getting Started
 
@@ -82,9 +83,9 @@ It also owns filesystem access, notification dispatch, queue execution, mod-list
 
 ## Requirements
 
-- Node.js 20+
+- Node.js 24+
 - npm
-- Windows (for building/packaging) and Linux (AppImage) are supported packaging targets
+- Windows and Linux are supported packaging targets
 - A valid Factorio mods folder for installed-mod management
 - Network access to the Factorio Mod Portal/API for browse/details/download planning
 
@@ -101,14 +102,29 @@ npm run dist
 
 This will:
 
-1. Run `npm run build` to compile main, preload, and renderer using electron-vite
-2. Use electron-builder to create Windows packages
+1. Run `npm run version:date` to sync `package.json` to the current UTC calendar version
+2. Run `npm run build` to compile main, preload, and renderer using electron-vite
+3. Use electron-builder to create Windows packages
 
 You can also run `npm run build` alone if you just want the compiled output without packaging. The built files will be in the `out` folder.
 
+### Versioning
+
+Yarrtorio uses UTC calendar versioning:
+
+- `YYYY.M.D` for the first release on a UTC day
+- `YYYY.M.D.PATCH` for additional releases on the same UTC day
+
+Examples:
+
+- `2026.3.26`
+- `2026.3.26.1`
+
+The `npm run version:date` script updates `package.json` automatically using the current UTC date. The GitHub release workflow also validates release versions and tags against this format.
+
 ### Output
 
-After building, the distributable files will be in the `release` folder:
+After building, the distributable files will be in the `dist` folder:
 
 - `Yarrtorio-Setup-<version>-x64.exe` - NSIS installer (Windows)
 - `Yarrtorio-Portable-<version>-x64.exe` - Portable executable (Windows)
@@ -193,15 +209,45 @@ src/
 
 ## Pull Request Process
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+### Branch Strategy
+
+The recommended branch flow is:
+
+- `main` for stable, releasable code
+- `dev` for integration work that is not ready to release yet
+- short-lived branches such as `feature/...`, `fix/...`, and `chore/...` created from `dev`
+
+Typical flow:
+
+1. Update `dev` from the latest `main`
+2. Create a short-lived branch from `dev`
+3. Make your changes following the coding standards
+4. Run `npm run lint`, `npm run format`, and `npm run typecheck`
+5. Merge the short-lived branch back into `dev`
+6. Merge `dev` into `main` when the release set is ready
+7. Create a release from `main`
+
+If you are working on a very small solo change, branching directly from `main` is also fine, but `main` should stay release-ready.
+
+### Pull Requests
+
+1. **Fork** the repository if you are contributing from outside the main repo
+2. **Create** a working branch (`git checkout -b fix/amazing-fix`)
 3. **Make** your changes following the coding standards
-4. **Run** `npm run lint` and fix any issues
-5. **Run** `npm run format` to format code
-6. **Run** `npm run typecheck` to ensure no type errors
+4. **Run** `npm run lint`
+5. **Run** `npm run format`
+6. **Run** `npm run typecheck`
 7. **Commit** your changes with clear commit messages
-8. **Push** to your fork
-9. **Submit** a Pull Request
+8. **Push** your branch
+9. **Open** a Pull Request into `dev` for in-progress integration or into `main` for a small direct release-ready change
+
+### Releases
+
+Releases are created from `main`.
+
+- Manual GitHub releases should use a version like `2026.3.26` or `2026.3.26.1`
+- Tag-based releases should use tags like `v2026.3.26` or `v2026.3.26.1`
+- The release workflow syncs `package.json` to the release version before packaging
 
 ### Commit Message Format
 
