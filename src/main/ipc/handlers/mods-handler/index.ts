@@ -34,7 +34,12 @@ import type { SettingsService } from "../../../services/settings-service";
 import {
   getInstalledConflictsResult,
   getInstalledResult,
+  loadInstalledMods,
 } from "./installed-mods";
+import {
+  queueUpdateAllInstalled,
+  type BulkUpdateInstalledResult,
+} from "./bulk-update-installed";
 import { deleteInstalledWithRollback } from "./delete-installed-with-rollback";
 import {
   loadLibraryState,
@@ -297,6 +302,27 @@ export function createModsHandler(
       });
 
       return { ok: true, data: progress.key };
+    },
+
+    queueUpdateAllInstalled: async (): Promise<
+      OperationResult<BulkUpdateInstalledResult>
+    > => {
+      const { settings, modsFolder } = await getModsFolder();
+      const installed = await loadInstalledMods(settingsService);
+
+      return {
+        ok: true,
+        data: await queueUpdateAllInstalled({
+          settings,
+          modsFolder,
+          installed,
+          getDetails: getModDetails,
+          upsertEntry: upsertModListEntry,
+          enqueue: (request) => {
+            queue.enqueue(request);
+          },
+        }),
+      };
     },
 
     getLatestVersions: async (): Promise<

@@ -21,8 +21,11 @@ export function InstalledPageToolbar({
   conflictedCount,
   onQueryChange,
   onStatusFilterChange,
+  onUpdateAllOutdated,
   onCheckUpdates,
 }: InstalledPageToolbarProps) {
+  const updateAllDisabled = busy || totalCount === 0;
+
   return (
     <>
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -61,6 +64,25 @@ export function InstalledPageToolbar({
           ))}
         </div>
         <div className="flex gap-2">
+          <button
+            className="btn btn-sm btn-primary"
+            disabled={updateAllDisabled}
+            onClick={onUpdateAllOutdated}
+            type="button"
+            title={
+              busy
+                ? "Wait for the current operation to finish"
+                : totalCount === 0
+                  ? "No installed mods are available"
+                  : "Queue updates for all outdated installed mods"
+            }
+          >
+            {busy
+              ? "Working..."
+              : needsUpdateCount > 0
+                ? `Update all outdated (${needsUpdateCount})`
+                : "Update all outdated"}
+          </button>
           <button
             className="btn btn-sm btn-outline"
             onClick={onCheckUpdates}

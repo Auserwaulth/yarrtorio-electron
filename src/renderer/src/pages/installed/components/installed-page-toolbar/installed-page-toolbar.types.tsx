@@ -15,6 +15,7 @@ export interface InstalledPageToolbarProps {
   conflictedCount: number;
   onQueryChange(value: string): void;
   onStatusFilterChange(value: StatusFilter): void;
+  onUpdateAllOutdated(): void;
   onCheckUpdates(): void;
 }
 

@@ -95,6 +95,13 @@ export function registerIpc(
     safeHandle("mods:queue-update-installed", modsHandler.queueUpdateInstalled),
   );
   ipcMain.handle(
+    ipcChannels.mods.queueUpdateAllInstalled,
+    safeHandle(
+      "mods:queue-update-all-installed",
+      modsHandler.queueUpdateAllInstalled,
+    ),
+  );
+  ipcMain.handle(
     ipcChannels.mods.setEnabled,
     safeHandle("mods:set-enabled", modsHandler.setEnabled),
   );

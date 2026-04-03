@@ -34,6 +34,14 @@ export function useModsActions(
     options.onError?.(message);
   }
 
+  function formatModNameList(modNames: string[]): string {
+    if (modNames.length <= 3) {
+      return modNames.join(", ");
+    }
+
+    return `${modNames.slice(0, 3).join(", ")} and ${modNames.length - 3} more`;
+  }
+
   async function runWithBrowseBusy<T>(task: () => Promise<T>): Promise<T> {
     setBrowseBusyCount((current) => current + 1);
 
@@ -476,6 +484,76 @@ export function useModsActions(
     }
   }
 
+  async function queueUpdateAllInstalled(): Promise<void> {
+    if (!modsFolder.trim()) {
+      options.onInfo?.(
+        "Set your mods folder in Settings before updating installed mods.",
+      );
+      return;
+    }
+
+    await runWithInstalledBusy(async () => {
+      const result = await modsService.queueUpdateAllInstalled();
+
+      if (!result.ok) {
+        reportError(result.error);
+        return;
+      }
+
+      const {
+        checkedCount,
+        queuedCount,
+        upToDateCount,
+        unavailableMods,
+        unmanagedMods,
+        failedMods,
+      } = result.data;
+
+      await refreshInstalled(true);
+
+      if (queuedCount > 0) {
+        options.onSuccess?.(
+          `Queued updates for ${queuedCount} mod${queuedCount === 1 ? "" : "s"}.`,
+        );
+      }
+
+      if (unavailableMods.length > 0) {
+        options.onInfo?.(
+          `Could not resolve updates for ${formatModNameList(unavailableMods)}.`,
+        );
+      }
+
+      if (unmanagedMods.length > 0) {
+        options.onInfo?.(
+          `Skipped unmanaged mods: ${formatModNameList(unmanagedMods)}.`,
+        );
+      }
+
+      if (failedMods.length > 0) {
+        reportError(
+          `Failed to update ${formatModNameList(
+            failedMods.map((failure) => failure.modName),
+          )}.`,
+        );
+      }
+
+      if (
+        queuedCount === 0 &&
+        unavailableMods.length === 0 &&
+        unmanagedMods.length === 0 &&
+        failedMods.length === 0
+      ) {
+        options.onInfo?.(
+          checkedCount === 0
+            ? "No installed mods are available to update."
+            : upToDateCount === checkedCount
+              ? "All installed mods are already up to date."
+              : "No installed mods were queued for update.",
+        );
+      }
+    });
+  }
+
   async function retryAllFailed(downloads: DownloadProgress[]): Promise<void> {
     const failedDownloads = downloads.filter((d) => d.state === "failed");
     await Promise.all(
@@ -560,6 +638,7 @@ export function useModsActions(
     syncFromModList,
     deleteInstalled,
     queueUpdateInstalled,
+    queueUpdateAllInstalled,
     getModToggleImpact,
     setEnabled,
     retryDownload,

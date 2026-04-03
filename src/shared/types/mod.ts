@@ -221,6 +221,19 @@ export interface DownloadEnqueueInput {
   includeDependencies?: boolean;
 }
 
+export interface BulkUpdateInstalledResult {
+  checkedCount: number;
+  queuedCount: number;
+  upToDateCount: number;
+  unavailableMods: string[];
+  unmanagedMods: string[];
+  failedMods: Array<{
+    modName: string;
+    error: string;
+  }>;
+  queuedModNames: string[];
+}
+
 export interface DownloadProgress {
   key: string;
   modName: string;

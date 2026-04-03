@@ -14,6 +14,7 @@ export const modsService = {
     window.electronApi.mods.deleteInstalled({ modName, fileName }),
   queueUpdateInstalled: (modName: string, fileName: string) =>
     window.electronApi.mods.queueUpdateInstalled({ modName, fileName }),
+  queueUpdateAllInstalled: () => window.electronApi.mods.queueUpdateAllInstalled(),
   setEnabled: (modName: string, enabled: boolean, relatedModNames?: string[]) =>
     window.electronApi.mods.setEnabled({
       modName,

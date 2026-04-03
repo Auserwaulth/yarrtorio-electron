@@ -222,6 +222,8 @@ export function App() {
               void modsActions.deleteInstalled(modName, fileName),
             onUpdate: (modName, fileName) =>
               void modsActions.queueUpdateInstalled(modName, fileName),
+            onUpdateAllOutdated: () =>
+              void modsActions.queueUpdateAllInstalled(),
             onToggleEnabled: (modName, enabled, relatedModNames) =>
               void modsActions.setEnabled(modName, enabled, relatedModNames),
             onGetModToggleImpact: (modName, enabled) =>

@@ -24,6 +24,7 @@ interface InstalledPageProps {
   installedConflicts: Record<string, InstalledConflict[]>;
   onDelete(modName: string, fileName: string): void;
   onUpdate(modName: string, fileName: string): void;
+  onUpdateAllOutdated(): void;
   onToggleEnabled(
     modName: string,
     enabled: boolean,
@@ -50,6 +51,7 @@ export function InstalledPage({
   installedConflicts,
   onDelete,
   onUpdate,
+  onUpdateAllOutdated,
   onToggleEnabled,
   onGetModToggleImpact,
   onOpen,
@@ -102,21 +104,21 @@ export function InstalledPage({
     [installedConflicts],
   );
 
-  const needsUpdateCount = useMemo(
-    () =>
-      items.filter(
-        (item) =>
-          latestVersions[item.name] !== undefined &&
-          latestVersions[item.name] !== item.version,
-      ).length,
-    [items, latestVersions],
-  );
-
   const conflictedModCount = useMemo(
     () =>
       items.filter((item) => (installedConflicts[item.name]?.length ?? 0) > 0)
         .length,
     [installedConflicts, items],
+  );
+
+  const outdatedItems = useMemo(
+    () =>
+      items.filter(
+        (item) =>
+          latestVersions[item.name] !== undefined &&
+          latestVersions[item.name] !== item.version,
+      ),
+    [items, latestVersions],
   );
 
   const selectedConflicts = selectedConflictModName
@@ -164,10 +166,11 @@ export function InstalledPage({
           filteredCount={filteredItems.length}
           totalCount={items.length}
           statusFilter={statusFilter}
-          needsUpdateCount={needsUpdateCount}
+          needsUpdateCount={outdatedItems.length}
           conflictedCount={conflictedModCount}
           onQueryChange={setQuery}
           onStatusFilterChange={setStatusFilter}
+          onUpdateAllOutdated={onUpdateAllOutdated}
           onCheckUpdates={onCheckUpdates}
         />
       </div>

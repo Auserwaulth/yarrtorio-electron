@@ -1,5 +1,6 @@
 import type {
   AppSettings,
+  BulkUpdateInstalledResult,
   BrowseFilters,
   DownloadEnqueueInput,
   BrowseResult,
@@ -32,6 +33,9 @@ export interface ElectronApi {
       modName: string;
       fileName: string;
     }): Promise<OperationResult<string>>;
+    queueUpdateAllInstalled(): Promise<
+      OperationResult<BulkUpdateInstalledResult>
+    >;
     setEnabled(input: {
       modName: string;
       enabled: boolean;

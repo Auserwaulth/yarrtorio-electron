@@ -18,6 +18,8 @@ export const modsApi: ElectronApi["mods"] = {
     ipcRenderer.invoke(ipcChannels.mods.deleteInstalled, input),
   queueUpdateInstalled: (input) =>
     ipcRenderer.invoke(ipcChannels.mods.queueUpdateInstalled, input),
+  queueUpdateAllInstalled: () =>
+    ipcRenderer.invoke(ipcChannels.mods.queueUpdateAllInstalled),
   setEnabled: (input) => ipcRenderer.invoke(ipcChannels.mods.setEnabled, input),
   getLibraryState: () => ipcRenderer.invoke(ipcChannels.mods.getLibraryState),
   getModToggleImpact: (input) =>
