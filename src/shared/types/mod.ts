@@ -1,4 +1,4 @@
-import type { ThemeMode } from "@shared/constants/themes";
+import type { ThemeMode } from "../constants/themes.ts";
 export type DownloadState =
   | "queued"
   | "running"
@@ -212,6 +212,12 @@ export interface DownloadRequest {
   targetFolder: string;
   replaceExisting: boolean;
   existingFilePath?: string;
+  includeDependencies?: boolean;
+}
+
+export interface DownloadEnqueueInput {
+  modName: string;
+  version: string;
   includeDependencies?: boolean;
 }
 

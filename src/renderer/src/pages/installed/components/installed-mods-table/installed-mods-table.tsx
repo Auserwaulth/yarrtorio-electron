@@ -108,7 +108,7 @@ export function InstalledModsTable({
                     <button
                       className="btn btn-sm"
                       disabled={rowBusy}
-                      onClick={() => onUpdate(item.name, item.filePath)}
+                      onClick={() => onUpdate(item.name, item.fileName)}
                     >
                       Update
                     </button>
@@ -129,7 +129,7 @@ export function InstalledModsTable({
                         </div>
                       }
                       disabled={rowBusy}
-                      onConfirm={() => onDelete(item.name, item.filePath)}
+                      onConfirm={() => onDelete(item.name, item.fileName)}
                     />
                   </div>
                 </td>

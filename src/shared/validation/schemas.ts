@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { daisyThemes } from "@shared/constants/themes";
+import { daisyThemes } from "../constants/themes.ts";
 import {
   factorioVersions,
   modCategories,
   modPortalTabs,
   modTags,
-} from "@shared/types/mod";
+} from "../types/mod.ts";
 
 export const settingsSchema = z.object({
   version: z.number().default(1),
@@ -56,7 +56,7 @@ export const browseFiltersSchema = z.object({
 
 export const manageInstalledModSchema = z.object({
   modName: z.string().min(1),
-  filePath: z.string().min(1),
+  fileName: z.string().min(1),
 });
 
 export const setModEnabledSchema = z.object({
@@ -70,12 +70,9 @@ export const modToggleImpactSchema = z.object({
   enabled: z.boolean(),
 });
 
-export const downloadRequestSchema = z.object({
+export const downloadEnqueueSchema = z.object({
   modName: z.string().min(1),
   version: z.string().min(1),
-  targetFolder: z.string().min(1),
-  replaceExisting: z.boolean(),
-  existingFilePath: z.string().optional(),
   includeDependencies: z.boolean().optional().default(false),
 });
 

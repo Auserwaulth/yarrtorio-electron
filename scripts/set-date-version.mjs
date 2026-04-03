@@ -32,7 +32,9 @@ function getUtcDateParts() {
  * This creates valid semver versions with pre-release suffixes.
  */
 function getNextVersion(currentVersion, dateVersion) {
-  const prereleaseMatch = currentVersion.match(/^(\d+\.\d+\.\d+)-alpha\.(\d+)$/);
+  const prereleaseMatch = currentVersion.match(
+    /^(\d+\.\d+\.\d+)-alpha\.(\d+)$/,
+  );
 
   if (currentVersion === dateVersion) {
     return `${dateVersion}-alpha.1`;

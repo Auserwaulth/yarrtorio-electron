@@ -1,6 +1,6 @@
 import type {
   BrowseFilters,
-  DownloadRequest,
+  DownloadEnqueueInput,
   DownloadProgress,
 } from "@shared/types/mod";
 
@@ -10,10 +10,10 @@ export const modsService = {
   installed: () => window.electronApi.mods.installed(),
   syncFromModList: (includeDisabled: boolean) =>
     window.electronApi.mods.syncFromModList({ includeDisabled }),
-  deleteInstalled: (modName: string, filePath: string) =>
-    window.electronApi.mods.deleteInstalled({ modName, filePath }),
-  queueUpdateInstalled: (modName: string, filePath: string) =>
-    window.electronApi.mods.queueUpdateInstalled({ modName, filePath }),
+  deleteInstalled: (modName: string, fileName: string) =>
+    window.electronApi.mods.deleteInstalled({ modName, fileName }),
+  queueUpdateInstalled: (modName: string, fileName: string) =>
+    window.electronApi.mods.queueUpdateInstalled({ modName, fileName }),
   setEnabled: (modName: string, enabled: boolean, relatedModNames?: string[]) =>
     window.electronApi.mods.setEnabled({
       modName,
@@ -23,7 +23,7 @@ export const modsService = {
   getLibraryState: () => window.electronApi.mods.getLibraryState(),
   getModToggleImpact: (modName: string, enabled: boolean) =>
     window.electronApi.mods.getModToggleImpact({ modName, enabled }),
-  enqueueDownload: (request: DownloadRequest) =>
+  enqueueDownload: (request: DownloadEnqueueInput) =>
     window.electronApi.downloads.enqueue(request),
   retryDownload: (download: DownloadProgress) =>
     window.electronApi.downloads.retry(download),

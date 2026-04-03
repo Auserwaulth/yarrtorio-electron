@@ -1,5 +1,12 @@
 import { app } from "electron";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import {
+  access,
+  copyFile,
+  mkdir,
+  readFile,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { modListFileSchema } from "@shared/validation/schemas";
 import type {
@@ -7,6 +14,10 @@ import type {
   ModListEntry,
   ModListProfile,
 } from "@shared/types/mod";
+import {
+  ensureAccessibleModsFolder,
+  ensureConfiguredModsFolder,
+} from "./mod-paths";
 
 const MOD_LIST_PROFILES_DIR = "mod-list-profiles";
 
@@ -23,6 +34,27 @@ function resolveProfileStoragePath(profileId: string): string {
   return join(getProfilesDirectory(), `${profileId}.json`);
 }
 
+function isMissingFileError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === "ENOENT"
+  );
+}
+
+async function preserveCorruptFile(
+  filePath: string,
+  prefix: string,
+): Promise<void> {
+  const backupPath = join(
+    dirname(filePath),
+    `${prefix}.corrupt-${Date.now()}-${Math.random().toString(36).slice(2)}.json`,
+  );
+
+  await copyFile(filePath, backupPath).catch(() => undefined);
+}
+
 /**
  * Resolves the active on-disk `mod-list.json` path inside the configured mods
  * folder.
@@ -33,7 +65,8 @@ function resolveProfileStoragePath(profileId: string): string {
 export function resolveModListPath(
   settings: Pick<AppSettings, "modsFolder">,
 ): string {
-  return join(settings.modsFolder, "mod-list.json");
+  const folder = ensureConfiguredModsFolder(settings.modsFolder);
+  return join(folder, "mod-list.json");
 }
 
 /**
@@ -67,31 +100,50 @@ async function writeModListFile(
   );
 }
 
-async function ensureModListFile(filePath: string): Promise<void> {
-  try {
-    const raw = await readFile(filePath, "utf8");
-    const parsed = modListFileSchema.parse(JSON.parse(raw));
-    const normalized = getDefaultModList(parsed.mods);
-
-    if (normalized.length !== parsed.mods.length) {
-      await writeModListFile(filePath, normalized);
-    }
-  } catch {
-    await writeModListFile(filePath, [{ name: "base", enabled: true }]);
-  }
-}
-
-async function parseModListFile(filePath: string): Promise<ModListEntry[]> {
-  await ensureModListFile(filePath);
+async function readModListFile(filePath: string): Promise<ModListEntry[]> {
   const raw = await readFile(filePath, "utf8");
   const parsed = modListFileSchema.parse(JSON.parse(raw));
   return getDefaultModList(parsed.mods);
 }
 
+async function ensureModListFile(filePath: string): Promise<void> {
+  try {
+    await access(filePath);
+  } catch (error) {
+    if (isMissingFileError(error)) {
+      await writeModListFile(filePath, [{ name: "base", enabled: true }]);
+      return;
+    }
+
+    throw error;
+  }
+
+  try {
+    const normalized = await readModListFile(filePath);
+    const raw = await readFile(filePath, "utf8");
+    const parsed = modListFileSchema.parse(JSON.parse(raw));
+
+    if (normalized.length !== parsed.mods.length) {
+      await writeModListFile(filePath, normalized);
+    }
+  } catch (error) {
+    await preserveCorruptFile(filePath, "mod-list");
+    throw new Error(
+      "Existing mod-list file is invalid. A backup copy was preserved.",
+    );
+  }
+}
+
+async function parseModListFile(filePath: string): Promise<ModListEntry[]> {
+  await ensureModListFile(filePath);
+  return readModListFile(filePath);
+}
+
 export async function ensureActiveModListExists(
   settings: Pick<AppSettings, "modsFolder">,
 ): Promise<string> {
-  const filePath = resolveModListPath(settings);
+  const folder = await ensureAccessibleModsFolder(settings.modsFolder);
+  const filePath = join(folder, "mod-list.json");
   await ensureModListFile(filePath);
   return filePath;
 }
@@ -126,8 +178,9 @@ export async function writeModList(
   >,
   mods: ModListEntry[],
 ): Promise<void> {
+  const folder = await ensureAccessibleModsFolder(settings.modsFolder);
   const normalized = getDefaultModList(mods);
-  const activePath = resolveModListPath(settings);
+  const activePath = join(folder, "mod-list.json");
   await writeModListFile(activePath, normalized);
 
   const activeProfile = getActiveModListProfile(settings);
@@ -143,8 +196,8 @@ export async function writeModList(
  * Inserts or replaces a single mod entry in the active mod list, then writes
  * the normalized result back to disk.
  *
- * If the current mod list cannot be parsed, the entry is applied to a fresh
- * list so callers can recover from malformed files.
+ * If the current mod list cannot be parsed, the error is propagated so callers
+ * can preserve the corrupted file instead of overwriting it.
  *
  * @param settings - Settings fields needed to locate active/profile storage.
  * @param entry - Mod list entry to insert or update by name.
@@ -156,12 +209,7 @@ export async function upsertModListEntry(
   >,
   entry: ModListEntry,
 ): Promise<void> {
-  let mods: ModListEntry[] = [];
-  try {
-    mods = await parseModList(settings);
-  } catch {
-    mods = [];
-  }
+  const mods = await parseModList(settings);
 
   const index = mods.findIndex((item) => item.name === entry.name);
   if (index >= 0) {
@@ -183,13 +231,7 @@ export async function removeModListEntry(
   >,
   modName: string,
 ): Promise<void> {
-  let mods: ModListEntry[] = [];
-  try {
-    mods = await parseModList(settings);
-  } catch (error) {
-    console.error("Failed to parse mod list:", error);
-    return;
-  }
+  const mods = await parseModList(settings);
 
   await writeModList(
     settings,
@@ -201,9 +243,8 @@ export async function createModListProfileStorage(
   settings: Pick<AppSettings, "modsFolder">,
   profileId: string,
 ): Promise<void> {
-  const activeMods = await parseModList(settings).catch(() => [
-    { name: "base", enabled: true },
-  ]);
+  await ensureAccessibleModsFolder(settings.modsFolder);
+  const activeMods = await parseModList(settings);
   await writeModListFile(resolveProfileStoragePath(profileId), activeMods);
 }
 
@@ -230,11 +271,10 @@ export async function switchActiveModListProfile(
   >,
   nextProfileId: string,
 ): Promise<void> {
+  await ensureAccessibleModsFolder(settings.modsFolder);
   const currentProfile = getActiveModListProfile(settings);
   if (currentProfile) {
-    const activeMods = await parseModList(settings).catch(() => [
-      { name: "base", enabled: true },
-    ]);
+    const activeMods = await parseModList(settings);
     await writeModListFile(
       resolveProfileStoragePath(currentProfile.id),
       activeMods,

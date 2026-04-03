@@ -112,6 +112,10 @@ export function App() {
   useEffect(() => {
     if (page !== "installed") return;
     void modsActions.refreshInstalled(true);
+    if (!settings.modsFolder.trim()) {
+      setStore((current) => ({ ...current, latestVersions: {} }));
+      return;
+    }
     void modsActions.fetchLatestVersions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, settings.activeModListProfileId, settings.modsFolder]);
@@ -166,15 +170,17 @@ export function App() {
               void modsActions.retryAllFailed(downloads),
             onLaunchFactorio: () => {
               if (!settings.factorioPath) {
-                pushToast("error", "Set Factorio executable path in Settings first");
+                pushToast(
+                  "error",
+                  "Set Factorio executable path in Settings first",
+                );
                 return;
               }
-              void window.electronApi.launch.launchFactorio(settings.factorioPath)
-                .then((result) => {
-                  if (!result.ok) {
-                    pushToast("error", result.error);
-                  }
-                });
+              void window.electronApi.launch.launchFactorio().then((result) => {
+                if (!result.ok) {
+                  pushToast("error", result.error);
+                }
+              });
             },
             factorioPath: settings.factorioPath,
             appMeta: store.appMeta,
@@ -212,10 +218,10 @@ export function App() {
             pendingModNames: modsActions.pendingInstalledModNames,
             latestVersions: store.latestVersions,
             installedConflicts: store.installedConflicts,
-            onDelete: (modName, filePath) =>
-              void modsActions.deleteInstalled(modName, filePath),
-            onUpdate: (modName, filePath) =>
-              void modsActions.queueUpdateInstalled(modName, filePath),
+            onDelete: (modName, fileName) =>
+              void modsActions.deleteInstalled(modName, fileName),
+            onUpdate: (modName, fileName) =>
+              void modsActions.queueUpdateInstalled(modName, fileName),
             onToggleEnabled: (modName, enabled, relatedModNames) =>
               void modsActions.setEnabled(modName, enabled, relatedModNames),
             onGetModToggleImpact: (modName, enabled) =>
@@ -307,20 +313,12 @@ export function App() {
         mod={store.selectedMod}
         loading={store.selectedModLoading}
         pendingName={store.selectedModPendingName}
-        onClose={() =>
-          setStore((current) => ({
-            ...current,
-            selectedMod: null,
-            selectedModLoading: false,
-            selectedModPendingName: null,
-          }))
-        }
+        onClose={() => modsActions.closeSelectedMod()}
         onDownload={(selection) =>
           store.selectedMod
             ? void modsActions.queueSelectedMod(
                 store.selectedMod.name,
                 selection.version,
-                undefined,
                 selection.includeDependencies,
               )
             : undefined

@@ -7,6 +7,7 @@ import type {
   OperationResult,
 } from "@shared/types/mod";
 import type { SettingsService } from "../../../services/settings-service";
+import { logWarn } from "../../../logging/logger";
 
 export async function loadInstalledMods(
   settingsService: SettingsService,
@@ -22,7 +23,10 @@ export async function loadInstalledMods(
 
   try {
     modList = await parseModList(settings);
-  } catch {
+  } catch (error) {
+    await logWarn("mods", "Failed to parse mod list for installed mods.", {
+      error: error instanceof Error ? error.message : String(error),
+    });
     modList = [];
   }
 

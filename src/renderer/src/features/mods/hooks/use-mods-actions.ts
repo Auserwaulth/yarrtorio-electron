@@ -28,6 +28,7 @@ export function useModsActions(
   const browseBusy = browseBusyCount > 0;
   const installedBusy = installedBusyCount > 0;
   const latestBrowseRequestId = useRef(0);
+  const latestSelectedModRequestId = useRef(0);
 
   function reportError(message: string) {
     options.onError?.(message);
@@ -143,7 +144,9 @@ export function useModsActions(
   }
 
   async function selectMod(modName: string): Promise<void> {
-    // Immediately open modal with loading state
+    const requestId = ++latestSelectedModRequestId.current;
+
+    // Immediately open modal with loading state.
     setStore((current) => ({
       ...current,
       selectedModPendingName: modName,
@@ -151,22 +154,37 @@ export function useModsActions(
     }));
 
     const result = await modsService.details(modName);
+    if (requestId !== latestSelectedModRequestId.current) {
+      return;
+    }
     if (result.ok) {
       setStore((current) => ({
         ...current,
         selectedMod: result.data,
         selectedModLoading: false,
+        selectedModPendingName: null,
       }));
       return;
     }
 
-    // On error, close the modal and report error
+    // On error, close the modal and report error.
     setStore((current) => ({
       ...current,
+      selectedMod: null,
       selectedModPendingName: null,
       selectedModLoading: false,
     }));
     reportError(result.error);
+  }
+
+  function closeSelectedMod(): void {
+    latestSelectedModRequestId.current += 1;
+    setStore((current) => ({
+      ...current,
+      selectedMod: null,
+      selectedModPendingName: null,
+      selectedModLoading: false,
+    }));
   }
 
   async function refreshInstalled(trackBusy = false): Promise<void> {
@@ -250,7 +268,6 @@ export function useModsActions(
   async function queueSelectedMod(
     modName: string,
     version: string,
-    existingFilePath?: string,
     includeDependencies = false,
   ): Promise<void> {
     if (!modsFolder.trim()) {
@@ -263,9 +280,6 @@ export function useModsActions(
     const result = await modsService.enqueueDownload({
       modName,
       version,
-      targetFolder: modsFolder,
-      replaceExisting: existingFilePath !== undefined,
-      ...(existingFilePath !== undefined ? { existingFilePath } : {}),
       includeDependencies,
     });
 
@@ -298,10 +312,10 @@ export function useModsActions(
 
   async function deleteInstalled(
     modName: string,
-    filePath: string,
+    fileName: string,
   ): Promise<void> {
     await runWithPendingInstalledMods([modName], async () => {
-      const result = await modsService.deleteInstalled(modName, filePath);
+      const result = await modsService.deleteInstalled(modName, fileName);
       if (result.ok) {
         options.onSuccess?.(`Deleted ${modName}.`);
         await refreshInstalled();
@@ -313,7 +327,7 @@ export function useModsActions(
 
   async function queueUpdateInstalled(
     modName: string,
-    filePath: string,
+    fileName: string,
   ): Promise<void> {
     if (!modsFolder.trim()) {
       options.onInfo?.(
@@ -323,7 +337,7 @@ export function useModsActions(
     }
 
     await runWithPendingInstalledMods([modName], async () => {
-      const result = await modsService.queueUpdateInstalled(modName, filePath);
+      const result = await modsService.queueUpdateInstalled(modName, fileName);
       if (result.ok) {
         options.onSuccess?.(`Queued update for ${modName}.`);
         await refreshInstalled();
@@ -473,18 +487,22 @@ export function useModsActions(
     return runWithInstalledBusy(async () => {
       const result = await modsService.getLatestVersions();
       let updateCount = 0;
-      if (result.ok) {
-        setStore((current) => {
-          updateCount = current.installed.filter(
-            (mod) =>
-              result.data[mod.name] && result.data[mod.name] !== mod.version,
-          ).length;
-          return {
-            ...current,
-            latestVersions: result.data,
-          };
-        });
+      if (!result.ok) {
+        reportError(result.error);
+        return updateCount;
       }
+
+      setStore((current) => {
+        updateCount = current.installed.filter(
+          (mod) =>
+            result.data[mod.name] && result.data[mod.name] !== mod.version,
+        ).length;
+        return {
+          ...current,
+          latestVersions: result.data,
+        };
+      });
+
       return updateCount;
     });
   }
@@ -551,6 +569,7 @@ export function useModsActions(
     renameModListProfile,
     switchModListProfile,
     removeModListProfile,
+    closeSelectedMod,
     browseBusy,
     installedBusy,
     pendingInstalledModNames,

@@ -1,9 +1,9 @@
 import type {
   AppSettings,
   BrowseFilters,
+  DownloadEnqueueInput,
   BrowseResult,
   DownloadProgress,
-  DownloadRequest,
   InstalledConflict,
   InstalledMod,
   ModLibraryState,
@@ -26,11 +26,11 @@ export interface ElectronApi {
     }): Promise<OperationResult<ModSummary[]>>;
     deleteInstalled(input: {
       modName: string;
-      filePath: string;
+      fileName: string;
     }): Promise<OperationResult<boolean>>;
     queueUpdateInstalled(input: {
       modName: string;
-      filePath: string;
+      fileName: string;
     }): Promise<OperationResult<string>>;
     setEnabled(input: {
       modName: string;
@@ -63,7 +63,7 @@ export interface ElectronApi {
     }): Promise<OperationResult<AppSettings>>;
   };
   downloads: {
-    enqueue(request: DownloadRequest): Promise<OperationResult<string>>;
+    enqueue(request: DownloadEnqueueInput): Promise<OperationResult<string>>;
     list(): Promise<OperationResult<DownloadProgress[]>>;
     retry(download: DownloadProgress): Promise<OperationResult<string>>;
     onProgress(listener: (progress: DownloadProgress) => void): () => void;
@@ -88,6 +88,6 @@ export interface ElectronApi {
     openPath(path: string): Promise<string>;
   };
   launch: {
-    launchFactorio(factorioPath: string): Promise<OperationResult<boolean>>;
+    launchFactorio(): Promise<OperationResult<boolean>>;
   };
 }

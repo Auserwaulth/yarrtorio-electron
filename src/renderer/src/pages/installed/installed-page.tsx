@@ -22,8 +22,8 @@ interface InstalledPageProps {
   pendingModNames: string[];
   latestVersions: Record<string, string>;
   installedConflicts: Record<string, InstalledConflict[]>;
-  onDelete(modName: string, filePath: string): void;
-  onUpdate(modName: string, filePath: string): void;
+  onDelete(modName: string, fileName: string): void;
+  onUpdate(modName: string, fileName: string): void;
   onToggleEnabled(
     modName: string,
     enabled: boolean,

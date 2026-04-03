@@ -1,6 +1,6 @@
 {
   "name": "yarrtorio-electron",
-  "version": "2026.4.3-alpha.3",
+  "version": "2026.4.3-alpha.4",
   "private": true,
   "description": "Yarrtorio - Factorio mod downloader and manager built with Electron, Vite, React, Tailwind CSS, and daisyUI.",
   "main": "out/main/index.js",
@@ -11,6 +11,7 @@
     "dev": "npm run version:date && electron-vite dev",
     "build": "npm run version:date && electron-vite build",
     "preview": "electron-vite preview",
+    "test": "node --experimental-strip-types --test --test-concurrency=1 --test-isolation=none src/main/**/*.test.ts",
     "typecheck": "tsc --noEmit",
     "dist": "npm run build && electron-builder --win portable nsis --x64",
     "dist:linux": "npm run build && electron-builder --linux AppImage --x64",

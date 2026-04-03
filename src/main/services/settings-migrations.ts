@@ -1,5 +1,5 @@
-import { CURRENT_SETTINGS_VERSION } from "@shared/constants";
-import type { AppSettings } from "@shared/types/mod";
+import { CURRENT_SETTINGS_VERSION } from "../../shared/constants/index.ts";
+import type { AppSettings } from "../../shared/types/mod.ts";
 
 export { CURRENT_SETTINGS_VERSION };
 
@@ -7,14 +7,23 @@ type PersistedAppSettings = AppSettings & {
   modListPath?: string;
 };
 
+type MigratableSettings = Omit<PersistedAppSettings, "version"> & {
+  version?: PersistedAppSettings["version"];
+};
+
 type SettingsMigration = {
   version: number;
-  migrate: (settings: PersistedAppSettings) => PersistedAppSettings;
+  migrate: (settings: MigratableSettings) => PersistedAppSettings;
 };
 
 /**
  * NOTE:
  * Migrations array - each entry represents a version upgrade.
+ *
+ * Settings migration is only needed when older persisted data must be
+ * transformed to preserve behavior or match a new contract. If a new settings
+ * field is safely handled by schema defaults, a dedicated migration is usually
+ * not necessary.
  *
  * Version 1 is the initial version. Settings without a version field
  * (i.e., version 0) are treated as "unversioned" and will be migrated
@@ -31,6 +40,13 @@ type SettingsMigration = {
  * },
  */
 const migrations: SettingsMigration[] = [
+  {
+    version: 1,
+    migrate: (settings) => ({
+      ...settings,
+      version: 1,
+    }),
+  },
   {
     version: 2,
     migrate: (settings) => {
@@ -73,10 +89,10 @@ const migrations: SettingsMigration[] = [
  * version gap has no registered migration.
  */
 export function migrateSettings(
-  settings: PersistedAppSettings,
+  settings: MigratableSettings,
   fromVersion: number,
 ): PersistedAppSettings {
-  let current = settings;
+  let current: MigratableSettings = settings;
   let version = fromVersion;
 
   while (version < CURRENT_SETTINGS_VERSION) {
@@ -90,7 +106,7 @@ export function migrateSettings(
     }
   }
 
-  return current;
+  return current as PersistedAppSettings;
 }
 
 /**
@@ -101,7 +117,7 @@ export function migrateSettings(
  * @returns Numeric version used to decide which migrations to run.
  */
 export function getMigrationVersion(
-  settings: Pick<PersistedAppSettings, "version">,
+  settings: Pick<MigratableSettings, "version">,
 ): number {
   return settings.version ?? 0;
 }

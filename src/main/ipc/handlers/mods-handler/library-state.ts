@@ -2,23 +2,38 @@ import { listInstalledMods } from "../../../mods/mod-installer";
 import { parseModList } from "../../../mods/mod-parser";
 import type { ModLibraryState } from "@shared/types/mod";
 import type { SettingsService } from "../../../services/settings-service";
+import { logWarn } from "../../../logging/logger";
 
 export async function loadLibraryState(settingsService: SettingsService) {
+  const emptyState = {
+    installedNames: new Set<string>(),
+    modListEnabledByName: new Map<string, boolean>(),
+  };
   const settings = await settingsService.getSettings();
 
   if (!settings.modsFolder) {
-    return {
-      installedNames: new Set<string>(),
-      modListEnabledByName: new Map<string, boolean>(),
-    };
+    return emptyState;
   }
 
-  const installed = await listInstalledMods(settings.modsFolder);
+  let installed;
+
+  try {
+    installed = await listInstalledMods(settings.modsFolder);
+  } catch (error) {
+    await logWarn("mods", "Failed to read installed mods for library state.", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return emptyState;
+  }
+
   let modList: { name: string; enabled: boolean }[] = [];
 
   try {
     modList = await parseModList(settings);
-  } catch {
+  } catch (error) {
+    await logWarn("mods", "Failed to parse mod list for library state.", {
+      error: error instanceof Error ? error.message : String(error),
+    });
     modList = [];
   }
 

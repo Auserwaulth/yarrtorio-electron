@@ -1,4 +1,4 @@
-import { rename, unlink } from "node:fs/promises";
+import { access, rename, unlink } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 /**
@@ -25,8 +25,35 @@ export async function replaceAfterValidation(
   targetFilePath: string,
   previousFilePath?: string,
 ): Promise<void> {
-  if (previousFilePath && previousFilePath !== targetFilePath) {
-    await unlink(previousFilePath).catch(() => undefined);
+  let backupPath: string | null = null;
+
+  try {
+    await access(targetFilePath);
+    backupPath = join(
+      dirname(targetFilePath),
+      `.yarrtorio-backup-${Date.now()}-${Math.random().toString(36).slice(2)}.zip`,
+    );
+    await rename(targetFilePath, backupPath);
+  } catch {
+    backupPath = null;
   }
-  await rename(stagingPath, targetFilePath);
+
+  try {
+    await rename(stagingPath, targetFilePath);
+    if (backupPath) {
+      await unlink(backupPath).catch(() => undefined);
+    }
+
+    if (previousFilePath && previousFilePath !== targetFilePath) {
+      await unlink(previousFilePath).catch(() => undefined);
+    }
+  } catch (error) {
+    if (backupPath) {
+      await unlink(targetFilePath).catch(() => undefined);
+      await rename(backupPath, targetFilePath).catch(() => undefined);
+      await unlink(backupPath).catch(() => undefined);
+    }
+
+    throw error;
+  }
 }

@@ -68,7 +68,7 @@ export function registerIpc(
   const settingsHandler = createSettingsHandler(settingsService);
   const appHandler = createAppHandler(appUpdater);
   const externalHandler = createExternalHandler();
-  const launchHandler = createLaunchHandler();
+  const launchHandler = createLaunchHandler(settingsService);
 
   ipcMain.handle(
     ipcChannels.mods.browse,
@@ -208,9 +208,6 @@ export function registerIpc(
   ipcMain.handle(ipcChannels.external.openPath, externalHandler.openPath);
   ipcMain.handle(
     ipcChannels.launch.launchFactorio,
-    safeHandle(
-      "launch:launch-factorio",
-      launchHandler.launchFactorio,
-    ),
+    safeHandle("launch:launch-factorio", launchHandler.launchFactorio),
   );
 }

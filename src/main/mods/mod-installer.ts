@@ -1,6 +1,7 @@
 import { readdir, unlink } from "node:fs/promises";
 import { basename, join } from "node:path";
 import type { InstalledMod } from "@shared/types/mod";
+import { ensureAccessibleModsFolder } from "./mod-paths";
 
 const archivePattern =
   /^(?<name>.+)_(?<version>\d+\.\d+\.\d+(?:[-+.\w]*)?)\.zip$/i;
@@ -8,7 +9,8 @@ const archivePattern =
 export async function listInstalledMods(
   modsFolder: string,
 ): Promise<InstalledMod[]> {
-  const entries = await readdir(modsFolder, { withFileTypes: true });
+  const resolvedFolder = await ensureAccessibleModsFolder(modsFolder);
+  const entries = await readdir(resolvedFolder, { withFileTypes: true });
   return entries
     .filter(
       (entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".zip"),
@@ -21,7 +23,7 @@ export async function listInstalledMods(
         name,
         version,
         fileName: entry.name,
-        filePath: join(modsFolder, entry.name),
+        filePath: join(resolvedFolder, entry.name),
       };
     })
     .sort((left, right) => left.name.localeCompare(right.name));

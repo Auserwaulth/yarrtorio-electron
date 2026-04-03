@@ -1,4 +1,8 @@
 import { listInstalledMods } from "./mod-installer";
+import {
+  ensureAccessibleModsFolder,
+  resolvePathWithinFolder,
+} from "./mod-paths";
 import { fetchModFull } from "./portal/portal-api";
 import { mapRelease } from "./portal/portal-mappers";
 import type {
@@ -27,9 +31,8 @@ function isRequiredDownloadableDependency(dependency: ModDependency): boolean {
 export async function resolveDownloadPlan(
   options: ResolveDownloadPlanOptions,
 ): Promise<DownloadRequest[]> {
-  const installed = await listInstalledMods(options.targetFolder).catch(
-    () => [],
-  );
+  const targetFolder = await ensureAccessibleModsFolder(options.targetFolder);
+  const installed = await listInstalledMods(targetFolder);
   const installedByName = new Map(installed.map((item) => [item.name, item]));
   const requests: DownloadRequest[] = [];
   const seen = new Set<string>();
@@ -43,6 +46,10 @@ export async function resolveDownloadPlan(
     const key = `${modName}@${version}`;
     if (seen.has(key)) return;
     seen.add(key);
+
+    if (isRoot && explicitExistingFilePath) {
+      resolvePathWithinFolder(targetFolder, explicitExistingFilePath);
+    }
 
     const mod = await fetchModFull(modName);
     const releases = (mod.releases ?? []).map(mapRelease);
@@ -75,7 +82,7 @@ export async function resolveDownloadPlan(
     requests.push({
       modName,
       version,
-      targetFolder: options.targetFolder,
+      targetFolder,
       replaceExisting: isRoot
         ? options.replaceExisting || Boolean(explicitExistingFilePath)
         : Boolean(installedEntry),

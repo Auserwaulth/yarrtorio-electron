@@ -107,4 +107,5 @@ export async function validateZip(filePath: string): Promise<void> {
  */
 export async function cleanupTemp(filePath: string): Promise<void> {
   await unlink(`${filePath}.part`).catch(() => undefined);
+  await unlink(filePath).catch(() => undefined);
 }

@@ -14,11 +14,17 @@ import {
   removeModListEntry,
   upsertModListEntry,
 } from "../../../mods/mod-parser";
+import {
+  ensureAccessibleModsFolder,
+  resolveArchivePathWithinFolder,
+} from "../../../mods/mod-paths";
 import type { IpcMainInvokeEvent } from "electron";
 import type { DownloadQueue } from "../../../downloads/download-queue";
 import type {
+  AppSettings,
   BrowseResult,
   InstalledMod,
+  ModListEntry,
   ModLibraryState,
   ModDetails,
   ModSummary,
@@ -29,6 +35,7 @@ import {
   getInstalledConflictsResult,
   getInstalledResult,
 } from "./installed-mods";
+import { deleteInstalledWithRollback } from "./delete-installed-with-rollback";
 import {
   loadLibraryState,
   serializeLibraryState,
@@ -55,6 +62,36 @@ export function createModsHandler(
   const profileHandlers = createProfileHandlers(settingsService);
   const toggleHandlers = createToggleHandlers(settingsService);
 
+  async function getModsFolder() {
+    const settings = await settingsService.getSettings();
+    return {
+      settings,
+      modsFolder: await ensureAccessibleModsFolder(settings.modsFolder),
+    };
+  }
+
+  async function resolveInstalledArchivePath(
+    modsFolder: string,
+    modName: string,
+    fileName: string,
+  ): Promise<string> {
+    const resolvedFilePath = resolveArchivePathWithinFolder(
+      modsFolder,
+      fileName,
+    );
+    const installed = await listInstalledMods(modsFolder);
+    const match = installed.find(
+      (item) => item.filePath === resolvedFilePath && item.name === modName,
+    );
+
+    if (!match) {
+      throw new Error(
+        "Installed mod file was not found in the configured mods folder.",
+      );
+    }
+
+    return match.filePath;
+  }
   return {
     browse: async (
       _event: IpcMainInvokeEvent,
@@ -111,11 +148,7 @@ export function createModsHandler(
       _event: IpcMainInvokeEvent,
       input: unknown,
     ): Promise<OperationResult<ModSummary[]>> => {
-      const settings = await settingsService.getSettings();
-
-      if (!settings.modsFolder) {
-        return { ok: false, error: "Mods folder is not configured." };
-      }
+      const { settings, modsFolder } = await getModsFolder();
 
       const parsed = syncRequestSchema.safeParse(input);
 
@@ -139,7 +172,7 @@ export function createModsHandler(
         };
       }
 
-      const installed = await listInstalledMods(settings.modsFolder);
+      const installed = await listInstalledMods(modsFolder);
       const queuedMods: ModSummary[] = [];
       const detailsResults = await Promise.allSettled(
         managedMods.map((entry) => getModDetails(entry.name)),
@@ -174,7 +207,7 @@ export function createModsHandler(
         enqueueRequests.push({
           modName: entry.name,
           version,
-          targetFolder: settings.modsFolder,
+          targetFolder: modsFolder,
           replaceExisting: Boolean(existing),
           ...(existing?.filePath
             ? { existingFilePath: existing.filePath }
@@ -207,9 +240,22 @@ export function createModsHandler(
         return { ok: false, error: "Invalid installed mod payload." };
       }
 
-      await deleteInstalledArchive(parsed.data.filePath);
-      const settings = await settingsService.getSettings();
-      await removeModListEntry(settings, parsed.data.modName);
+      const { settings, modsFolder } = await getModsFolder();
+      const filePath = await resolveInstalledArchivePath(
+        modsFolder,
+        parsed.data.modName,
+        parsed.data.fileName,
+      );
+
+      await deleteInstalledWithRollback({
+        settings,
+        modName: parsed.data.modName,
+        filePath,
+        readModList: parseModList,
+        removeEntry: removeModListEntry,
+        restoreEntry: upsertModListEntry,
+        deleteArchive: deleteInstalledArchive,
+      });
 
       return { ok: true, data: true };
     },
@@ -223,7 +269,7 @@ export function createModsHandler(
         return { ok: false, error: "Invalid installed mod payload." };
       }
 
-      const settings = await settingsService.getSettings();
+      const { settings, modsFolder } = await getModsFolder();
       const details = await getModDetails(parsed.data.modName);
       const version =
         details.latestRelease?.version ?? details.releases[0]?.version;
@@ -241,9 +287,13 @@ export function createModsHandler(
       const progress = queue.enqueue({
         modName: parsed.data.modName,
         version,
-        targetFolder: settings.modsFolder,
+        targetFolder: modsFolder,
         replaceExisting: true,
-        existingFilePath: parsed.data.filePath,
+        existingFilePath: await resolveInstalledArchivePath(
+          modsFolder,
+          parsed.data.modName,
+          parsed.data.fileName,
+        ),
       });
 
       return { ok: true, data: progress.key };
@@ -252,13 +302,8 @@ export function createModsHandler(
     getLatestVersions: async (): Promise<
       OperationResult<Record<string, string>>
     > => {
-      const settings = await settingsService.getSettings();
-
-      if (!settings.modsFolder) {
-        return { ok: true, data: {} };
-      }
-
-      const installed = await listInstalledMods(settings.modsFolder);
+      const { modsFolder } = await getModsFolder();
+      const installed = await listInstalledMods(modsFolder);
       const latestVersions: Record<string, string> = {};
 
       await Promise.all(

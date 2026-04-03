@@ -52,5 +52,11 @@ export function useSettingsActions(
     return result.ok ? result.data : null;
   }
 
-  return { save, chooseFolder, chooseModListFile, chooseFactorioExecutable, saving };
+  return {
+    save,
+    chooseFolder,
+    chooseModListFile,
+    chooseFactorioExecutable,
+    saving,
+  };
 }

@@ -153,7 +153,7 @@ export function DashboardPage({
         ) : (
           <DownloadProgress
             items={failedDownloads}
-            onRetry={onRetryDownload || (() => {})}
+            {...(onRetryDownload ? { onRetry: onRetryDownload } : {})}
           />
         )}
       </BentoTile>
