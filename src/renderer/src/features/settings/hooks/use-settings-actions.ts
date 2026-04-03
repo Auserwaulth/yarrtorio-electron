@@ -44,5 +44,13 @@ export function useSettingsActions(
     return result.ok ? result.data : null;
   }
 
-  return { save, chooseFolder, chooseModListFile, saving };
+  async function chooseFactorioExecutable(): Promise<string | null> {
+    const result = await settingsService.chooseFactorioExecutable();
+    if (!result.ok && !result.error.toLowerCase().includes("cancelled")) {
+      options.onError?.(result.error);
+    }
+    return result.ok ? result.data : null;
+  }
+
+  return { save, chooseFolder, chooseModListFile, chooseFactorioExecutable, saving };
 }

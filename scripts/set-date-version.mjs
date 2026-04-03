@@ -28,19 +28,20 @@ function getUtcDateParts() {
 /**
  * Builds the next CalVer string using UTC date plus an optional same-day patch
  * counter. The first release on a date is `YYYY.M.D`; additional releases on
- * the same date become `YYYY.M.D.1`, `YYYY.M.D.2`, and so on.
+ * the same date become `YYYY.M.D-alpha.1`, `YYYY.M.D-alpha.2`, and so on.
+ * This creates valid semver versions with pre-release suffixes.
  */
 function getNextVersion(currentVersion, dateVersion) {
+  const prereleaseMatch = currentVersion.match(/^(\d+\.\d+\.\d+)-alpha\.(\d+)$/);
+
   if (currentVersion === dateVersion) {
-    return `${dateVersion}.1`;
+    return `${dateVersion}-alpha.1`;
   }
 
-  if (currentVersion.startsWith(`${dateVersion}.`)) {
-    const suffix = currentVersion.slice(dateVersion.length + 1);
-    const patch = Number.parseInt(suffix, 10);
-
-    if (Number.isFinite(patch) && patch >= 1) {
-      return `${dateVersion}.${patch + 1}`;
+  if (prereleaseMatch) {
+    const [, baseVersion, patch] = prereleaseMatch;
+    if (baseVersion === dateVersion) {
+      return `${dateVersion}-alpha.${Number(patch) + 1}`;
     }
   }
 

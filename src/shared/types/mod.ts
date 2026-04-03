@@ -9,6 +9,7 @@ export type DownloadState =
 export interface AppSettings {
   version: number;
   modsFolder: string;
+  factorioPath: string;
   modListProfiles: ModListProfile[];
   activeModListProfileId: string;
   snackbarPosition: "top-left" | "top-right" | "bottom-left" | "bottom-right";

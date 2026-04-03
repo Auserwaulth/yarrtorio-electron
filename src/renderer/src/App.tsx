@@ -164,6 +164,19 @@ export function App() {
               void modsActions.retryDownload(download),
             onRetryAllFailed: (downloads) =>
               void modsActions.retryAllFailed(downloads),
+            onLaunchFactorio: () => {
+              if (!settings.factorioPath) {
+                pushToast("error", "Set Factorio executable path in Settings first");
+                return;
+              }
+              void window.electronApi.launch.launchFactorio(settings.factorioPath)
+                .then((result) => {
+                  if (!result.ok) {
+                    pushToast("error", result.error);
+                  }
+                });
+            },
+            factorioPath: settings.factorioPath,
             appMeta: store.appMeta,
           }}
           browse={{
@@ -238,6 +251,11 @@ export function App() {
               void settingsActions.chooseFolder().then((folder) => {
                 if (folder)
                   return saveSettings({ ...settings, modsFolder: folder });
+              }),
+            onPickFactorio: () =>
+              void settingsActions.chooseFactorioExecutable().then((path) => {
+                if (path)
+                  return saveSettings({ ...settings, factorioPath: path });
               }),
             onOpenLogFolder: () => {
               if (!store.appMeta?.logPath) return;

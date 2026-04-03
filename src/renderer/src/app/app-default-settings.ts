@@ -7,6 +7,7 @@ import type { AppSettings } from "@shared/types/mod";
 export const defaultSettings: AppSettings = {
   version: CURRENT_SETTINGS_VERSION,
   modsFolder: "",
+  factorioPath: "",
   modListProfiles: [
     {
       id: "default",

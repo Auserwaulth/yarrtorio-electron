@@ -28,6 +28,7 @@ export const ipcChannels = {
     update: "settings:update",
     chooseFolder: "settings:choose-folder",
     chooseModListFile: "settings:choose-mod-list-file",
+    chooseFactorioExecutable: "settings:choose-factorio-executable",
   },
   app: {
     meta: "app:meta",
@@ -40,5 +41,8 @@ export const ipcChannels = {
   external: {
     openUrl: "external:open-url",
     openPath: "external:open-path",
+  },
+  launch: {
+    launchFactorio: "launch:launch-factorio",
   },
 } as const;

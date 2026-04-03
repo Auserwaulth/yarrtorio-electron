@@ -10,6 +10,7 @@ import {
 export const settingsSchema = z.object({
   version: z.number().default(1),
   modsFolder: z.string().default(""),
+  factorioPath: z.string().default(""),
   modListProfiles: z
     .array(
       z.object({

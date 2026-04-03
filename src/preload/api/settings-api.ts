@@ -9,4 +9,6 @@ export const settingsApi: ElectronApi["settings"] = {
   chooseFolder: () => ipcRenderer.invoke(ipcChannels.settings.chooseFolder),
   chooseModListFile: () =>
     ipcRenderer.invoke(ipcChannels.settings.chooseModListFile),
+  chooseFactorioExecutable: () =>
+    ipcRenderer.invoke(ipcChannels.settings.chooseFactorioExecutable),
 };

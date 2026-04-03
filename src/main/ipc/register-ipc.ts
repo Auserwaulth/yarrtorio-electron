@@ -5,6 +5,7 @@ import { createDownloadsHandler } from "./handlers/downloads-handler";
 import { createSettingsHandler } from "./handlers/settings-handler";
 import { createAppHandler } from "./handlers/app-handler";
 import { createExternalHandler } from "./handlers/external-handler";
+import { createLaunchHandler } from "./handlers/launch-handler";
 import type { SettingsService } from "../services/settings-service";
 import type { AppUpdater } from "../updater/app-updater";
 import { logError } from "../logging/logger";
@@ -67,6 +68,7 @@ export function registerIpc(
   const settingsHandler = createSettingsHandler(settingsService);
   const appHandler = createAppHandler(appUpdater);
   const externalHandler = createExternalHandler();
+  const launchHandler = createLaunchHandler();
 
   ipcMain.handle(
     ipcChannels.mods.browse,
@@ -177,6 +179,13 @@ export function registerIpc(
       settingsHandler.chooseModListFile,
     ),
   );
+  ipcMain.handle(
+    ipcChannels.settings.chooseFactorioExecutable,
+    safeHandle(
+      "settings:choose-factorio-executable",
+      settingsHandler.chooseFactorioExecutable,
+    ),
+  );
 
   ipcMain.handle(ipcChannels.app.meta, safeHandle("app:meta", appHandler.meta));
   ipcMain.handle(
@@ -197,4 +206,11 @@ export function registerIpc(
   );
   ipcMain.handle(ipcChannels.external.openUrl, externalHandler.openUrl);
   ipcMain.handle(ipcChannels.external.openPath, externalHandler.openPath);
+  ipcMain.handle(
+    ipcChannels.launch.launchFactorio,
+    safeHandle(
+      "launch:launch-factorio",
+      launchHandler.launchFactorio,
+    ),
+  );
 }

@@ -16,6 +16,8 @@ interface DashboardPageProps {
   onSyncFromModList(): void;
   onRetryDownload?: (download: DownloadItem) => void;
   onRetryAllFailed?: (downloads: DownloadItem[]) => void;
+  onLaunchFactorio(): void;
+  factorioPath: string;
   appMeta?: AppMeta | null;
 }
 
@@ -27,6 +29,8 @@ export function DashboardPage({
   onSyncFromModList,
   onRetryDownload,
   onRetryAllFailed,
+  onLaunchFactorio,
+  factorioPath,
   appMeta,
 }: DashboardPageProps) {
   const [activeTab, setActiveTab] = useState<"recent" | "failed">("recent");
@@ -90,6 +94,23 @@ export function DashboardPage({
           <button className="btn btn-outline" onClick={onSyncFromModList}>
             Sync from mod-list
           </button>
+          <button
+            className="btn btn-outline"
+            onClick={onLaunchFactorio}
+            disabled={!factorioPath}
+            title={
+              factorioPath
+                ? "Launch Factorio"
+                : "Set Factorio executable path in Settings first"
+            }
+          >
+            Launch Factorio
+          </button>
+          {!factorioPath && (
+            <p className="text-base-content/60 text-xs">
+              Set Factorio executable path in Settings to enable this button.
+            </p>
+          )}
         </div>
       </BentoTile>
 

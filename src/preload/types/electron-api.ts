@@ -73,6 +73,7 @@ export interface ElectronApi {
     update(settings: AppSettings): Promise<OperationResult<AppSettings>>;
     chooseFolder(): Promise<OperationResult<string>>;
     chooseModListFile(): Promise<OperationResult<string>>;
+    chooseFactorioExecutable(): Promise<OperationResult<string>>;
   };
   app: {
     meta(): Promise<OperationResult<AppMeta>>;
@@ -85,5 +86,8 @@ export interface ElectronApi {
   external: {
     openUrl(url: string): Promise<void>;
     openPath(path: string): Promise<string>;
+  };
+  launch: {
+    launchFactorio(factorioPath: string): Promise<OperationResult<boolean>>;
   };
 }

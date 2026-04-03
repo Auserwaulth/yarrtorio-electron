@@ -6,4 +6,6 @@ export const settingsService = {
     window.electronApi.settings.update(settings),
   chooseFolder: () => window.electronApi.settings.chooseFolder(),
   chooseModListFile: () => window.electronApi.settings.chooseModListFile(),
+  chooseFactorioExecutable: () =>
+    window.electronApi.settings.chooseFactorioExecutable(),
 };

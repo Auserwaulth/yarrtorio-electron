@@ -11,6 +11,7 @@ interface SettingsPageProps {
   appUpdate?: AppUpdateState | null;
   onChange(settings: AppSettings): void;
   onPickFolder(): void;
+  onPickFactorio(): void;
   onOpenLogFolder(): void;
   onCheckForUpdates(): void;
   onDownloadUpdate(): void;
@@ -41,6 +42,7 @@ export function SettingsPage({
   settings,
   onChange,
   onPickFolder,
+  onPickFactorio,
   onOpenLogFolder,
   appMeta,
   appUpdate,
@@ -79,6 +81,23 @@ export function SettingsPage({
                     placeholder="Mod Folder"
                   />
                   <button className="btn join-item" onClick={onPickFolder}>
+                    Browse
+                  </button>
+                </div>
+              </fieldset>
+            </div>
+
+            <div>
+              <fieldset className="fieldset">
+                <legend className="fieldset-legend">Factorio Executable</legend>
+                <div className="join w-full">
+                  <input
+                    className="input input-bordered join-item w-full min-w-0 blur-sm transition-all hover:blur-none"
+                    value={settings.factorioPath}
+                    readOnly
+                    placeholder="Path to factorio.exe"
+                  />
+                  <button className="btn join-item" onClick={onPickFactorio}>
                     Browse
                   </button>
                 </div>
@@ -307,16 +326,6 @@ export function SettingsPage({
           </div>
         </div>
       </BentoTile>
-
-      {/* <div className="flex justify-end xl:col-span-4">
-        <button
-          className="btn btn-primary"
-          disabled={saving}
-          onClick={() => onChange(settings)}
-        >
-          {saving ? "Saving…" : "Save locally"}
-        </button>
-      </div> */}
     </div>
   );
 }

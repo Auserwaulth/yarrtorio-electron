@@ -4,6 +4,7 @@ import { downloadsApi } from "./api/downloads-api";
 import { settingsApi } from "./api/settings-api";
 import { appApi } from "./api/app-api";
 import { externalApi } from "./api/external-api";
+import { launchApi } from "./api/launch-api";
 import type { ElectronApi } from "./types/electron-api";
 
 /**
@@ -18,6 +19,7 @@ const api: ElectronApi = {
   settings: settingsApi,
   app: appApi,
   external: externalApi,
+  launch: launchApi,
 };
 
 /**

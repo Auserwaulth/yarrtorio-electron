@@ -54,5 +54,21 @@ export function createSettingsHandler(settingsService: SettingsService) {
 
       return { ok: true, data: result.filePaths[0]! };
     },
+
+    chooseFactorioExecutable: async (): Promise<OperationResult<string>> => {
+      const result = await dialog.showOpenDialog({
+        properties: ["openFile"],
+        filters: [
+          { name: "Executable", extensions: ["exe"] },
+          { name: "All files", extensions: ["*"] },
+        ],
+      });
+
+      if (result.canceled || result.filePaths.length === 0) {
+        return { ok: false, error: "File selection cancelled." };
+      }
+
+      return { ok: true, data: result.filePaths[0]! };
+    },
   };
 }
