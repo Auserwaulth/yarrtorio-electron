@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: "Version to release, for example 2026.3.26 or 2026.3.26.1"
+        description: "Version to release, for example 2026.3.26, 2026.3.26-alpha.1, or 2026.3.26.1"
         required: true
         type: string
       release_notes:
@@ -59,8 +59,8 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($version)) {
             throw 'release_version is required.'
           }
-          if ($version -notmatch '^\d{4}\.\d{1,2}\.\d{1,2}(\.\d+)?$') {
-            throw "release_version must match YYYY.M.D or YYYY.M.D.PATCH, got: $version"
+          if ($version -notmatch '^\d{4}\.\d{1,2}\.\d{1,2}(-alpha\.\d+|\.\d+)?$') {
+            throw "release_version must match YYYY.M.D, YYYY.M.D-alpha.N, or YYYY.M.D.PATCH, got: $version"
           }
 
           $tag = "v$version"
@@ -77,8 +77,8 @@ jobs:
           }
 
           $version = $tag.Substring(1)
-          if ($version -notmatch '^\d{4}\.\d{1,2}\.\d{1,2}(\.\d+)?$') {
-            throw "Release tag version must match YYYY.M.D or YYYY.M.D.PATCH, got: $version"
+          if ($version -notmatch '^\d{4}\.\d{1,2}\.\d{1,2}(-alpha\.\d+|\.\d+)?$') {
+            throw "Release tag version must match YYYY.M.D, YYYY.M.D-alpha.N, or YYYY.M.D.PATCH, got: $version"
           }
           "RELEASE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "RELEASE_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
@@ -134,8 +134,8 @@ jobs:
             echo "release_version is required."
             exit 1
           fi
-          if [[ ! "$VERSION" =~ ^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}(\.[0-9]+)?$ ]]; then
-            echo "release_version must match YYYY.M.D or YYYY.M.D.PATCH, got: $VERSION"
+          if [[ ! "$VERSION" =~ ^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}(-alpha\.[0-9]+|\.[0-9]+)?$ ]]; then
+            echo "release_version must match YYYY.M.D, YYYY.M.D-alpha.N, or YYYY.M.D.PATCH, got: $VERSION"
             exit 1
           fi
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
@@ -150,8 +150,8 @@ jobs:
             exit 1
           fi
           VERSION="${TAG:1}"
-          if [[ ! "$VERSION" =~ ^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}(\.[0-9]+)?$ ]]; then
-            echo "Release tag version must match YYYY.M.D or YYYY.M.D.PATCH, got: $VERSION"
+          if [[ ! "$VERSION" =~ ^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}(-alpha\.[0-9]+|\.[0-9]+)?$ ]]; then
+            echo "Release tag version must match YYYY.M.D, YYYY.M.D-alpha.N, or YYYY.M.D.PATCH, got: $VERSION"
             exit 1
           fi
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
@@ -210,8 +210,8 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: |
           VERSION='${{ inputs.release_version }}'
-          if [[ ! "$VERSION" =~ ^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}(\.[0-9]+)?$ ]]; then
-            echo "release_version must match YYYY.M.D or YYYY.M.D.PATCH, got: $VERSION"
+          if [[ ! "$VERSION" =~ ^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}(-alpha\.[0-9]+|\.[0-9]+)?$ ]]; then
+            echo "release_version must match YYYY.M.D, YYYY.M.D-alpha.N, or YYYY.M.D.PATCH, got: $VERSION"
             exit 1
           fi
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
@@ -222,8 +222,8 @@ jobs:
         run: |
           TAG='${{ github.ref_name }}'
           VERSION="${TAG:1}"
-          if [[ ! "$VERSION" =~ ^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}(\.[0-9]+)?$ ]]; then
-            echo "Release tag version must match YYYY.M.D or YYYY.M.D.PATCH, got: $VERSION"
+          if [[ ! "$VERSION" =~ ^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}(-alpha\.[0-9]+|\.[0-9]+)?$ ]]; then
+            echo "Release tag version must match YYYY.M.D, YYYY.M.D-alpha.N, or YYYY.M.D.PATCH, got: $VERSION"
             exit 1
           fi
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
