@@ -1,4 +1,5 @@
 import type { ThemeMode } from "../constants/themes.ts";
+
 export type DownloadState =
   | "queued"
   | "running"
@@ -23,6 +24,49 @@ export interface AppSettings {
 export interface ModListProfile {
   id: string;
   name: string;
+}
+
+export interface ModListProfileComparisonEntry {
+  name: string;
+  left?: ModListEntry;
+  right?: ModListEntry;
+}
+
+export interface ModListProfileComparison {
+  leftProfile: ModListProfile;
+  rightProfile: ModListProfile;
+  leftCount: number;
+  rightCount: number;
+  sameCount: number;
+  added: ModListProfileComparisonEntry[];
+  removed: ModListProfileComparisonEntry[];
+  changed: ModListProfileDiffChange[];
+}
+
+export interface ModListProfileExportPackage {
+  version: 1;
+  profile: {
+    name: string;
+  };
+  mods: ModListEntry[];
+}
+
+export interface ModListProfileDiffChange {
+  name: string;
+  left: ModListEntry;
+  right: ModListEntry;
+}
+
+export interface ExportModListProfileResult {
+  profileName: string;
+  filePath: string;
+  modCount: number;
+}
+
+export interface ImportModListProfileResult {
+  importedProfile: ModListProfile;
+  settings: AppSettings;
+  modCount: number;
 }
 
 export interface ModLibraryState {

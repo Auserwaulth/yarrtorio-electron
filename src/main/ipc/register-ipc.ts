@@ -153,6 +153,18 @@ export function registerIpc(
       modsHandler.removeModListProfile,
     ),
   );
+  ipcMain.handle(
+    ipcChannels.mods.diffModListProfiles,
+    safeHandle("mods:diff-mod-list-profiles", modsHandler.diffModListProfiles),
+  );
+  ipcMain.handle(
+    ipcChannels.mods.exportModListProfile,
+    safeHandle("mods:export-mod-list-profile", modsHandler.exportModListProfile),
+  );
+  ipcMain.handle(
+    ipcChannels.mods.importModListProfile,
+    safeHandle("mods:import-mod-list-profile", modsHandler.importModListProfile),
+  );
 
   ipcMain.handle(
     ipcChannels.downloads.enqueue,

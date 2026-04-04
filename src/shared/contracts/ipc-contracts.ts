@@ -16,6 +16,9 @@ export const ipcChannels = {
     renameModListProfile: "mods:rename-mod-list-profile",
     switchModListProfile: "mods:switch-mod-list-profile",
     removeModListProfile: "mods:remove-mod-list-profile",
+    diffModListProfiles: "mods:diff-mod-list-profiles",
+    exportModListProfile: "mods:export-mod-list-profile",
+    importModListProfile: "mods:import-mod-list-profile",
   },
   downloads: {
     enqueue: "downloads:enqueue",

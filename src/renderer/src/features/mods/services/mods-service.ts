@@ -2,6 +2,7 @@ import type {
   BrowseFilters,
   DownloadEnqueueInput,
   DownloadProgress,
+  ModListProfileComparison,
 } from "@shared/types/mod";
 
 export const modsService = {
@@ -38,4 +39,12 @@ export const modsService = {
     window.electronApi.mods.switchModListProfile({ profileId }),
   removeModListProfile: (profileId: string) =>
     window.electronApi.mods.removeModListProfile({ profileId }),
+  diffModListProfiles: (leftProfileId: string, rightProfileId: string) =>
+    window.electronApi.mods.diffModListProfiles({
+      leftProfileId,
+      rightProfileId,
+    }),
+  exportModListProfile: (profileId: string) =>
+    window.electronApi.mods.exportModListProfile({ profileId }),
+  importModListProfile: () => window.electronApi.mods.importModListProfile(),
 };

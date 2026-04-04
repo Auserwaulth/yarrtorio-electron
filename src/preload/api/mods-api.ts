@@ -36,4 +36,10 @@ export const modsApi: ElectronApi["mods"] = {
     ipcRenderer.invoke(ipcChannels.mods.switchModListProfile, input),
   removeModListProfile: (input) =>
     ipcRenderer.invoke(ipcChannels.mods.removeModListProfile, input),
+  diffModListProfiles: (input) =>
+    ipcRenderer.invoke(ipcChannels.mods.diffModListProfiles, input),
+  exportModListProfile: (input) =>
+    ipcRenderer.invoke(ipcChannels.mods.exportModListProfile, input),
+  importModListProfile: () =>
+    ipcRenderer.invoke(ipcChannels.mods.importModListProfile),
 };

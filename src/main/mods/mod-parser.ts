@@ -1,4 +1,4 @@
-import { app } from "electron";
+import electron from "electron";
 import {
   access,
   copyFile,
@@ -8,16 +8,18 @@ import {
   writeFile,
 } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { modListFileSchema } from "@shared/validation/schemas";
+import { modListFileSchema } from "../../shared/validation/schemas.ts";
 import type {
   AppSettings,
   ModListEntry,
   ModListProfile,
-} from "@shared/types/mod";
+} from "../../shared/types/mod.ts";
 import {
   ensureAccessibleModsFolder,
   ensureConfiguredModsFolder,
-} from "./mod-paths";
+} from "./mod-paths.ts";
+
+const { app } = electron;
 
 const MOD_LIST_PROFILES_DIR = "mod-list-profiles";
 
@@ -139,6 +141,12 @@ async function parseModListFile(filePath: string): Promise<ModListEntry[]> {
   return readModListFile(filePath);
 }
 
+export async function parseProfileModList(
+  profileId: string,
+): Promise<ModListEntry[]> {
+  return parseModListFile(await ensureProfileStorageExists(profileId));
+}
+
 export async function ensureActiveModListExists(
   settings: Pick<AppSettings, "modsFolder">,
 ): Promise<string> {
@@ -246,6 +254,13 @@ export async function createModListProfileStorage(
   await ensureAccessibleModsFolder(settings.modsFolder);
   const activeMods = await parseModList(settings);
   await writeModListFile(resolveProfileStoragePath(profileId), activeMods);
+}
+
+export async function writeModListProfileStorage(
+  profileId: string,
+  mods: ModListEntry[],
+): Promise<void> {
+  await writeModListFile(resolveProfileStoragePath(profileId), mods);
 }
 
 export async function deleteModListProfileStorage(

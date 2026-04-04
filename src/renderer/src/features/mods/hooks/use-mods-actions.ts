@@ -5,6 +5,7 @@ import type {
   BrowseFilters,
   DownloadProgress,
   ModLibraryState,
+  ModListProfileComparison,
   ModToggleImpact,
 } from "@shared/types/mod";
 import type { AppStore } from "../../../store/app-store";
@@ -630,6 +631,64 @@ export function useModsActions(
     });
   }
 
+  async function diffModListProfiles(
+    leftProfileId: string,
+    rightProfileId: string,
+  ): Promise<ModListProfileComparison | null> {
+    const result = await modsService.diffModListProfiles(
+      leftProfileId,
+      rightProfileId,
+    );
+
+    if (!result.ok) {
+      reportError(result.error);
+      return null;
+    }
+
+    return result.data;
+  }
+
+  async function exportModListProfile(profileId: string): Promise<void> {
+    await runWithInstalledBusy(async () => {
+      const result = await modsService.exportModListProfile(profileId);
+
+      if (!result.ok) {
+        if (result.error.toLowerCase().includes("cancelled")) {
+          options.onInfo?.("Profile export cancelled.");
+          return;
+        }
+
+        reportError(result.error);
+        return;
+      }
+
+      options.onSuccess?.(
+        `Exported ${result.data.profileName} (${result.data.modCount} mods).`,
+      );
+    });
+  }
+
+  async function importModListProfile(): Promise<void> {
+    await runWithInstalledBusy(async () => {
+      const result = await modsService.importModListProfile();
+
+      if (!result.ok) {
+        if (result.error.toLowerCase().includes("cancelled")) {
+          options.onInfo?.("Profile import cancelled.");
+          return;
+        }
+
+        reportError(result.error);
+        return;
+      }
+
+      setStore((current) => ({ ...current, settings: result.data.settings }));
+      options.onSuccess?.(
+        `Imported ${result.data.importedProfile.name} (${result.data.modCount} mods).`,
+      );
+    });
+  }
+
   return {
     browse,
     selectMod,
@@ -648,6 +707,9 @@ export function useModsActions(
     renameModListProfile,
     switchModListProfile,
     removeModListProfile,
+    diffModListProfiles,
+    exportModListProfile,
+    importModListProfile,
     closeSelectedMod,
     browseBusy,
     installedBusy,

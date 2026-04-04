@@ -40,6 +40,12 @@ interface InstalledPageProps {
   onRenameModListProfile(profileId: string, name: string): void;
   onSwitchModListProfile(profileId: string): void;
   onRemoveModListProfile(profileId: string): void;
+  onDiffModListProfiles(
+    leftProfileId: string,
+    rightProfileId: string,
+  ): Promise<import("@shared/types/mod").ModListProfileComparison | null>;
+  onExportModListProfile(profileId: string): void;
+  onImportModListProfile(): void;
 }
 
 export function InstalledPage({
@@ -60,6 +66,9 @@ export function InstalledPage({
   onRenameModListProfile,
   onSwitchModListProfile,
   onRemoveModListProfile,
+  onDiffModListProfiles,
+  onExportModListProfile,
+  onImportModListProfile,
 }: InstalledPageProps) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -158,6 +167,9 @@ export function InstalledPage({
           onRenameModListProfile={onRenameModListProfile}
           onSwitchModListProfile={onSwitchModListProfile}
           onRemoveModListProfile={onRemoveModListProfile}
+          onDiffModListProfiles={onDiffModListProfiles}
+          onExportModListProfile={onExportModListProfile}
+          onImportModListProfile={onImportModListProfile}
         />
 
         <InstalledPageToolbar

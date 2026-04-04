@@ -7,6 +7,18 @@ import {
   modTags,
 } from "../types/mod.ts";
 
+export const profileIdSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .regex(/^[A-Za-z0-9._-]+$/);
+
+export const modListEntrySchema = z.object({
+  name: z.string().min(1),
+  enabled: z.boolean(),
+  version: z.string().optional(),
+});
+
 export const settingsSchema = z.object({
   version: z.number().default(1),
   modsFolder: z.string().default(""),
@@ -32,13 +44,7 @@ export const settingsSchema = z.object({
 });
 
 export const modListFileSchema = z.object({
-  mods: z.array(
-    z.object({
-      name: z.string().min(1),
-      enabled: z.boolean(),
-      version: z.string().optional(),
-    }),
-  ),
+  mods: z.array(modListEntrySchema),
 });
 
 export const browseFiltersSchema = z.object({
@@ -85,14 +91,30 @@ export const modListProfileCreateSchema = z.object({
 });
 
 export const modListProfileUpdateSchema = z.object({
-  profileId: z.string().min(1),
+  profileId: profileIdSchema,
   name: z.string().trim().min(1),
 });
 
 export const modListProfileSwitchSchema = z.object({
-  profileId: z.string().min(1),
+  profileId: profileIdSchema,
 });
 
 export const modListProfileRemoveSchema = z.object({
-  profileId: z.string().min(1),
+  profileId: profileIdSchema,
 });
+
+export const modListProfileDiffSchema = z
+  .object({
+    leftProfileId: profileIdSchema,
+    rightProfileId: profileIdSchema,
+  })
+  .refine((value) => value.leftProfileId !== value.rightProfileId, {
+    message: "Choose two different mod-list profiles to compare.",
+    path: ["rightProfileId"],
+  });
+
+export const modListProfileExportSchema = z.object({
+  profileId: profileIdSchema,
+});
+
+export const modListProfileImportSchema = z.object({});

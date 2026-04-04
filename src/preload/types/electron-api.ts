@@ -10,6 +10,9 @@ import type {
   ModLibraryState,
   ModToggleImpact,
   ModDetails,
+  ModListProfileComparison,
+  ExportModListProfileResult,
+  ImportModListProfileResult,
   ModSummary,
   OperationResult,
 } from "@shared/types/mod";
@@ -65,6 +68,14 @@ export interface ElectronApi {
     removeModListProfile(input: {
       profileId: string;
     }): Promise<OperationResult<AppSettings>>;
+    diffModListProfiles(input: {
+      leftProfileId: string;
+      rightProfileId: string;
+    }): Promise<OperationResult<ModListProfileComparison>>;
+    exportModListProfile(input: {
+      profileId: string;
+    }): Promise<OperationResult<ExportModListProfileResult>>;
+    importModListProfile(): Promise<OperationResult<ImportModListProfileResult>>;
   };
   downloads: {
     enqueue(request: DownloadEnqueueInput): Promise<OperationResult<string>>;

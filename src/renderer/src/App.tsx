@@ -248,6 +248,12 @@ export function App() {
               void modsActions.switchModListProfile(profileId),
             onRemoveModListProfile: (profileId) =>
               void modsActions.removeModListProfile(profileId),
+            onDiffModListProfiles: (leftProfileId, rightProfileId) =>
+              modsActions.diffModListProfiles(leftProfileId, rightProfileId),
+            onExportModListProfile: (profileId) =>
+              void modsActions.exportModListProfile(profileId),
+            onImportModListProfile: () =>
+              void modsActions.importModListProfile(),
           }}
           settings={{
             settings,

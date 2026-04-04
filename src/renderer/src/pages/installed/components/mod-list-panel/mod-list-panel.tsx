@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { ConfirmAction } from "../../../../components/confirm-action";
 import { PromptAction } from "../../../../components/prompt-action";
+import { ProfileDiffDialog } from "../profile-diff-dialog";
 import type { ModListPanelProps } from "./mod-list-panel.types";
 
 export function ModListPanel({
@@ -10,12 +12,66 @@ export function ModListPanel({
   onRenameModListProfile,
   onSwitchModListProfile,
   onRemoveModListProfile,
+  onDiffModListProfiles,
+  onExportModListProfile,
+  onImportModListProfile,
 }: ModListPanelProps) {
+  const [leftProfileId, setLeftProfileId] = useState(
+    settings.activeModListProfileId,
+  );
+  const [rightProfileId, setRightProfileId] = useState(
+    settings.modListProfiles.find(
+      (profile) => profile.id !== settings.activeModListProfileId,
+    )?.id ?? "",
+  );
+  const [comparisonBusy, setComparisonBusy] = useState(false);
+  const [comparison, setComparison] = useState<Awaited<
+    ReturnType<ModListPanelProps["onDiffModListProfiles"]>
+  >>(null);
   const activeProfile =
     settings.modListProfiles.find(
       (profile) => profile.id === settings.activeModListProfileId,
     ) ?? settings.modListProfiles[0];
   const profileCount = settings.modListProfiles.length;
+  const profileOptions = settings.modListProfiles;
+  const leftProfile = profileOptions.find((profile) => profile.id === leftProfileId);
+  const rightProfile = profileOptions.find(
+    (profile) => profile.id === rightProfileId,
+  );
+
+  useEffect(() => {
+    if (!profileOptions.some((profile) => profile.id === leftProfileId)) {
+      setLeftProfileId(settings.activeModListProfileId);
+      return;
+    }
+
+    if (
+      !profileOptions.some((profile) => profile.id === rightProfileId) ||
+      rightProfileId === leftProfileId
+    ) {
+      setRightProfileId(
+        profileOptions.find((profile) => profile.id !== leftProfileId)?.id ?? "",
+      );
+    }
+  }, [
+    leftProfileId,
+    profileOptions,
+    rightProfileId,
+    settings.activeModListProfileId,
+  ]);
+
+  async function handleCompareProfiles(): Promise<void> {
+    if (!leftProfileId || !rightProfileId || leftProfileId === rightProfileId) {
+      return;
+    }
+
+    setComparisonBusy(true);
+    try {
+      setComparison(await onDiffModListProfiles(leftProfileId, rightProfileId));
+    } finally {
+      setComparisonBusy(false);
+    }
+  }
 
   return (
     <div className="from-base-200/90 via-base-100 to-base-200/70 border-base-300 grid gap-4 rounded-2xl border bg-linear-to-br p-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]">
@@ -111,6 +167,84 @@ export function ModListPanel({
               Rename profile
             </button>
           )}
+          <button
+            className="btn btn-outline w-full"
+            type="button"
+            disabled={busy || !activeProfile}
+            onClick={() => activeProfile && onExportModListProfile(activeProfile.id)}
+          >
+            Export profile
+          </button>
+          <button
+            className="btn btn-outline w-full"
+            type="button"
+            disabled={busy}
+            onClick={onImportModListProfile}
+          >
+            Import profile
+          </button>
+        </div>
+
+        <div className="grid gap-2">
+          <p className="text-base-content/70 text-sm">
+            Compare any two saved profiles.
+          </p>
+          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">Left profile</legend>
+              <select
+                className="select select-bordered w-full"
+                value={leftProfileId}
+                onChange={(event) => setLeftProfileId(event.target.value)}
+                disabled={busy || profileOptions.length === 0}
+              >
+                {profileOptions.map((profile) => (
+                  <option key={profile.id} value={profile.id}>
+                    {profile.name}
+                  </option>
+                ))}
+              </select>
+            </fieldset>
+
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">Right profile</legend>
+              <select
+                className="select select-bordered w-full"
+                value={rightProfileId}
+                onChange={(event) => setRightProfileId(event.target.value)}
+                disabled={busy || profileOptions.length <= 1}
+              >
+                <option value="" disabled>
+                  Select a profile
+                </option>
+                {profileOptions
+                  .filter((profile) => profile.id !== leftProfileId)
+                  .map((profile) => (
+                    <option key={profile.id} value={profile.id}>
+                      {profile.name}
+                    </option>
+                  ))}
+              </select>
+            </fieldset>
+
+            <button
+              className="btn btn-outline"
+              type="button"
+              disabled={
+                busy ||
+                comparisonBusy ||
+                profileOptions.length <= 1 ||
+                !leftProfile ||
+                !rightProfile ||
+                leftProfile.id === rightProfile.id
+              }
+              onClick={() => {
+                void handleCompareProfiles();
+              }}
+            >
+              {comparisonBusy ? "Comparing..." : "Compare"}
+            </button>
+          </div>
         </div>
 
         {activeProfile ? (
@@ -130,6 +264,11 @@ export function ModListPanel({
           />
         ) : null}
       </div>
+
+      <ProfileDiffDialog
+        comparison={comparison}
+        onClose={() => setComparison(null)}
+      />
     </div>
   );
 }
