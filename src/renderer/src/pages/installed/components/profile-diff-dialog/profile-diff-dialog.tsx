@@ -1,3 +1,4 @@
+import { PageModal } from "../../../../components/page-modal";
 import type { ProfileDiffDialogProps } from "./profile-diff-dialog.types";
 
 export function ProfileDiffDialog({
@@ -9,8 +10,11 @@ export function ProfileDiffDialog({
   }
 
   return (
-    <dialog className="modal modal-open px-3">
-      <div className="modal-box border-base-300 bg-base-100 max-h-[85vh] max-w-3xl overflow-y-auto border p-0 shadow-2xl">
+    <PageModal
+      onClose={onClose}
+      panelClassName="max-h-[85vh] max-w-3xl overflow-y-auto"
+      backdropLabel="Close profile diff dialog"
+    >
         <div className="border-base-300 flex items-start justify-between gap-4 border-b px-6 py-5">
           <div>
             <h3 className="text-lg font-semibold">
@@ -107,13 +111,6 @@ export function ProfileDiffDialog({
             </section>
           </div>
         </div>
-      </div>
-      <button
-        className="modal-backdrop"
-        type="button"
-        aria-label="Close profile diff dialog"
-        onClick={onClose}
-      />
-    </dialog>
+    </PageModal>
   );
 }

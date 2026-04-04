@@ -1,3 +1,4 @@
+import { PageModal } from "../../../../components/page-modal";
 import type { ToggleImpactDialogProps } from "./toggle-impact-dialog.types";
 
 export function ToggleImpactDialog({
@@ -10,8 +11,11 @@ export function ToggleImpactDialog({
   }
 
   return (
-    <dialog className="modal modal-open px-3">
-      <div className="modal-box border-base-300 bg-base-100 max-w-lg border p-0 shadow-2xl">
+    <PageModal
+      onClose={onClose}
+      panelClassName="max-w-lg"
+      backdropLabel="Close toggle impact dialog"
+    >
         <div className="border-base-300 bg-base-200/70 border-b px-6 py-5">
           <h3 className="text-lg font-semibold">
             {impact.enabled
@@ -70,14 +74,6 @@ export function ToggleImpactDialog({
             {impact.enabled ? "Enable required mods too" : "Disable anyway"}
           </button>
         </div>
-      </div>
-
-      <button
-        className="modal-backdrop"
-        type="button"
-        aria-label="Close toggle impact dialog"
-        onClick={onClose}
-      />
-    </dialog>
+    </PageModal>
   );
 }

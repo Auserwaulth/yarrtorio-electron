@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { ModReleaseSummary } from "@shared/types/mod";
 import { FadeSkeleton } from "../fade-skeleton";
+import { PageModal } from "../page-modal";
 import { InfoLink } from "./components/info-link";
 import { GalleryImages } from "./components/gallery-Images";
 import { DependenciesTab } from "./tabs/dependencies-tab";
@@ -199,8 +200,12 @@ export function ModDetailsModal({
   }
 
   return (
-    <dialog className="modal modal-open px-3 py-6 sm:px-6 sm:py-10">
-      <div className="modal-box max-h-[92vh] max-w-5xl overflow-x-hidden p-0">
+    <PageModal
+      onClose={handleClose}
+      className="py-6 sm:px-6 sm:py-10"
+      panelClassName="max-h-[92vh] max-w-5xl overflow-x-hidden"
+      backdropLabel="Close mod details dialog"
+    >
         <FadeSkeleton
           loading={loading}
           skeleton={<div className="skeleton h-64 w-full" />}
@@ -414,13 +419,6 @@ export function ModDetailsModal({
             ) : null}
           </div>
         </FadeSkeleton>
-      </div>
-
-      <form method="dialog" className="modal-backdrop">
-        <button type="button" onClick={handleClose}>
-          close
-        </button>
-      </form>
-    </dialog>
+    </PageModal>
   );
 }

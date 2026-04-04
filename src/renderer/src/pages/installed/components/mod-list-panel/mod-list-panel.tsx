@@ -101,7 +101,7 @@ export function ModListPanel({
           </div>
         </div>
 
-        <div className="grid min-w-0 gap-2 xl:w-[32rem]">
+        <div className="grid min-w-0 gap-2 xl:w-lg">
           <div className="flex flex-col gap-2 lg:flex-row">
             <select
               className="select select-bordered min-w-0 flex-1"

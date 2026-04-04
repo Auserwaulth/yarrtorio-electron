@@ -1,3 +1,4 @@
+import { PageModal } from "../../../../components/page-modal";
 import type { ConflictDetailsDialogProps } from "./conflict-details-dialog.types";
 
 export function ConflictDetailsDialog({
@@ -11,8 +12,11 @@ export function ConflictDetailsDialog({
   }
 
   return (
-    <dialog className="modal modal-open px-3">
-      <div className="modal-box border-base-300 bg-base-100 max-w-xl border p-0 shadow-2xl">
+    <PageModal
+      onClose={onClose}
+      panelClassName="max-w-xl"
+      backdropLabel="Close conflicts dialog"
+    >
         <div className="border-base-300 bg-base-200/70 border-b px-6 py-5">
           <h3 className="text-lg font-semibold">Conflicts for {modName}</h3>
         </div>
@@ -47,14 +51,6 @@ export function ConflictDetailsDialog({
             Close
           </button>
         </div>
-      </div>
-
-      <button
-        className="modal-backdrop"
-        type="button"
-        aria-label="Close conflicts dialog"
-        onClick={onClose}
-      />
-    </dialog>
+    </PageModal>
   );
 }
