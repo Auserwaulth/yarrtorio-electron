@@ -12,6 +12,8 @@ export const modsApi: ElectronApi["mods"] = {
   browse: (filters) => ipcRenderer.invoke(ipcChannels.mods.browse, filters),
   details: (modName) => ipcRenderer.invoke(ipcChannels.mods.details, modName),
   installed: () => ipcRenderer.invoke(ipcChannels.mods.installed),
+  previewSyncFromModList: (input) =>
+    ipcRenderer.invoke(ipcChannels.mods.previewSyncFromModList, input),
   syncFromModList: (input) =>
     ipcRenderer.invoke(ipcChannels.mods.syncFromModList, input),
   deleteInstalled: (input) =>

@@ -16,6 +16,7 @@ export function ModListPanel({
   onDiffModListProfiles,
   onExportModListProfile,
   onImportModListProfile,
+  onPreviewSyncFromModList,
 }: ModListPanelProps) {
   const [leftProfileId, setLeftProfileId] = useState(
     settings.activeModListProfileId,
@@ -153,6 +154,15 @@ export function ModListPanel({
                   Rename
                 </button>
               )}
+              <button
+                className="btn btn-outline"
+                type="button"
+                disabled={busy || profileOptions.length === 0}
+                onClick={onPreviewSyncFromModList}
+              >
+                <AppIcon name="Eye" className="size-4" aria-hidden />
+                Preview sync
+              </button>
               <button
                 className="btn btn-ghost btn-square"
                 type="button"

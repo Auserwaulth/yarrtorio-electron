@@ -1,6 +1,7 @@
 import type {
   DownloadProgress,
   ModListProfileComparison,
+  SyncFromModListPreview,
   ModToggleImpact,
 } from "@shared/types/mod";
 import { modsService } from "../services/mods-service";
@@ -164,6 +165,26 @@ export function useModsInstalledActions({
         reportError(result.error);
       }
     });
+  }
+
+  async function previewSyncFromModList(
+    includeDisabled: boolean,
+  ): Promise<SyncFromModListPreview | null> {
+    if (!modsFolder.trim()) {
+      options.onInfo?.(
+        "Set your mods folder in Settings before syncing from mod-list.",
+      );
+      return null;
+    }
+
+    const result = await modsService.previewSyncFromModList(includeDisabled);
+
+    if (!result.ok) {
+      reportError(result.error);
+      return null;
+    }
+
+    return result.data;
   }
 
   async function deleteInstalled(
@@ -563,6 +584,7 @@ export function useModsInstalledActions({
     diffModListProfiles,
     fetchLatestVersions,
     getModToggleImpact,
+    previewSyncFromModList,
     queueSelectedMod,
     queueUpdateAllInstalled,
     queueUpdateInstalled,

@@ -8,6 +8,8 @@ export const modsService = {
   browse: (filters: BrowseFilters) => window.electronApi.mods.browse(filters),
   details: (modName: string) => window.electronApi.mods.details(modName),
   installed: () => window.electronApi.mods.installed(),
+  previewSyncFromModList: (includeDisabled: boolean) =>
+    window.electronApi.mods.previewSyncFromModList({ includeDisabled }),
   syncFromModList: (includeDisabled: boolean) =>
     window.electronApi.mods.syncFromModList({ includeDisabled }),
   deleteInstalled: (modName: string, fileName: string) =>

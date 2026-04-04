@@ -3,7 +3,7 @@ import {
   manageInstalledModSchema,
   syncRequestSchema,
 } from "@shared/validation/schemas";
-import { filterManagedMods } from "../../../mods/disabled-mods";
+import { filterSyncCandidates } from "../../../mods/disabled-mods";
 import {
   deleteInstalledArchive,
   listInstalledMods,
@@ -27,6 +27,7 @@ import type {
   ModDetails,
   ModSummary,
   OperationResult,
+  SyncFromModListPreview,
 } from "@shared/types/mod";
 import type { SettingsService } from "../../../services/settings-service";
 import {
@@ -45,6 +46,7 @@ import {
   withLibraryState,
 } from "./library-state";
 import { createProfileHandlers } from "./profile-handlers";
+import { buildSyncPreview, getEmptySyncPlanMessage } from "./sync-preview";
 import { createToggleHandlers } from "./toggle-handlers";
 
 /**
@@ -140,6 +142,46 @@ export function createModsHandler(
     installed: async (): Promise<OperationResult<InstalledMod[]>> =>
       getInstalledResult(settingsService),
 
+    previewSyncFromModList: async (
+      _event: IpcMainInvokeEvent,
+      input: unknown,
+    ): Promise<OperationResult<SyncFromModListPreview>> => {
+      const { settings, modsFolder } = await getModsFolder();
+      const parsed = syncRequestSchema.safeParse(input);
+
+      if (!parsed.success) {
+        return { ok: false, error: "Invalid sync options." };
+      }
+
+      const modList = await parseModList(settings);
+      const includeDisabled =
+        parsed.data.includeDisabled ||
+        settings.includeDisabledModsByDefault ||
+        !settings.ignoreDisabledMods;
+      const managedMods = filterSyncCandidates(modList);
+
+      if (managedMods.length === 0) {
+        return {
+          ok: false,
+          error: "No syncable mods were found in mod-list. Base game and official expansion entries are skipped.",
+        };
+      }
+
+      return {
+        ok: true,
+        data: (
+          await buildSyncPreview({
+            managedMods,
+            modList,
+            installed: await loadInstalledMods(settingsService),
+            modsFolder,
+            includeDisabled,
+            getDetails: getModDetails,
+          })
+        ).preview,
+      };
+    },
+
     getLibraryState: async (): Promise<
       OperationResult<Record<string, ModLibraryState>>
     > => ({
@@ -160,70 +202,33 @@ export function createModsHandler(
       }
 
       const modList = await parseModList(settings);
-      const managedMods = filterManagedMods(
-        modList,
+      const includeDisabled =
         parsed.data.includeDisabled ||
-          settings.includeDisabledModsByDefault ||
-          !settings.ignoreDisabledMods,
-      );
+        settings.includeDisabledModsByDefault ||
+        !settings.ignoreDisabledMods;
+      const managedMods = filterSyncCandidates(modList);
 
       if (managedMods.length === 0) {
         return {
           ok: false,
-          error:
-            "No eligible mods were found in mod-list. Base game and official expansion entries are skipped, and disabled mods are ignored unless your settings include them.",
+          error: "No syncable mods were found in mod-list. Base game and official expansion entries are skipped.",
         };
       }
 
-      const installed = await listInstalledMods(modsFolder);
-      const queuedMods: ModSummary[] = [];
-      const detailsResults = await Promise.allSettled(
-        managedMods.map((entry) => getModDetails(entry.name)),
-      );
-      const enqueueRequests: Array<{
-        modName: string;
-        version: string;
-        targetFolder: string;
-        replaceExisting: boolean;
-        existingFilePath?: string;
-      }> = [];
-
-      for (let i = 0; i < managedMods.length; i += 1) {
-        const entry = managedMods[i]!;
-        const result = detailsResults[i];
-
-        if (!result || !("value" in result)) {
-          console.error(`Failed to fetch details for ${entry.name}:`, result);
-          continue;
-        }
-
-        const details = result.value;
-        const version =
-          entry.version ??
-          details.latestRelease?.version ??
-          details.releases[0]?.version;
-
-        if (!version) continue;
-
-        const existing = installed.find((item) => item.name === entry.name);
-
-        enqueueRequests.push({
-          modName: entry.name,
-          version,
-          targetFolder: modsFolder,
-          replaceExisting: Boolean(existing),
-          ...(existing?.filePath
-            ? { existingFilePath: existing.filePath }
-            : {}),
-        });
-        queuedMods.push(details);
-      }
+      const installed = await loadInstalledMods(settingsService);
+      const { preview, enqueueRequests, queuedMods } = await buildSyncPreview({
+        managedMods,
+        modList,
+        installed,
+        modsFolder,
+        includeDisabled,
+        getDetails: getModDetails,
+      });
 
       if (enqueueRequests.length === 0) {
         return {
           ok: false,
-          error:
-            "No mods from mod-list could be queued. Check that the listed mods exist on the portal and have downloadable releases.",
+          error: getEmptySyncPlanMessage(preview),
         };
       }
 

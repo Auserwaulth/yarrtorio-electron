@@ -278,6 +278,38 @@ export interface BulkUpdateInstalledResult {
   queuedModNames: string[];
 }
 
+export type SyncPreviewAction =
+  | "download"
+  | "update"
+  | "skip"
+  | "remove"
+  | "problem";
+
+export interface SyncPreviewItem {
+  name: string;
+  action: SyncPreviewAction;
+  targetVersion?: string;
+  installedVersion?: string;
+  reason: string;
+  enabled?: boolean;
+  willApply: boolean;
+}
+
+export interface SyncFromModListPreview {
+  includeDisabled: boolean;
+  queueableCount: number;
+  downloadCount: number;
+  updateCount: number;
+  skipCount: number;
+  removeCount: number;
+  problemCount: number;
+  downloads: SyncPreviewItem[];
+  updates: SyncPreviewItem[];
+  skips: SyncPreviewItem[];
+  removals: SyncPreviewItem[];
+  problems: SyncPreviewItem[];
+}
+
 export interface DownloadProgress {
   key: string;
   modName: string;

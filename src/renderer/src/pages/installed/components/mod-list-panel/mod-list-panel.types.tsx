@@ -14,4 +14,5 @@ export interface ModListPanelProps {
   ): Promise<ModListProfileComparison | null>;
   onExportModListProfile(profileId: string): void;
   onImportModListProfile(): void;
+  onPreviewSyncFromModList(): void;
 }

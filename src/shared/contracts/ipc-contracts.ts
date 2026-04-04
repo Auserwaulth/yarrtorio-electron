@@ -3,6 +3,7 @@ export const ipcChannels = {
     browse: "mods:browse",
     details: "mods:details",
     installed: "mods:installed",
+    previewSyncFromModList: "mods:preview-sync-from-mod-list",
     syncFromModList: "mods:sync-from-mod-list",
     deleteInstalled: "mods:delete-installed",
     queueUpdateInstalled: "mods:queue-update-installed",

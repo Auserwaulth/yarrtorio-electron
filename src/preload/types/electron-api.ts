@@ -15,6 +15,7 @@ import type {
   ImportModListProfileResult,
   ModSummary,
   OperationResult,
+  SyncFromModListPreview,
 } from "@shared/types/mod";
 
 import type { AppMeta } from "@shared/types/app-meta";
@@ -25,6 +26,9 @@ export interface ElectronApi {
     browse(filters: BrowseFilters): Promise<OperationResult<BrowseResult>>;
     details(modName: string): Promise<OperationResult<ModDetails>>;
     installed(): Promise<OperationResult<InstalledMod[]>>;
+    previewSyncFromModList(input: {
+      includeDisabled: boolean;
+    }): Promise<OperationResult<SyncFromModListPreview>>;
     syncFromModList(input: {
       includeDisabled: boolean;
     }): Promise<OperationResult<ModSummary[]>>;

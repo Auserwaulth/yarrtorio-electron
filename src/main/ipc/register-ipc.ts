@@ -83,6 +83,13 @@ export function registerIpc(
     safeHandle("mods:installed", modsHandler.installed),
   );
   ipcMain.handle(
+    ipcChannels.mods.previewSyncFromModList,
+    safeHandle(
+      "mods:preview-sync-from-mod-list",
+      modsHandler.previewSyncFromModList,
+    ),
+  );
+  ipcMain.handle(
     ipcChannels.mods.syncFromModList,
     safeHandle("mods:sync-from-mod-list", modsHandler.syncFromModList),
   );

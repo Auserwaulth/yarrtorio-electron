@@ -268,7 +268,7 @@ Areas where contributions are welcome:
 - [x] Additional theme options
 - [x] Bulk update all outdated mods
 - [x] Profile diff / import / export
-- [ ] Pre-flight sync preview
+- [x] Pre-flight sync preview
 - [ ] Notifications / activity center
 - [ ] Background mod update notifications
 - [x] Expanded bulk operations for installed mods (batch enable/disable/delete/retry)

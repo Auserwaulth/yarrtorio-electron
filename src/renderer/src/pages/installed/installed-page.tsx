@@ -52,6 +52,7 @@ interface InstalledPageProps {
   ): Promise<import("@shared/types/mod").ModListProfileComparison | null>;
   onExportModListProfile(profileId: string): void;
   onImportModListProfile(): void;
+  onPreviewSyncFromModList(): void;
 }
 
 export function InstalledPage({
@@ -77,6 +78,7 @@ export function InstalledPage({
   onDiffModListProfiles,
   onExportModListProfile,
   onImportModListProfile,
+  onPreviewSyncFromModList,
 }: InstalledPageProps) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -212,6 +214,7 @@ export function InstalledPage({
           onDiffModListProfiles={onDiffModListProfiles}
           onExportModListProfile={onExportModListProfile}
           onImportModListProfile={onImportModListProfile}
+          onPreviewSyncFromModList={onPreviewSyncFromModList}
         />
 
         <InstalledPageToolbar
