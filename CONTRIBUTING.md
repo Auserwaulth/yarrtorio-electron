@@ -271,7 +271,7 @@ Areas where contributions are welcome:
 - [ ] Pre-flight sync preview
 - [ ] Notifications / activity center
 - [ ] Background mod update notifications
-- [ ] Expanded bulk operations for installed mods (batch enable/disable/delete/retry)
+- [x] Expanded bulk operations for installed mods (batch enable/disable/delete/retry)
 - [ ] Factorio account bookmark sync via portal auth/token
 - [ ] Saved browse presets and quick filter recall
 - [ ] User-defined collections or wishlists separate from mod-list profiles
