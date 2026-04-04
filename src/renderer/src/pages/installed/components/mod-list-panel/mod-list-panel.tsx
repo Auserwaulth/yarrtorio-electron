@@ -27,9 +27,10 @@ export function ModListPanel({
   );
   const [comparisonBusy, setComparisonBusy] = useState(false);
   const [showTools, setShowTools] = useState(false);
-  const [comparison, setComparison] = useState<Awaited<
-    ReturnType<ModListPanelProps["onDiffModListProfiles"]>
-  >>(null);
+  const [comparison, setComparison] =
+    useState<Awaited<ReturnType<ModListPanelProps["onDiffModListProfiles"]>>>(
+      null,
+    );
 
   const activeProfile =
     settings.modListProfiles.find(
@@ -37,7 +38,9 @@ export function ModListPanel({
     ) ?? settings.modListProfiles[0];
   const profileCount = settings.modListProfiles.length;
   const profileOptions = settings.modListProfiles;
-  const leftProfile = profileOptions.find((profile) => profile.id === leftProfileId);
+  const leftProfile = profileOptions.find(
+    (profile) => profile.id === leftProfileId,
+  );
   const rightProfile = profileOptions.find(
     (profile) => profile.id === rightProfileId,
   );
@@ -53,7 +56,8 @@ export function ModListPanel({
       rightProfileId === leftProfileId
     ) {
       setRightProfileId(
-        profileOptions.find((profile) => profile.id !== leftProfileId)?.id ?? "",
+        profileOptions.find((profile) => profile.id !== leftProfileId)?.id ??
+          "",
       );
     }
   }, [
@@ -152,7 +156,9 @@ export function ModListPanel({
               <button
                 className="btn btn-ghost btn-square"
                 type="button"
-                aria-label={showTools ? "Hide profile tools" : "Show profile tools"}
+                aria-label={
+                  showTools ? "Hide profile tools" : "Show profile tools"
+                }
                 aria-expanded={showTools}
                 onClick={() => setShowTools((current) => !current)}
               >

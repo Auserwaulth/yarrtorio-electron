@@ -21,10 +21,8 @@ import {
 import type { IpcMainInvokeEvent } from "electron";
 import type { DownloadQueue } from "../../../downloads/download-queue";
 import type {
-  AppSettings,
   BrowseResult,
   InstalledMod,
-  ModListEntry,
   ModLibraryState,
   ModDetails,
   ModSummary,

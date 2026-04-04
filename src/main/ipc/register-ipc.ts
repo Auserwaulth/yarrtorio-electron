@@ -159,11 +159,17 @@ export function registerIpc(
   );
   ipcMain.handle(
     ipcChannels.mods.exportModListProfile,
-    safeHandle("mods:export-mod-list-profile", modsHandler.exportModListProfile),
+    safeHandle(
+      "mods:export-mod-list-profile",
+      modsHandler.exportModListProfile,
+    ),
   );
   ipcMain.handle(
     ipcChannels.mods.importModListProfile,
-    safeHandle("mods:import-mod-list-profile", modsHandler.importModListProfile),
+    safeHandle(
+      "mods:import-mod-list-profile",
+      modsHandler.importModListProfile,
+    ),
   );
 
   ipcMain.handle(

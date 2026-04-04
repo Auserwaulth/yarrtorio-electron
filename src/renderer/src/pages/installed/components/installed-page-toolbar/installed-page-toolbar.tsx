@@ -74,6 +74,15 @@ export function InstalledPageToolbar({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
+            className="btn btn-sm btn-outline"
+            onClick={onCheckUpdates}
+            disabled={busy}
+            type="button"
+          >
+            <AppIcon name="RefreshCw" className="size-4" />
+            {busy ? "Checking..." : ""}
+          </button>
+          <button
             className="btn btn-sm btn-primary"
             disabled={updateAllDisabled}
             onClick={onUpdateAllOutdated}
@@ -111,18 +120,14 @@ export function InstalledPageToolbar({
           >
             <AppIcon name="Download" className="size-4" />
             <span>
-              {selectedOutdatedCount > 0
-                ? `(${selectedOutdatedCount})`
-                : ""}
+              {selectedOutdatedCount > 0 ? `(${selectedOutdatedCount})` : ""}
             </span>
           </button>
           <ConfirmAction
             triggerLabel={
               <>
                 <AppIcon name="Trash2" className="size-4" />
-                <span>
-                  {selectedCount > 0 ? `(${selectedCount})` : "(0)"}
-                </span>
+                <span>{selectedCount > 0 ? `(${selectedCount})` : "(0)"}</span>
               </>
             }
             triggerClassName="btn btn-sm btn-ghost text-error"
@@ -130,22 +135,13 @@ export function InstalledPageToolbar({
             title={`Delete ${selectedCount} selected mod${selectedCount === 1 ? "" : "s"}?`}
             description={
               <p>
-                This removes the selected ZIP archives from your configured
-                mods folder.
+                This removes the selected ZIP archives from your configured mods
+                folder.
               </p>
             }
             disabled={deleteSelectedDisabled}
             onConfirm={onDeleteSelected}
           />
-          <button
-            className="btn btn-sm btn-outline"
-            onClick={onCheckUpdates}
-            disabled={busy}
-            type="button"
-          >
-            <AppIcon name="RefreshCw" className="size-4" />
-            {busy ? "Checking..." : ""}
-          </button>
         </div>
       </div>
     </>

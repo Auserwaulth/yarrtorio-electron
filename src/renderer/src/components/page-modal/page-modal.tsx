@@ -13,7 +13,9 @@ interface PageModalProps {
   closeOnBackdrop?: boolean;
 }
 
-function joinClasses(...values: Array<string | false | null | undefined>): string {
+function joinClasses(
+  ...values: Array<string | false | null | undefined>
+): string {
   return values.filter(Boolean).join(" ");
 }
 

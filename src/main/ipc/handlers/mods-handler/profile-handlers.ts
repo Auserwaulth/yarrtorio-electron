@@ -67,11 +67,11 @@ export function createProfileHandlers(
   settingsService: SettingsService,
   dialogApi: ProfileDialogApi = dialog,
 ) {
-  const createProfileId = dialogApi.createProfileId ?? (() => crypto.randomUUID());
+  const createProfileId =
+    dialogApi.createProfileId ?? (() => crypto.randomUUID());
   const readExportPackage =
     dialogApi.readExportPackage ?? readProfileExportPackage;
-  const writeExport =
-    dialogApi.writeExportPackage ?? writeProfileExportPackage;
+  const writeExport = dialogApi.writeExportPackage ?? writeProfileExportPackage;
 
   return {
     createModListProfile: async (
@@ -377,11 +377,13 @@ export function createProfileHandlers(
         };
       } catch (error) {
         if (dialogApi.deleteProfileStorage) {
-          await dialogApi.deleteProfileStorage(profile.id).catch(() => undefined);
+          await dialogApi
+            .deleteProfileStorage(profile.id)
+            .catch(() => undefined);
         } else {
-          await (
-            await getProfileStorageApi()
-          ).deleteModListProfileStorage(profile.id).catch(() => undefined);
+          await (await getProfileStorageApi())
+            .deleteModListProfileStorage(profile.id)
+            .catch(() => undefined);
         }
         throw error;
       }

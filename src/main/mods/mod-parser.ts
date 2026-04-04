@@ -128,7 +128,7 @@ async function ensureModListFile(filePath: string): Promise<void> {
     if (normalized.length !== parsed.mods.length) {
       await writeModListFile(filePath, normalized);
     }
-  } catch (error) {
+  } catch {
     await preserveCorruptFile(filePath, "mod-list");
     throw new Error(
       "Existing mod-list file is invalid. A backup copy was preserved.",

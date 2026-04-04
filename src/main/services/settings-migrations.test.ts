@@ -20,10 +20,7 @@ test("versionless settings migrate through v1 and v2 to the current version", ()
     theme: "system" as const,
   };
 
-  const migrated = migrateSettings(
-    legacySettings,
-    getMigrationVersion({}),
-  );
+  const migrated = migrateSettings(legacySettings, getMigrationVersion({}));
 
   assert.equal(migrated.version, CURRENT_SETTINGS_VERSION);
   assert.deepEqual(migrated.modListProfiles, [

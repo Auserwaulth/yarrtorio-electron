@@ -87,13 +87,11 @@ test("importModListProfile rejects invalid exported files before writing state",
 
 test("exportModListProfile writes the selected profile and returns a summary", async () => {
   let parsedProfileId: string | null = null;
-  let writtenExport:
-    | {
-        filePath: string;
-        profileName: string;
-        mods: Array<{ name: string; enabled: boolean }>;
-      }
-    | null = null;
+  let writtenExport: {
+    filePath: string;
+    profileName: string;
+    mods: Array<{ name: string; enabled: boolean }>;
+  } | null = null;
 
   const handlers = createProfileHandlers(createSettingsService(), {
     showOpenDialog: async () => ({ canceled: true, filePaths: [] }),
@@ -148,12 +146,10 @@ test("importModListProfile keeps duplicate names unique and preserves the active
   ];
 
   let savedSettings: AppSettings | null = null;
-  let writtenStorage:
-    | {
-        profileId: string;
-        mods: Array<{ name: string; enabled: boolean }>;
-      }
-    | null = null;
+  let writtenStorage: {
+    profileId: string;
+    mods: Array<{ name: string; enabled: boolean }>;
+  } | null = null;
   let deletedProfileId: string | null = null;
 
   const handlers = createProfileHandlers(

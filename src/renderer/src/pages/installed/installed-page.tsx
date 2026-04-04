@@ -23,9 +23,13 @@ interface InstalledPageProps {
   latestVersions: Record<string, string>;
   installedConflicts: Record<string, InstalledConflict[]>;
   onDelete(modName: string, fileName: string): Promise<void>;
-  onDeleteMany(entries: Array<{ modName: string; fileName: string }>): Promise<void>;
+  onDeleteMany(
+    entries: Array<{ modName: string; fileName: string }>,
+  ): Promise<void>;
   onUpdate(modName: string, fileName: string): Promise<void>;
-  onUpdateMany(entries: Array<{ modName: string; fileName: string }>): Promise<void>;
+  onUpdateMany(
+    entries: Array<{ modName: string; fileName: string }>,
+  ): Promise<void>;
   onUpdateAllOutdated(): void;
   onToggleEnabled(
     modName: string,
@@ -150,7 +154,9 @@ export function InstalledPage({
     filteredItems.length > 0 && selectedItems.length === filteredItems.length;
 
   useEffect(() => {
-    const availableFilePaths = new Set(filteredItems.map((item) => item.filePath));
+    const availableFilePaths = new Set(
+      filteredItems.map((item) => item.filePath),
+    );
     setSelectedFilePaths((current) =>
       current.filter((filePath) => availableFilePaths.has(filePath)),
     );
@@ -187,7 +193,7 @@ export function InstalledPage({
   }
 
   function toggleSelectAllFiltered(): void {
-    setSelectedFilePaths((current) =>
+    setSelectedFilePaths(
       allFilteredSelected ? [] : filteredItems.map((item) => item.filePath),
     );
   }

@@ -66,7 +66,9 @@ test("compareProfileContents reports shared, changed, and unique mods", () => {
 });
 
 test("writeProfileExportPackage round-trips a profile export package", async () => {
-  const workspace = await mkdtemp(join(tmpdir(), "yarrtorio-profile-transfer-"));
+  const workspace = await mkdtemp(
+    join(tmpdir(), "yarrtorio-profile-transfer-"),
+  );
   const filePath = join(workspace, "profile.json");
 
   try {
@@ -109,7 +111,9 @@ test("writeProfileExportPackage round-trips a profile export package", async () 
 });
 
 test("readProfileExportPackage rejects duplicate mod entries", async () => {
-  const workspace = await mkdtemp(join(tmpdir(), "yarrtorio-profile-transfer-"));
+  const workspace = await mkdtemp(
+    join(tmpdir(), "yarrtorio-profile-transfer-"),
+  );
   const filePath = join(workspace, "duplicate.json");
 
   try {

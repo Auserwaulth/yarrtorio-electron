@@ -75,7 +75,9 @@ export interface ElectronApi {
     exportModListProfile(input: {
       profileId: string;
     }): Promise<OperationResult<ExportModListProfileResult>>;
-    importModListProfile(): Promise<OperationResult<ImportModListProfileResult>>;
+    importModListProfile(): Promise<
+      OperationResult<ImportModListProfileResult>
+    >;
   };
   downloads: {
     enqueue(request: DownloadEnqueueInput): Promise<OperationResult<string>>;

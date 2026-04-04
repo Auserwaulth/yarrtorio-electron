@@ -85,9 +85,11 @@ export async function readProfileStorageMods(
     ensureUniqueModNames(parsed.mods);
 
     return normalizeProfileMods(parsed.mods);
-  } catch (error) {
+  } catch {
     await preserveCorruptProfileFile(filePath);
-    throw new Error("Profile storage file is invalid. A backup copy was preserved.");
+    throw new Error(
+      "Profile storage file is invalid. A backup copy was preserved.",
+    );
   }
 }
 
@@ -104,9 +106,7 @@ export async function writeProfileStorageMods(
   );
 }
 
-export async function readProfileExportPackage(
-  filePath: string,
-): Promise<{
+export async function readProfileExportPackage(filePath: string): Promise<{
   version: 1;
   profile: {
     name: string;
