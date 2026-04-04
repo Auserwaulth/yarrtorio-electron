@@ -12,4 +12,8 @@ export interface InstalledModsTableProps {
   onOpen(modName: string): void;
   onToggleEnabled(modName: string, enabled: boolean): void;
   onShowConflicts(modName: string): void;
+  selectedFilePaths: string[];
+  onToggleSelectedFilePath(filePath: string): void;
+  allFilteredSelected: boolean;
+  onToggleSelectAllFiltered(): void;
 }

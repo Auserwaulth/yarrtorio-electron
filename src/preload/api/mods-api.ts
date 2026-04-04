@@ -12,12 +12,16 @@ export const modsApi: ElectronApi["mods"] = {
   browse: (filters) => ipcRenderer.invoke(ipcChannels.mods.browse, filters),
   details: (modName) => ipcRenderer.invoke(ipcChannels.mods.details, modName),
   installed: () => ipcRenderer.invoke(ipcChannels.mods.installed),
+  previewSyncFromModList: (input) =>
+    ipcRenderer.invoke(ipcChannels.mods.previewSyncFromModList, input),
   syncFromModList: (input) =>
     ipcRenderer.invoke(ipcChannels.mods.syncFromModList, input),
   deleteInstalled: (input) =>
     ipcRenderer.invoke(ipcChannels.mods.deleteInstalled, input),
   queueUpdateInstalled: (input) =>
     ipcRenderer.invoke(ipcChannels.mods.queueUpdateInstalled, input),
+  queueUpdateAllInstalled: () =>
+    ipcRenderer.invoke(ipcChannels.mods.queueUpdateAllInstalled),
   setEnabled: (input) => ipcRenderer.invoke(ipcChannels.mods.setEnabled, input),
   getLibraryState: () => ipcRenderer.invoke(ipcChannels.mods.getLibraryState),
   getModToggleImpact: (input) =>
@@ -34,4 +38,10 @@ export const modsApi: ElectronApi["mods"] = {
     ipcRenderer.invoke(ipcChannels.mods.switchModListProfile, input),
   removeModListProfile: (input) =>
     ipcRenderer.invoke(ipcChannels.mods.removeModListProfile, input),
+  diffModListProfiles: (input) =>
+    ipcRenderer.invoke(ipcChannels.mods.diffModListProfiles, input),
+  exportModListProfile: (input) =>
+    ipcRenderer.invoke(ipcChannels.mods.exportModListProfile, input),
+  importModListProfile: () =>
+    ipcRenderer.invoke(ipcChannels.mods.importModListProfile),
 };

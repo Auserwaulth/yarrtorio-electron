@@ -1,4 +1,4 @@
-import type { AppSettings } from "@shared/types/mod";
+import type { AppSettings, ModListProfileComparison } from "@shared/types/mod";
 
 export interface ModListPanelProps {
   settings: AppSettings;
@@ -8,4 +8,11 @@ export interface ModListPanelProps {
   onRenameModListProfile(profileId: string, name: string): void;
   onSwitchModListProfile(profileId: string): void;
   onRemoveModListProfile(profileId: string): void;
+  onDiffModListProfiles(
+    leftProfileId: string,
+    rightProfileId: string,
+  ): Promise<ModListProfileComparison | null>;
+  onExportModListProfile(profileId: string): void;
+  onImportModListProfile(): void;
+  onPreviewSyncFromModList(): void;
 }

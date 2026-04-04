@@ -1,6 +1,6 @@
 {
   "name": "yarrtorio-electron",
-  "version": "2026.4.3-alpha.4",
+  "version": "2026.4.4-alpha.7",
   "private": true,
   "description": "Yarrtorio - Factorio mod downloader and manager built with Electron, Vite, React, Tailwind CSS, and daisyUI.",
   "main": "out/main/index.js",
@@ -90,6 +90,7 @@
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
+      "license": "resources/license.txt",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "runAfterFinish": false,

@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from "react";
+import { PageModal } from "../page-modal";
 
 interface ConfirmActionProps {
-  triggerLabel: string;
+  triggerLabel: ReactNode;
   triggerClassName?: string;
   confirmLabel?: string;
   cancelLabel?: string;
@@ -49,45 +50,40 @@ export function ConfirmAction({
       </button>
 
       {open ? (
-        <dialog className="modal modal-open px-3">
-          <div className="modal-box border-base-300 bg-base-100 max-w-md border p-0 shadow-2xl">
-            <div className="border-base-300 bg-base-200/70 border-b px-6 py-5">
-              <h3 className="text-lg font-semibold">{title}</h3>
-            </div>
-
-            <div className="px-6 py-5 text-sm leading-6">{description}</div>
-
-            <div className="border-base-300 bg-base-100/90 flex justify-end gap-3 border-t px-6 py-4">
-              <button
-                className="btn btn-ghost"
-                type="button"
-                disabled={confirming}
-                onClick={() => setOpen(false)}
-              >
-                {cancelLabel}
-              </button>
-              <button
-                className={confirmClassName}
-                type="button"
-                disabled={confirming}
-                onClick={() => void handleConfirm()}
-              >
-                {confirming ? "Working..." : confirmLabel}
-              </button>
-            </div>
+        <PageModal
+          onClose={() => {
+            if (!confirming) {
+              setOpen(false);
+            }
+          }}
+          panelClassName="max-w-md"
+          backdropLabel="Close confirmation dialog"
+        >
+          <div className="border-base-300 bg-base-200/70 border-b px-6 py-5">
+            <h3 className="text-lg font-semibold">{title}</h3>
           </div>
 
-          <button
-            className="modal-backdrop"
-            type="button"
-            aria-label="Close confirmation dialog"
-            onClick={() => {
-              if (!confirming) {
-                setOpen(false);
-              }
-            }}
-          />
-        </dialog>
+          <div className="px-6 py-5 text-sm leading-6">{description}</div>
+
+          <div className="border-base-300 bg-base-100/90 flex justify-end gap-3 border-t px-6 py-4">
+            <button
+              className="btn btn-ghost"
+              type="button"
+              disabled={confirming}
+              onClick={() => setOpen(false)}
+            >
+              {cancelLabel}
+            </button>
+            <button
+              className={confirmClassName}
+              type="button"
+              disabled={confirming}
+              onClick={() => void handleConfirm()}
+            >
+              {confirming ? "Working..." : confirmLabel}
+            </button>
+          </div>
+        </PageModal>
       ) : null}
     </>
   );

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BentoTile } from "../../components/bento-tile";
 import { FadeSkeleton } from "../../components/fade-skeleton";
 import type {
@@ -22,13 +22,20 @@ interface InstalledPageProps {
   pendingModNames: string[];
   latestVersions: Record<string, string>;
   installedConflicts: Record<string, InstalledConflict[]>;
-  onDelete(modName: string, fileName: string): void;
-  onUpdate(modName: string, fileName: string): void;
+  onDelete(modName: string, fileName: string): Promise<void>;
+  onDeleteMany(
+    entries: Array<{ modName: string; fileName: string }>,
+  ): Promise<void>;
+  onUpdate(modName: string, fileName: string): Promise<void>;
+  onUpdateMany(
+    entries: Array<{ modName: string; fileName: string }>,
+  ): Promise<void>;
+  onUpdateAllOutdated(): void;
   onToggleEnabled(
     modName: string,
     enabled: boolean,
     relatedModNames?: string[],
-  ): void;
+  ): Promise<void>;
   onGetModToggleImpact(
     modName: string,
     enabled: boolean,
@@ -39,6 +46,13 @@ interface InstalledPageProps {
   onRenameModListProfile(profileId: string, name: string): void;
   onSwitchModListProfile(profileId: string): void;
   onRemoveModListProfile(profileId: string): void;
+  onDiffModListProfiles(
+    leftProfileId: string,
+    rightProfileId: string,
+  ): Promise<import("@shared/types/mod").ModListProfileComparison | null>;
+  onExportModListProfile(profileId: string): void;
+  onImportModListProfile(): void;
+  onPreviewSyncFromModList(): void;
 }
 
 export function InstalledPage({
@@ -49,7 +63,10 @@ export function InstalledPage({
   latestVersions,
   installedConflicts,
   onDelete,
+  onDeleteMany,
   onUpdate,
+  onUpdateMany,
+  onUpdateAllOutdated,
   onToggleEnabled,
   onGetModToggleImpact,
   onOpen,
@@ -58,12 +75,17 @@ export function InstalledPage({
   onRenameModListProfile,
   onSwitchModListProfile,
   onRemoveModListProfile,
+  onDiffModListProfiles,
+  onExportModListProfile,
+  onImportModListProfile,
+  onPreviewSyncFromModList,
 }: InstalledPageProps) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [pendingToggle, setPendingToggle] = useState<ModToggleImpact | null>(
     null,
   );
+  const [selectedFilePaths, setSelectedFilePaths] = useState<string[]>([]);
   const [selectedConflictModName, setSelectedConflictModName] = useState<
     string | null
   >(null);
@@ -102,16 +124,6 @@ export function InstalledPage({
     [installedConflicts],
   );
 
-  const needsUpdateCount = useMemo(
-    () =>
-      items.filter(
-        (item) =>
-          latestVersions[item.name] !== undefined &&
-          latestVersions[item.name] !== item.version,
-      ).length,
-    [items, latestVersions],
-  );
-
   const conflictedModCount = useMemo(
     () =>
       items.filter((item) => (installedConflicts[item.name]?.length ?? 0) > 0)
@@ -119,9 +131,38 @@ export function InstalledPage({
     [installedConflicts, items],
   );
 
+  const outdatedItems = useMemo(
+    () =>
+      items.filter(
+        (item) =>
+          latestVersions[item.name] !== undefined &&
+          latestVersions[item.name] !== item.version,
+      ),
+    [items, latestVersions],
+  );
+
   const selectedConflicts = selectedConflictModName
     ? (installedConflicts[selectedConflictModName] ?? [])
     : [];
+  const selectedItems = filteredItems.filter((item) =>
+    selectedFilePaths.includes(item.filePath),
+  );
+  const selectedOutdatedItems = selectedItems.filter(
+    (item) =>
+      latestVersions[item.name] !== undefined &&
+      latestVersions[item.name] !== item.version,
+  );
+  const allFilteredSelected =
+    filteredItems.length > 0 && selectedItems.length === filteredItems.length;
+
+  useEffect(() => {
+    const availableFilePaths = new Set(
+      filteredItems.map((item) => item.filePath),
+    );
+    setSelectedFilePaths((current) =>
+      current.filter((filePath) => availableFilePaths.has(filePath)),
+    );
+  }, [filteredItems]);
 
   async function handleToggleEnabled(
     modName: string,
@@ -145,6 +186,20 @@ export function InstalledPage({
     onToggleEnabled(modName, enabled);
   }
 
+  function toggleSelectedFilePath(filePath: string): void {
+    setSelectedFilePaths((current) =>
+      current.includes(filePath)
+        ? current.filter((value) => value !== filePath)
+        : [...current, filePath],
+    );
+  }
+
+  function toggleSelectAllFiltered(): void {
+    setSelectedFilePaths(
+      allFilteredSelected ? [] : filteredItems.map((item) => item.filePath),
+    );
+  }
+
   return (
     <BentoTile title="Installed archives">
       <div className="mb-4 flex flex-col gap-3">
@@ -156,6 +211,10 @@ export function InstalledPage({
           onRenameModListProfile={onRenameModListProfile}
           onSwitchModListProfile={onSwitchModListProfile}
           onRemoveModListProfile={onRemoveModListProfile}
+          onDiffModListProfiles={onDiffModListProfiles}
+          onExportModListProfile={onExportModListProfile}
+          onImportModListProfile={onImportModListProfile}
+          onPreviewSyncFromModList={onPreviewSyncFromModList}
         />
 
         <InstalledPageToolbar
@@ -164,11 +223,31 @@ export function InstalledPage({
           filteredCount={filteredItems.length}
           totalCount={items.length}
           statusFilter={statusFilter}
-          needsUpdateCount={needsUpdateCount}
+          needsUpdateCount={outdatedItems.length}
           conflictedCount={conflictedModCount}
+          selectedCount={selectedItems.length}
+          selectedOutdatedCount={selectedOutdatedItems.length}
           onQueryChange={setQuery}
           onStatusFilterChange={setStatusFilter}
+          onUpdateAllOutdated={onUpdateAllOutdated}
           onCheckUpdates={onCheckUpdates}
+          onUpdateSelected={() => {
+            void onUpdateMany(
+              selectedOutdatedItems.map((item) => ({
+                modName: item.name,
+                fileName: item.fileName,
+              })),
+            ).then(() => setSelectedFilePaths([]));
+          }}
+          onDeleteSelected={async () => {
+            await onDeleteMany(
+              selectedItems.map((item) => ({
+                modName: item.name,
+                fileName: item.fileName,
+              })),
+            );
+            setSelectedFilePaths([]);
+          }}
         />
       </div>
 
@@ -191,6 +270,10 @@ export function InstalledPage({
             void handleToggleEnabled(modName, enabled);
           }}
           onShowConflicts={setSelectedConflictModName}
+          selectedFilePaths={selectedFilePaths}
+          onToggleSelectedFilePath={toggleSelectedFilePath}
+          allFilteredSelected={allFilteredSelected}
+          onToggleSelectAllFiltered={toggleSelectAllFiltered}
         />
       </FadeSkeleton>
 

@@ -83,6 +83,13 @@ export function registerIpc(
     safeHandle("mods:installed", modsHandler.installed),
   );
   ipcMain.handle(
+    ipcChannels.mods.previewSyncFromModList,
+    safeHandle(
+      "mods:preview-sync-from-mod-list",
+      modsHandler.previewSyncFromModList,
+    ),
+  );
+  ipcMain.handle(
     ipcChannels.mods.syncFromModList,
     safeHandle("mods:sync-from-mod-list", modsHandler.syncFromModList),
   );
@@ -93,6 +100,13 @@ export function registerIpc(
   ipcMain.handle(
     ipcChannels.mods.queueUpdateInstalled,
     safeHandle("mods:queue-update-installed", modsHandler.queueUpdateInstalled),
+  );
+  ipcMain.handle(
+    ipcChannels.mods.queueUpdateAllInstalled,
+    safeHandle(
+      "mods:queue-update-all-installed",
+      modsHandler.queueUpdateAllInstalled,
+    ),
   );
   ipcMain.handle(
     ipcChannels.mods.setEnabled,
@@ -144,6 +158,24 @@ export function registerIpc(
     safeHandle(
       "mods:remove-mod-list-profile",
       modsHandler.removeModListProfile,
+    ),
+  );
+  ipcMain.handle(
+    ipcChannels.mods.diffModListProfiles,
+    safeHandle("mods:diff-mod-list-profiles", modsHandler.diffModListProfiles),
+  );
+  ipcMain.handle(
+    ipcChannels.mods.exportModListProfile,
+    safeHandle(
+      "mods:export-mod-list-profile",
+      modsHandler.exportModListProfile,
+    ),
+  );
+  ipcMain.handle(
+    ipcChannels.mods.importModListProfile,
+    safeHandle(
+      "mods:import-mod-list-profile",
+      modsHandler.importModListProfile,
     ),
   );
 

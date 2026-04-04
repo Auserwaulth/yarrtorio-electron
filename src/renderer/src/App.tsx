@@ -2,6 +2,7 @@
 // Have fun making sense of this mess. I sure don't.
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { SyncFromModListPreview } from "@shared/types/mod";
 import { AppContent } from "./app/app-content";
 import { type PageKey } from "./app/app-routes";
 import { AppHeader } from "./components/app-header";
@@ -18,6 +19,7 @@ import { useBrowseController } from "./hooks/use-browse-controller";
 import { defaultSettings } from "./app/app-default-settings";
 import { AppLoadingScreen } from "./app/app-loading-screen";
 import { AppToastRegion } from "./app/app-toast-region";
+import { SyncPreviewModal } from "./components/sync-preview-modal";
 
 export function App() {
   const { store, setStore } = useAppStore();
@@ -29,6 +31,13 @@ export function App() {
   } = useBootstrap(setStore);
   const [page, setPage] = useState<PageKey>("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [syncPreviewOpen, setSyncPreviewOpen] = useState(false);
+  const [syncPreview, setSyncPreview] = useState<SyncFromModListPreview | null>(
+    null,
+  );
+  const [syncPreviewLoading, setSyncPreviewLoading] = useState(false);
+  const [syncPreviewBusy, setSyncPreviewBusy] = useState(false);
+  const syncPreviewRequestId = useRef(0);
 
   const settings = store.settings ?? defaultSettings;
 
@@ -138,6 +147,54 @@ export function App() {
     await modsActions.browse(nextFilters);
   }
 
+  async function openSyncPreview(): Promise<void> {
+    const requestId = syncPreviewRequestId.current + 1;
+    syncPreviewRequestId.current = requestId;
+    setSyncPreviewOpen(true);
+    setSyncPreview(null);
+    setSyncPreviewLoading(true);
+
+    try {
+      const preview = await modsActions.previewSyncFromModList(includeDisabled);
+      if (syncPreviewRequestId.current !== requestId) {
+        return;
+      }
+
+      if (preview) {
+        setSyncPreview(preview);
+        return;
+      }
+
+      setSyncPreviewOpen(false);
+    } finally {
+      if (syncPreviewRequestId.current === requestId) {
+        setSyncPreviewLoading(false);
+      }
+    }
+  }
+
+  async function confirmSyncPreview(): Promise<void> {
+    if (!syncPreview) {
+      return;
+    }
+
+    setSyncPreviewBusy(true);
+    try {
+      await modsActions.syncFromModList(syncPreview.includeDisabled);
+      setSyncPreview(null);
+      setSyncPreviewOpen(false);
+    } finally {
+      setSyncPreviewBusy(false);
+    }
+  }
+
+  function closeSyncPreview(): void {
+    syncPreviewRequestId.current += 1;
+    setSyncPreviewOpen(false);
+    setSyncPreview(null);
+    setSyncPreviewLoading(false);
+  }
+
   return (
     <>
       <BentoShell
@@ -162,8 +219,7 @@ export function App() {
             downloads: store.downloads,
             onOpenBrowse: () => setPage("browse"),
             openInstalled: () => setPage("installed"),
-            onSyncFromModList: () =>
-              void modsActions.syncFromModList(includeDisabled),
+            onSyncFromModList: () => void openSyncPreview(),
             onRetryDownload: (download) =>
               void modsActions.retryDownload(download),
             onRetryAllFailed: (downloads) =>
@@ -208,8 +264,7 @@ export function App() {
               version
                 ? void modsActions.queueSelectedMod(modName, version)
                 : undefined,
-            onSyncFromModList: () =>
-              void modsActions.syncFromModList(includeDisabled),
+            onSyncFromModList: () => void openSyncPreview(),
           }}
           installed={{
             settings,
@@ -219,11 +274,16 @@ export function App() {
             latestVersions: store.latestVersions,
             installedConflicts: store.installedConflicts,
             onDelete: (modName, fileName) =>
-              void modsActions.deleteInstalled(modName, fileName),
+              modsActions.deleteInstalled(modName, fileName),
+            onDeleteMany: (entries) => modsActions.bulkDeleteInstalled(entries),
             onUpdate: (modName, fileName) =>
-              void modsActions.queueUpdateInstalled(modName, fileName),
+              modsActions.queueUpdateInstalled(modName, fileName),
+            onUpdateMany: (entries) =>
+              modsActions.bulkQueueUpdateInstalled(entries),
+            onUpdateAllOutdated: () =>
+              void modsActions.queueUpdateAllInstalled(),
             onToggleEnabled: (modName, enabled, relatedModNames) =>
-              void modsActions.setEnabled(modName, enabled, relatedModNames),
+              modsActions.setEnabled(modName, enabled, relatedModNames),
             onGetModToggleImpact: (modName, enabled) =>
               modsActions.getModToggleImpact(modName, enabled),
             onOpen: (modName) => void modsActions.selectMod(modName),
@@ -246,6 +306,13 @@ export function App() {
               void modsActions.switchModListProfile(profileId),
             onRemoveModListProfile: (profileId) =>
               void modsActions.removeModListProfile(profileId),
+            onDiffModListProfiles: (leftProfileId, rightProfileId) =>
+              modsActions.diffModListProfiles(leftProfileId, rightProfileId),
+            onExportModListProfile: (profileId) =>
+              void modsActions.exportModListProfile(profileId),
+            onImportModListProfile: () =>
+              void modsActions.importModListProfile(),
+            onPreviewSyncFromModList: () => void openSyncPreview(),
           }}
           settings={{
             settings,
@@ -308,6 +375,15 @@ export function App() {
       </BentoShell>
 
       <AppToastRegion toasts={toasts} positionClass={toastPositionClass} />
+
+      <SyncPreviewModal
+        open={syncPreviewOpen}
+        preview={syncPreview}
+        loading={syncPreviewLoading}
+        running={syncPreviewBusy}
+        onClose={closeSyncPreview}
+        onConfirm={() => void confirmSyncPreview()}
+      />
 
       <ModDetailsModal
         mod={store.selectedMod}

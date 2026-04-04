@@ -20,9 +20,9 @@ const installedSteps = [
 ] as const;
 
 const syncNotes = [
-  "Sync from mod-list reads the active mod-list.json and makes your installed files match it.",
+  "Sync from mod-list reads the active mod-list.json and previews what it can queue right now.",
   "Missing mods listed in mod-list.json will be downloaded again.",
-  "Mods that are not listed in the active mod-list.json can be removed during sync.",
+  "Installed mods that are no longer in mod-list.json show up as remove candidates in the preview, but sync currently only queues downloads and replacements.",
   "If you use profiles, confirm the correct profile is active before syncing.",
 ] as const;
 

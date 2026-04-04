@@ -263,11 +263,19 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 Areas where contributions are welcome:
 
-- [ ] Tests for reducers, mappers, and settings/mod parser flows
+- [ ] Broader tests for reducers, portal mappers, and settings/mod parser flows
 - [ ] Screenshots and media for the README
-- [ ] Additional theme options
-- [ ] Mod update notifications
-- [ ] Bulk operations for installed mods
+- [x] Additional theme options
+- [x] Bulk update all outdated mods
+- [x] Profile diff / import / export
+- [x] Pre-flight sync preview
+- [ ] Notifications / activity center
+- [ ] Background mod update notifications
+- [x] Expanded bulk operations for installed mods (batch enable/disable/delete/retry)
+- [ ] Factorio account bookmark sync via portal auth/token
+- [ ] Saved browse presets and quick filter recall
+- [ ] User-defined collections or wishlists separate from mod-list profiles
+- [ ] Dependency graph and upgrade impact preview before queueing downloads
 
 ---
 

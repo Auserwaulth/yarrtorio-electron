@@ -8,12 +8,16 @@ export const modsService = {
   browse: (filters: BrowseFilters) => window.electronApi.mods.browse(filters),
   details: (modName: string) => window.electronApi.mods.details(modName),
   installed: () => window.electronApi.mods.installed(),
+  previewSyncFromModList: (includeDisabled: boolean) =>
+    window.electronApi.mods.previewSyncFromModList({ includeDisabled }),
   syncFromModList: (includeDisabled: boolean) =>
     window.electronApi.mods.syncFromModList({ includeDisabled }),
   deleteInstalled: (modName: string, fileName: string) =>
     window.electronApi.mods.deleteInstalled({ modName, fileName }),
   queueUpdateInstalled: (modName: string, fileName: string) =>
     window.electronApi.mods.queueUpdateInstalled({ modName, fileName }),
+  queueUpdateAllInstalled: () =>
+    window.electronApi.mods.queueUpdateAllInstalled(),
   setEnabled: (modName: string, enabled: boolean, relatedModNames?: string[]) =>
     window.electronApi.mods.setEnabled({
       modName,
@@ -37,4 +41,12 @@ export const modsService = {
     window.electronApi.mods.switchModListProfile({ profileId }),
   removeModListProfile: (profileId: string) =>
     window.electronApi.mods.removeModListProfile({ profileId }),
+  diffModListProfiles: (leftProfileId: string, rightProfileId: string) =>
+    window.electronApi.mods.diffModListProfiles({
+      leftProfileId,
+      rightProfileId,
+    }),
+  exportModListProfile: (profileId: string) =>
+    window.electronApi.mods.exportModListProfile({ profileId }),
+  importModListProfile: () => window.electronApi.mods.importModListProfile(),
 };

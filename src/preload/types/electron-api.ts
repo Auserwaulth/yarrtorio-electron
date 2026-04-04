@@ -1,5 +1,6 @@
 import type {
   AppSettings,
+  BulkUpdateInstalledResult,
   BrowseFilters,
   DownloadEnqueueInput,
   BrowseResult,
@@ -9,8 +10,12 @@ import type {
   ModLibraryState,
   ModToggleImpact,
   ModDetails,
+  ModListProfileComparison,
+  ExportModListProfileResult,
+  ImportModListProfileResult,
   ModSummary,
   OperationResult,
+  SyncFromModListPreview,
 } from "@shared/types/mod";
 
 import type { AppMeta } from "@shared/types/app-meta";
@@ -21,6 +26,9 @@ export interface ElectronApi {
     browse(filters: BrowseFilters): Promise<OperationResult<BrowseResult>>;
     details(modName: string): Promise<OperationResult<ModDetails>>;
     installed(): Promise<OperationResult<InstalledMod[]>>;
+    previewSyncFromModList(input: {
+      includeDisabled: boolean;
+    }): Promise<OperationResult<SyncFromModListPreview>>;
     syncFromModList(input: {
       includeDisabled: boolean;
     }): Promise<OperationResult<ModSummary[]>>;
@@ -32,6 +40,9 @@ export interface ElectronApi {
       modName: string;
       fileName: string;
     }): Promise<OperationResult<string>>;
+    queueUpdateAllInstalled(): Promise<
+      OperationResult<BulkUpdateInstalledResult>
+    >;
     setEnabled(input: {
       modName: string;
       enabled: boolean;
@@ -61,6 +72,16 @@ export interface ElectronApi {
     removeModListProfile(input: {
       profileId: string;
     }): Promise<OperationResult<AppSettings>>;
+    diffModListProfiles(input: {
+      leftProfileId: string;
+      rightProfileId: string;
+    }): Promise<OperationResult<ModListProfileComparison>>;
+    exportModListProfile(input: {
+      profileId: string;
+    }): Promise<OperationResult<ExportModListProfileResult>>;
+    importModListProfile(): Promise<
+      OperationResult<ImportModListProfileResult>
+    >;
   };
   downloads: {
     enqueue(request: DownloadEnqueueInput): Promise<OperationResult<string>>;

@@ -1,4 +1,4 @@
-import { app } from "electron";
+import electron from "electron";
 import {
   access,
   copyFile,
@@ -8,16 +8,18 @@ import {
   writeFile,
 } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { modListFileSchema } from "@shared/validation/schemas";
+import { modListFileSchema } from "../../shared/validation/schemas.ts";
 import type {
   AppSettings,
   ModListEntry,
   ModListProfile,
-} from "@shared/types/mod";
+} from "../../shared/types/mod.ts";
 import {
   ensureAccessibleModsFolder,
   ensureConfiguredModsFolder,
-} from "./mod-paths";
+} from "./mod-paths.ts";
+
+const { app } = electron;
 
 const MOD_LIST_PROFILES_DIR = "mod-list-profiles";
 
@@ -126,7 +128,7 @@ async function ensureModListFile(filePath: string): Promise<void> {
     if (normalized.length !== parsed.mods.length) {
       await writeModListFile(filePath, normalized);
     }
-  } catch (error) {
+  } catch {
     await preserveCorruptFile(filePath, "mod-list");
     throw new Error(
       "Existing mod-list file is invalid. A backup copy was preserved.",
@@ -137,6 +139,12 @@ async function ensureModListFile(filePath: string): Promise<void> {
 async function parseModListFile(filePath: string): Promise<ModListEntry[]> {
   await ensureModListFile(filePath);
   return readModListFile(filePath);
+}
+
+export async function parseProfileModList(
+  profileId: string,
+): Promise<ModListEntry[]> {
+  return parseModListFile(await ensureProfileStorageExists(profileId));
 }
 
 export async function ensureActiveModListExists(
@@ -246,6 +254,13 @@ export async function createModListProfileStorage(
   await ensureAccessibleModsFolder(settings.modsFolder);
   const activeMods = await parseModList(settings);
   await writeModListFile(resolveProfileStoragePath(profileId), activeMods);
+}
+
+export async function writeModListProfileStorage(
+  profileId: string,
+  mods: ModListEntry[],
+): Promise<void> {
+  await writeModListFile(resolveProfileStoragePath(profileId), mods);
 }
 
 export async function deleteModListProfileStorage(
