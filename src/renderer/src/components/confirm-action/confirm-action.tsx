@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { PageModal } from "../page-modal";
 
 interface ConfirmActionProps {
-  triggerLabel: string;
+  triggerLabel: ReactNode;
   triggerClassName?: string;
   confirmLabel?: string;
   cancelLabel?: string;

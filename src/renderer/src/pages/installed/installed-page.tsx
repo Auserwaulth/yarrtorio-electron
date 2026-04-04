@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BentoTile } from "../../components/bento-tile";
 import { FadeSkeleton } from "../../components/fade-skeleton";
 import type {
@@ -22,14 +22,16 @@ interface InstalledPageProps {
   pendingModNames: string[];
   latestVersions: Record<string, string>;
   installedConflicts: Record<string, InstalledConflict[]>;
-  onDelete(modName: string, fileName: string): void;
-  onUpdate(modName: string, fileName: string): void;
+  onDelete(modName: string, fileName: string): Promise<void>;
+  onDeleteMany(entries: Array<{ modName: string; fileName: string }>): Promise<void>;
+  onUpdate(modName: string, fileName: string): Promise<void>;
+  onUpdateMany(entries: Array<{ modName: string; fileName: string }>): Promise<void>;
   onUpdateAllOutdated(): void;
   onToggleEnabled(
     modName: string,
     enabled: boolean,
     relatedModNames?: string[],
-  ): void;
+  ): Promise<void>;
   onGetModToggleImpact(
     modName: string,
     enabled: boolean,
@@ -56,7 +58,9 @@ export function InstalledPage({
   latestVersions,
   installedConflicts,
   onDelete,
+  onDeleteMany,
   onUpdate,
+  onUpdateMany,
   onUpdateAllOutdated,
   onToggleEnabled,
   onGetModToggleImpact,
@@ -75,6 +79,7 @@ export function InstalledPage({
   const [pendingToggle, setPendingToggle] = useState<ModToggleImpact | null>(
     null,
   );
+  const [selectedFilePaths, setSelectedFilePaths] = useState<string[]>([]);
   const [selectedConflictModName, setSelectedConflictModName] = useState<
     string | null
   >(null);
@@ -133,6 +138,23 @@ export function InstalledPage({
   const selectedConflicts = selectedConflictModName
     ? (installedConflicts[selectedConflictModName] ?? [])
     : [];
+  const selectedItems = filteredItems.filter((item) =>
+    selectedFilePaths.includes(item.filePath),
+  );
+  const selectedOutdatedItems = selectedItems.filter(
+    (item) =>
+      latestVersions[item.name] !== undefined &&
+      latestVersions[item.name] !== item.version,
+  );
+  const allFilteredSelected =
+    filteredItems.length > 0 && selectedItems.length === filteredItems.length;
+
+  useEffect(() => {
+    const availableFilePaths = new Set(filteredItems.map((item) => item.filePath));
+    setSelectedFilePaths((current) =>
+      current.filter((filePath) => availableFilePaths.has(filePath)),
+    );
+  }, [filteredItems]);
 
   async function handleToggleEnabled(
     modName: string,
@@ -154,6 +176,20 @@ export function InstalledPage({
     }
 
     onToggleEnabled(modName, enabled);
+  }
+
+  function toggleSelectedFilePath(filePath: string): void {
+    setSelectedFilePaths((current) =>
+      current.includes(filePath)
+        ? current.filter((value) => value !== filePath)
+        : [...current, filePath],
+    );
+  }
+
+  function toggleSelectAllFiltered(): void {
+    setSelectedFilePaths((current) =>
+      allFilteredSelected ? [] : filteredItems.map((item) => item.filePath),
+    );
   }
 
   return (
@@ -180,10 +216,29 @@ export function InstalledPage({
           statusFilter={statusFilter}
           needsUpdateCount={outdatedItems.length}
           conflictedCount={conflictedModCount}
+          selectedCount={selectedItems.length}
+          selectedOutdatedCount={selectedOutdatedItems.length}
           onQueryChange={setQuery}
           onStatusFilterChange={setStatusFilter}
           onUpdateAllOutdated={onUpdateAllOutdated}
           onCheckUpdates={onCheckUpdates}
+          onUpdateSelected={() => {
+            void onUpdateMany(
+              selectedOutdatedItems.map((item) => ({
+                modName: item.name,
+                fileName: item.fileName,
+              })),
+            ).then(() => setSelectedFilePaths([]));
+          }}
+          onDeleteSelected={async () => {
+            await onDeleteMany(
+              selectedItems.map((item) => ({
+                modName: item.name,
+                fileName: item.fileName,
+              })),
+            );
+            setSelectedFilePaths([]);
+          }}
         />
       </div>
 
@@ -206,6 +261,10 @@ export function InstalledPage({
             void handleToggleEnabled(modName, enabled);
           }}
           onShowConflicts={setSelectedConflictModName}
+          selectedFilePaths={selectedFilePaths}
+          onToggleSelectedFilePath={toggleSelectedFilePath}
+          allFilteredSelected={allFilteredSelected}
+          onToggleSelectAllFiltered={toggleSelectAllFiltered}
         />
       </FadeSkeleton>
 

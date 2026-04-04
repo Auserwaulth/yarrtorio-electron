@@ -13,6 +13,10 @@ export function InstalledModsTable({
   onOpen,
   onToggleEnabled,
   onShowConflicts,
+  selectedFilePaths,
+  onToggleSelectedFilePath,
+  allFilteredSelected,
+  onToggleSelectAllFiltered,
 }: InstalledModsTableProps) {
   if (items.length === 0) {
     return (
@@ -35,6 +39,15 @@ export function InstalledModsTable({
       <table className="table">
         <thead className="bg-base-100 sticky top-0 z-10">
           <tr>
+            <th className="w-12">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                checked={allFilteredSelected}
+                aria-label="Select all visible installed mods"
+                onChange={() => onToggleSelectAllFiltered()}
+              />
+            </th>
             <th>Name</th>
             <th>Installed</th>
             <th>Latest</th>
@@ -47,9 +60,20 @@ export function InstalledModsTable({
           {filteredItems.map((item) => {
             const rowPending = pendingModNames.includes(item.name);
             const rowBusy = busy || rowPending;
+            const selected = selectedFilePaths.includes(item.filePath);
 
             return (
               <tr key={item.filePath}>
+                <td>
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-sm"
+                    checked={selected}
+                    aria-label={`Select ${item.name}`}
+                    disabled={rowBusy}
+                    onChange={() => onToggleSelectedFilePath(item.filePath)}
+                  />
+                </td>
                 <td>
                   <div className="flex flex-wrap items-center gap-2">
                     <span>{item.name}</span>

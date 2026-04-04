@@ -13,10 +13,14 @@ export interface InstalledPageToolbarProps {
   statusFilter: StatusFilter;
   needsUpdateCount: number;
   conflictedCount: number;
+  selectedCount: number;
+  selectedOutdatedCount: number;
   onQueryChange(value: string): void;
   onStatusFilterChange(value: StatusFilter): void;
   onUpdateAllOutdated(): void;
   onCheckUpdates(): void;
+  onUpdateSelected(): void;
+  onDeleteSelected(): void | Promise<void>;
 }
 
 export type { StatusFilter };

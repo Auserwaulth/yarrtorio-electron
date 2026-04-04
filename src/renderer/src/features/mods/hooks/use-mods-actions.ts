@@ -555,6 +555,111 @@ export function useModsActions(
     });
   }
 
+  async function bulkDeleteInstalled(
+    entries: Array<{ modName: string; fileName: string }>,
+  ): Promise<void> {
+    if (entries.length === 0) {
+      return;
+    }
+
+    const uniqueEntries = Array.from(
+      new Map(
+        entries.map((entry) => [`${entry.modName}:${entry.fileName}`, entry]),
+      ).values(),
+    );
+
+    await runWithPendingInstalledMods(
+      uniqueEntries.map((entry) => entry.modName),
+      async () => {
+        const deletedModNames: string[] = [];
+        const failedModNames: string[] = [];
+
+        for (const entry of uniqueEntries) {
+          const result = await modsService.deleteInstalled(
+            entry.modName,
+            entry.fileName,
+          );
+
+          if (result.ok) {
+            deletedModNames.push(entry.modName);
+          } else {
+            failedModNames.push(entry.modName);
+          }
+        }
+
+        await refreshInstalled();
+
+        if (deletedModNames.length > 0) {
+          options.onSuccess?.(
+            `Deleted ${deletedModNames.length} mod${deletedModNames.length === 1 ? "" : "s"}.`,
+          );
+        }
+
+        if (failedModNames.length > 0) {
+          reportError(
+            `Failed to delete ${formatModNameList(failedModNames)}.`,
+          );
+        }
+      },
+    );
+  }
+
+  async function bulkQueueUpdateInstalled(
+    entries: Array<{ modName: string; fileName: string }>,
+  ): Promise<void> {
+    if (!modsFolder.trim()) {
+      options.onInfo?.(
+        "Set your mods folder in Settings before updating installed mods.",
+      );
+      return;
+    }
+
+    if (entries.length === 0) {
+      return;
+    }
+
+    const uniqueEntries = Array.from(
+      new Map(
+        entries.map((entry) => [`${entry.modName}:${entry.fileName}`, entry]),
+      ).values(),
+    );
+
+    await runWithPendingInstalledMods(
+      uniqueEntries.map((entry) => entry.modName),
+      async () => {
+        const queuedModNames: string[] = [];
+        const failedModNames: string[] = [];
+
+        for (const entry of uniqueEntries) {
+          const result = await modsService.queueUpdateInstalled(
+            entry.modName,
+            entry.fileName,
+          );
+
+          if (result.ok) {
+            queuedModNames.push(entry.modName);
+          } else {
+            failedModNames.push(entry.modName);
+          }
+        }
+
+        await refreshInstalled();
+
+        if (queuedModNames.length > 0) {
+          options.onSuccess?.(
+            `Queued updates for ${queuedModNames.length} mod${queuedModNames.length === 1 ? "" : "s"}.`,
+          );
+        }
+
+        if (failedModNames.length > 0) {
+          reportError(
+            `Failed to queue updates for ${formatModNameList(failedModNames)}.`,
+          );
+        }
+      },
+    );
+  }
+
   async function retryAllFailed(downloads: DownloadProgress[]): Promise<void> {
     const failedDownloads = downloads.filter((d) => d.state === "failed");
     await Promise.all(
@@ -696,7 +801,9 @@ export function useModsActions(
     queueSelectedMod,
     syncFromModList,
     deleteInstalled,
+    bulkDeleteInstalled,
     queueUpdateInstalled,
+    bulkQueueUpdateInstalled,
     queueUpdateAllInstalled,
     getModToggleImpact,
     setEnabled,

@@ -219,13 +219,16 @@ export function App() {
             latestVersions: store.latestVersions,
             installedConflicts: store.installedConflicts,
             onDelete: (modName, fileName) =>
-              void modsActions.deleteInstalled(modName, fileName),
+              modsActions.deleteInstalled(modName, fileName),
+            onDeleteMany: (entries) => modsActions.bulkDeleteInstalled(entries),
             onUpdate: (modName, fileName) =>
-              void modsActions.queueUpdateInstalled(modName, fileName),
+              modsActions.queueUpdateInstalled(modName, fileName),
+            onUpdateMany: (entries) =>
+              modsActions.bulkQueueUpdateInstalled(entries),
             onUpdateAllOutdated: () =>
               void modsActions.queueUpdateAllInstalled(),
             onToggleEnabled: (modName, enabled, relatedModNames) =>
-              void modsActions.setEnabled(modName, enabled, relatedModNames),
+              modsActions.setEnabled(modName, enabled, relatedModNames),
             onGetModToggleImpact: (modName, enabled) =>
               modsActions.getModToggleImpact(modName, enabled),
             onOpen: (modName) => void modsActions.selectMod(modName),
