@@ -1,0 +1,49 @@
+docs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "*.md"
+          - "**/*.md"
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/workflows/**"
+
+renderer:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/renderer/**"
+
+main:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/main/**"
+
+preload:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/preload/**"
+
+shared:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/shared/**"
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.test.ts"
+
+scripts:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "scripts/**"
+
+build:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "package.json"
+          - "package-lock.json"
+          - "electron.vite.config.ts"
+          - "eslint.config.js"
+          - "tsconfig.json"
