@@ -211,23 +211,27 @@ src/
 
 ### Branch Strategy
 
-The recommended branch flow is:
+Yarrtorio uses a simple branch workflow that fits a small project:
 
-- `main` for stable, releasable code
-- `dev` for integration work that is not ready to release yet
-- short-lived branches such as `feature/...`, `fix/...`, and `chore/...` created from `dev`
+- `main` is the default branch and should stay stable and release-ready
+- create short-lived branches such as `feature/...`, `fix/...`, and `chore/...` from `main`
+- open pull requests back into `main`
 
 Typical flow:
 
-1. Update `dev` from the latest `main`
-2. Create a short-lived branch from `dev`
+1. Update your local `main`
+2. Create a short-lived branch from `main`
 3. Make your changes following the coding standards
 4. Run `npm run lint`, `npm run format`, and `npm run typecheck`
-5. Merge the short-lived branch back into `dev`
-6. Merge `dev` into `main` when the release set is ready
+5. Open a Pull Request into `main`
+6. Merge into `main` when the change is ready
 7. Create a release from `main`
 
-If you are working on a very small solo change, branching directly from `main` is also fine, but `main` should stay release-ready.
+Examples:
+
+- `feature/activity-center`
+- `fix/download-progress-badge`
+- `chore/update-readme`
 
 ### Pull Requests
 
@@ -239,7 +243,7 @@ If you are working on a very small solo change, branching directly from `main` i
 6. **Run** `npm run typecheck`
 7. **Commit** your changes with clear commit messages
 8. **Push** your branch
-9. **Open** a Pull Request into `dev` for in-progress integration or into `main` for a small direct release-ready change
+9. **Open** a Pull Request into `main`
 
 ### Releases
 
