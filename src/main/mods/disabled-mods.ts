@@ -1,8 +1,10 @@
-import { DEFAULT_SKIP_MODS } from "@shared/constants";
-import type { ModListEntry } from "@shared/types/mod";
+import { DEFAULT_SKIP_MODS } from "../../shared/constants/index.ts";
+import type { ModListEntry } from "../../shared/types/mod.ts";
 
 export function isManagedModName(name: string): boolean {
-  return !DEFAULT_SKIP_MODS.includes(name as (typeof DEFAULT_SKIP_MODS)[number]);
+  return !DEFAULT_SKIP_MODS.includes(
+    name as (typeof DEFAULT_SKIP_MODS)[number],
+  );
 }
 
 export function filterSyncCandidates(entries: ModListEntry[]): ModListEntry[] {
@@ -20,6 +22,7 @@ export function filterManagedMods(
   includeDisabled: boolean,
 ): ModListEntry[] {
   return entries.filter(
-    (entry) => isManagedModName(entry.name) && (includeDisabled || entry.enabled),
+    (entry) =>
+      isManagedModName(entry.name) && (includeDisabled || entry.enabled),
   );
 }

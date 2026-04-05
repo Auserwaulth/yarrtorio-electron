@@ -18,7 +18,8 @@
     "dist:linux:arm64": "npm run build && electron-builder --linux AppImage --arm64",
     "format": "prettier . --write",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "lint:fix:typecheck:prettier": "npm run lint:fix && npm run typecheck && npm run format"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",

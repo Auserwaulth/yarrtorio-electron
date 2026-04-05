@@ -163,7 +163,8 @@ export function createModsHandler(
       if (managedMods.length === 0) {
         return {
           ok: false,
-          error: "No syncable mods were found in mod-list. Base game and official expansion entries are skipped.",
+          error:
+            "No syncable mods were found in mod-list. Base game and official expansion entries are skipped.",
         };
       }
 
@@ -211,7 +212,8 @@ export function createModsHandler(
       if (managedMods.length === 0) {
         return {
           ok: false,
-          error: "No syncable mods were found in mod-list. Base game and official expansion entries are skipped.",
+          error:
+            "No syncable mods were found in mod-list. Base game and official expansion entries are skipped.",
         };
       }
 

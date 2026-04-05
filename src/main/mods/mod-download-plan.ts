@@ -1,15 +1,11 @@
-import { listInstalledMods } from "./mod-installer";
-import {
-  ensureAccessibleModsFolder,
-  resolvePathWithinFolder,
-} from "./mod-paths";
-import { fetchModFull } from "./portal/portal-api";
-import { mapRelease } from "./portal/portal-mappers";
+import { resolvePathWithinFolder } from "./mod-paths.ts";
+import { mapRelease } from "./portal/portal-mappers.ts";
 import type {
   DownloadRequest,
   ModDependency,
   ModReleaseSummary,
-} from "@shared/types/mod";
+} from "../../shared/types/mod.ts";
+import type { ApiMod, ApiRelease } from "./portal/portal-types.ts";
 
 interface ResolveDownloadPlanOptions {
   modName: string;
@@ -19,6 +15,33 @@ interface ResolveDownloadPlanOptions {
   existingFilePath?: string | undefined;
   includeDependencies: boolean;
 }
+
+interface ResolveDownloadPlanDependencies {
+  ensureAccessibleModsFolder(folder: string): Promise<string>;
+  listInstalledMods(
+    targetFolder: string,
+  ): Promise<Array<{ name: string; filePath: string }>>;
+  resolvePathWithinFolder(targetFolder: string, candidate: string): string;
+  fetchModFull(modName: string): Promise<ApiMod>;
+}
+
+const defaultDependencies: ResolveDownloadPlanDependencies = {
+  ensureAccessibleModsFolder: async (folder) => {
+    const module = await import("./mod-paths.ts");
+    return module.ensureAccessibleModsFolder(folder);
+  },
+  listInstalledMods: async (targetFolder) => {
+    const module = await import("./mod-installer.ts");
+    return module.listInstalledMods(targetFolder);
+  },
+  resolvePathWithinFolder: (targetFolder, candidate) => {
+    return resolvePathWithinFolder(targetFolder, candidate);
+  },
+  fetchModFull: async (modName) => {
+    const module = await import("./portal/portal-api.ts");
+    return module.fetchModFull(modName);
+  },
+};
 
 function findRelease(releases: ModReleaseSummary[], version: string) {
   return releases.find((release) => release.version === version);
@@ -30,9 +53,12 @@ function isRequiredDownloadableDependency(dependency: ModDependency): boolean {
 
 export async function resolveDownloadPlan(
   options: ResolveDownloadPlanOptions,
+  dependencies: ResolveDownloadPlanDependencies = defaultDependencies,
 ): Promise<DownloadRequest[]> {
-  const targetFolder = await ensureAccessibleModsFolder(options.targetFolder);
-  const installed = await listInstalledMods(targetFolder);
+  const targetFolder = await dependencies.ensureAccessibleModsFolder(
+    options.targetFolder,
+  );
+  const installed = await dependencies.listInstalledMods(targetFolder);
   const installedByName = new Map(installed.map((item) => [item.name, item]));
   const requests: DownloadRequest[] = [];
   const seen = new Set<string>();
@@ -48,11 +74,14 @@ export async function resolveDownloadPlan(
     seen.add(key);
 
     if (isRoot && explicitExistingFilePath) {
-      resolvePathWithinFolder(targetFolder, explicitExistingFilePath);
+      dependencies.resolvePathWithinFolder(
+        targetFolder,
+        explicitExistingFilePath,
+      );
     }
 
-    const mod = await fetchModFull(modName);
-    const releases = (mod.releases ?? []).map(mapRelease);
+    const mod = await dependencies.fetchModFull(modName);
+    const releases = ((mod.releases ?? []) as ApiRelease[]).map(mapRelease);
     const release = findRelease(releases, version);
 
     if (!release) {
@@ -63,7 +92,7 @@ export async function resolveDownloadPlan(
       for (const dependency of release.dependencies.filter(
         isRequiredDownloadableDependency,
       )) {
-        const dependencyMod = await fetchModFull(dependency.name);
+        const dependencyMod = await dependencies.fetchModFull(dependency.name);
         const dependencyVersion =
           dependencyMod.latest_release?.version ??
           dependencyMod.releases?.at(-1)?.version;

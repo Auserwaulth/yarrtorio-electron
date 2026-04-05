@@ -1,13 +1,13 @@
-import {
+import type {
   ModCategory,
   ModDependency,
   ModDetails,
   ModSummary,
   ModTag,
-} from "@shared/types/mod";
-import { cleanPortalValue } from "./portal-html";
-import { firstDefined } from "./portal-utils";
-import { ApiMod, ApiRelease } from "./portal-types";
+} from "../../../shared/types/mod.ts";
+import { cleanPortalValue } from "./portal-html.ts";
+import { firstDefined } from "./portal-utils.ts";
+import type { ApiMod, ApiRelease } from "./portal-types.ts";
 
 const NON_DOWNLOADABLE_DEPENDENCIES = new Map<string, string>([
   ["base", "Built into Factorio."],
@@ -66,7 +66,7 @@ export function parseDependency(raw: string): ModDependency | null {
     raw: value,
     name,
     kind,
-    versionConstraint: versionConstraint,
+    versionConstraint,
     downloadable: !skippedReason,
     reasonSkipped: skippedReason,
   };

@@ -35,10 +35,7 @@ function PreviewSkeleton() {
 
       <div className="tabs tabs-box bg-base-200 p-1">
         {Array.from({ length: 5 }).map((_, index) => (
-          <div
-            key={index}
-            className="skeleton h-10 flex-1 rounded-lg"
-          />
+          <div key={index} className="skeleton h-10 flex-1 rounded-lg" />
         ))}
       </div>
 
@@ -198,8 +195,8 @@ export function SyncPreviewModal({
         <div>
           <h3 className="text-lg font-semibold">Sync from mod-list preview</h3>
           <p className="text-base-content/70 mt-1 text-sm">
-            Missing archives will be queued for download, matching archives
-            will be skipped, and remove candidates are preview-only for now.
+            Missing archives will be queued for download, matching archives will
+            be skipped, and remove candidates are preview-only for now.
           </p>
         </div>
       </div>
@@ -218,7 +215,8 @@ export function SyncPreviewModal({
                 {preview.downloadCount === 1 ? "" : "s"}
               </span>
               <span className="badge badge-outline">
-                {preview.updateCount} update{preview.updateCount === 1 ? "" : "s"}
+                {preview.updateCount} update
+                {preview.updateCount === 1 ? "" : "s"}
               </span>
               <span className="badge badge-outline">
                 {preview.skipCount} skip{preview.skipCount === 1 ? "" : "s"}
@@ -273,16 +271,18 @@ export function SyncPreviewModal({
         <button
           className="btn btn-primary"
           type="button"
-          disabled={loading || running || !preview || preview.queueableCount === 0}
+          disabled={
+            loading || running || !preview || preview.queueableCount === 0
+          }
           onClick={onConfirm}
         >
           {loading
             ? "Preparing preview..."
             : running
-            ? "Queueing..."
-            : preview && preview.queueableCount > 0
-              ? `Queue sync actions (${preview.queueableCount})`
-              : "Nothing to queue"}
+              ? "Queueing..."
+              : preview && preview.queueableCount > 0
+                ? `Queue sync actions (${preview.queueableCount})`
+                : "Nothing to queue"}
         </button>
       </div>
     </PageModal>
